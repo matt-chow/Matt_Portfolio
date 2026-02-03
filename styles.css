@@ -1,0 +1,218 @@
+/* Cleaned stylesheet: pastel minimalist theme, good contrast, section cards for About & Projects */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+:root{
+    --bg-1: #F0EAD6;
+    --bg-2: #F0EAD6;
+    --accent-red-1: #FFE9E9; /* light pastel red */
+    --accent-red-2: #FFD6D6; /* slightly darker */
+    --accent-red-3: #FFCBCB; /* subtle highlight */
+    --btn-color: #FFFFFF;
+    --shadow: 0 8px 24px rgba(16, 42, 67, 0.08);
+
+    /* centralized parallax background data-URLs (minimal SVG shapes, pastel red tones) */
+    --parallax-about: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400' preserveAspectRatio='xMidYMid slice'><rect width='100%25' height='100%25' fill='transparent'/><circle cx='700' cy='80' r='160' fill='%23FFE9E9' opacity='0.95'/><circle cx='120' cy='320' r='120' fill='%23FFD6D6' opacity='0.92'/></svg>");
+    --parallax-projects: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400' preserveAspectRatio='xMidYMid slice'><rect width='100%25' height='100%25' fill='transparent'/><g transform='rotate(-12 400 200)'><rect x='-200' y='0' width='1200' height='260' fill='%23FFECEC' opacity='0.94'/></g><circle cx='640' cy='60' r='80' fill='%23FFD6D6' opacity='0.9'/></svg>");
+    /* simplified contact background: one soft circle, minimal and subtle */
+    --parallax-contact: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400' preserveAspectRatio='xMidYMid slice'><rect width='100%25' height='100%25' fill='transparent'/><circle cx='640' cy='120' r='220' fill='%23FFD6D6' opacity='0.12'/></svg>");
+}
+
+html,body{
+    height:100%;
+    margin:0;
+    padding:0;
+}
+body{
+    font-family: 'Source Sans Pro', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
+    padding:0 20px;
+}
+
+/* Smooth scrolling for in-page navigation */
+html {
+    scroll-behavior: smooth;
+}
+
+header {
+    color: #cc3131;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 1em;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+section {
+    padding: 6em 2em;
+    position: relative;
+    overflow: visible;
+}
+
+.project-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Project stack: cards that flip on scroll */
+
+/* remove project-stack/sticky styles (static layout preferred) */
+
+/* When project has flipped, hide its content backface */
+.project.flip-out {
+    pointer-events: none;
+}
+
+footer {
+    background: #F0EAD6;
+    color: #cc3131;
+    padding: 1em;
+    text-align: center;
+}
+
+/* Add classes for animations later. */
+
+/* Hero / header centered content (replaces top-left nav styles) */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1.2rem;
+    box-sizing: border-box;
+    background: #F0EAD6;
+}
+
+.hero h1 {
+    font-size: clamp(2rem, 6vw, 4rem);
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.subtitle {
+    margin: 0;
+    font-weight: 600;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.btn {
+    color: #d83c3c;
+    background: transparent;
+    border: 1px solid rgba(214, 24, 24, 0.384);
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 160ms ease, transform 120ms ease, border-color 160ms ease;
+}
+
+.btn:hover,
+.btn:focus {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.28);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+/* Pinned buttons (when hero scrolls away) */
+.hero-buttons.pinned {
+    /* visual styling applied when pinned; positioning handled by .hero-buttons-fixed container */
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(243, 243, 243, 0.6);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+/* Fixed container used when buttons are pinned. JS will create/remove this element. */
+.hero-buttons-fixed {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* allow buttons inside to receive pointer events */
+}
+
+.hero-buttons-fixed .hero-buttons {
+    pointer-events: auto;
+}
+
+/* placeholder used to preserve layout when buttons move out */
+.hero-buttons-placeholder {
+    display: inline-block;
+}
+
+/* Reveal visible state */
+.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Parallax helper: ensure transformed elements use their own layer for smoother animation */
+[data-parallax-speed] {
+    will-change: transform;
+}
+
+/* Parallax background layer (behind section content) */
+/* remove parallax background layers — sections are plain */
+
+
+/* sections are simple — no glass boxes or tint overlays */
+.section-content { display: block; }
+
+/* When a section is revealed, animate the content box in */
+section.visible .section-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+@media (max-width: 700px) {
+    .section-content {
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin: 0 1rem;
+    }
+    }
+
+/* Slight visual separation for projects */
+.project {
+    padding: 1.2rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+}
+
+/* Make sure header transitions feel smooth when opacity changes */
+.header {
+    transition: opacity 560ms linear, transform 420ms linear;
+}
