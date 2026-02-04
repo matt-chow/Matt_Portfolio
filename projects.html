@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Matthew C</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <a href="index.html" class="logo">MC</a>
+            </div>
+            <div class="navbar-center nav-links-desktop">
+                <a href="index.html#work" class="nav-link">Work</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="index.html#softwares" class="nav-link">Softwares</a>
+            </div>
+            <div class="navbar-right">
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <a href="index.html#work" class="mobile-nav-link">Work</a>
+            <a href="index.html#projects" class="mobile-nav-link">Projects</a>
+            <a href="index.html#softwares" class="mobile-nav-link">Softwares</a>
+            <div class="theme-toggle-container">
+                <label class="theme-toggle">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="theme-label">Dark Mode</span>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Projects Section -->
+        <section class="projects-page">
+            <div class="container">
+                <h1 class="page-title">All Projects</h1>
+                <div class="projects-grid-expanded">
+                    <!-- Project Card 1 -->
+                    <div class="project-card" data-project-id="1">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">E-Commerce Platform</h3>
+                            <p class="project-description">A full-featured online shopping platform with real-time inventory management.</p>
+                            <div class="project-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">Node.js</span>
+                                <span class="tag">MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="project-card" data-project-id="2">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Data Analytics Dashboard</h3>
+                            <p class="project-description">Interactive dashboard for visualizing complex datasets and business metrics.</p>
+                            <div class="project-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">Tableau</span>
+                                <span class="tag">SQL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card" data-project-id="3">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">AI Chat Application</h3>
+                            <p class="project-description">Real-time chat application powered by machine learning for intelligent responses.</p>
+                            <div class="project-tags">
+                                <span class="tag">TensorFlow</span>
+                                <span class="tag">WebSocket</span>
+                                <span class="tag">TypeScript</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 4 -->
+                    <div class="project-card" data-project-id="4">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Mobile Task Manager</h3>
+                            <p class="project-description">Cross-platform task management application with offline support and sync capabilities.</p>
+                            <div class="project-tags">
+                                <span class="tag">React Native</span>
+                                <span class="tag">Firebase</span>
+                                <span class="tag">TypeScript</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 5 -->
+                    <div class="project-card" data-project-id="5">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Social Media Analytics</h3>
+                            <p class="project-description">Advanced analytics platform for tracking social media metrics and audience engagement.</p>
+                            <div class="project-tags">
+                                <span class="tag">Vue.js</span>
+                                <span class="tag">Python</span>
+                                <span class="tag">PostgreSQL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 6 -->
+                    <div class="project-card" data-project-id="6">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Cloud Storage Service</h3>
+                            <p class="project-description">Secure cloud storage solution with end-to-end encryption and collaborative features.</p>
+                            <div class="project-tags">
+                                <span class="tag">Go</span>
+                                <span class="tag">AWS</span>
+                                <span class="tag">Docker</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 7 -->
+                    <div class="project-card" data-project-id="7">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Machine Learning Pipeline</h3>
+                            <p class="project-description">Automated ML pipeline for model training, validation, and deployment with monitoring.</p>
+                            <div class="project-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">TensorFlow</span>
+                                <span class="tag">Kubernetes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 8 -->
+                    <div class="project-card" data-project-id="8">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">API Rate Limiter</h3>
+                            <p class="project-description">High-performance distributed rate limiting service for API protection and traffic control.</p>
+                            <div class="project-tags">
+                                <span class="tag">Go</span>
+                                <span class="tag">Redis</span>
+                                <span class="tag">gRPC</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 9 -->
+                    <div class="project-card" data-project-id="9">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Real-Time Collaboration Tool</h3>
+                            <p class="project-description">Collaborative document editing tool with real-time synchronization and version control.</p>
+                            <div class="project-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">WebSocket</span>
+                                <span class="tag">Node.js</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Matthew C. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matthew C - Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <a href="#top" class="logo">MC</a>
+            </div>
+            <div class="navbar-center nav-links-desktop">
+                <a href="#work" class="nav-link">Work</a>
+                <a href="#projects" class="nav-link">Projects</a>
+                <a href="#softwares" class="nav-link">Softwares</a>
+            </div>
+            <div class="navbar-right">
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <a href="#work" class="mobile-nav-link">Work</a>
+            <a href="#projects" class="mobile-nav-link">Projects</a>
+            <a href="#softwares" class="mobile-nav-link">Softwares</a>
+            <div class="theme-toggle-container">
+                <label class="theme-toggle">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="theme-label">Dark Mode</span>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="top" class="hero">
+            <div class="container">
+                <h1 class="hero-title">Hello, I'm Matthew C</h1>
+                <p class="hero-subtitle">
+                    I'm a passionate developer and creative problem-solver with a keen interest in building elegant solutions 
+                    to complex problems. With experience across full-stack development, data science, and cloud technologies, 
+                    I love turning ideas into impactful digital products. Welcome to my corner of the web!
+                </p>
+            </div>
+        </section>
+
+        <!-- Work Section -->
+        <section id="work" class="work">
+            <div class="container">
+                <h2 class="section-title">Work</h2>
+                <div class="timeline">
+                    <!-- Work Item 1 -->
+                    <div class="timeline-item">
+                        <div class="timeline-left">
+                            <div class="company-logo">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'%3ETC%3C/text%3E%3C/svg%3E" alt="Tech Company">
+                            </div>
+                            <p class="employment-dates">2023 - Present</p>
+                        </div>
+                        <div class="timeline-right">
+                            <h3 class="job-title">Full Stack Developer</h3>
+                            <p class="company-name">Tech Company</p>
+                            <div class="job-description-container">
+                                <p class="job-description">
+                                    Led the development of customer-facing web applications using React and Node.js. 
+                                    <span class="expand-arrow">▼</span>
+                                </p>
+                                <div class="job-details hidden">
+                                    <ul>
+                                        <li>Architected and maintained scalable REST APIs serving 100k+ daily users</li>
+                                        <li>Reduced page load time by 40% through code splitting and lazy loading optimization</li>
+                                        <li>Mentored 3 junior developers and established best practices for code reviews</li>
+                                        <li>Implemented comprehensive testing strategies (unit, integration, and e2e tests)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Item 2 -->
+                    <div class="timeline-item">
+                        <div class="timeline-left">
+                            <div class="company-logo">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='35' fill='white' text-anchor='middle' dy='.3em'%3EDS%3C/text%3E%3C/svg%3E" alt="Data Solutions">
+                            </div>
+                            <p class="employment-dates">2021 - 2023</p>
+                        </div>
+                        <div class="timeline-right">
+                            <h3 class="job-title">Data Science Intern</h3>
+                            <p class="company-name">Data Solutions Inc</p>
+                            <div class="job-description-container">
+                                <p class="job-description">
+                                    Developed machine learning models to predict customer churn and improve retention strategies.
+                                    <span class="expand-arrow">▼</span>
+                                </p>
+                                <div class="job-details hidden">
+                                    <ul>
+                                        <li>Built predictive models using Python (scikit-learn, TensorFlow) with 85% accuracy</li>
+                                        <li>Conducted exploratory data analysis on datasets with 1M+ records</li>
+                                        <li>Created interactive dashboards using Tableau for stakeholder reporting</li>
+                                        <li>Published findings in internal knowledge base, improving team efficiency by 25%</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Item 3 -->
+                    <div class="timeline-item">
+                        <div class="timeline-left">
+                            <div class="company-logo">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='30' fill='white' text-anchor='middle' dy='.3em'%3EWS%3C/text%3E%3C/svg%3E" alt="Web Studio">
+                            </div>
+                            <p class="employment-dates">2020 - 2021</p>
+                        </div>
+                        <div class="timeline-right">
+                            <h3 class="job-title">Frontend Developer</h3>
+                            <p class="company-name">Web Studio</p>
+                            <div class="job-description-container">
+                                <p class="job-description">
+                                    Designed and implemented responsive user interfaces for multiple client projects.
+                                    <span class="expand-arrow">▼</span>
+                                </p>
+                                <div class="job-details hidden">
+                                    <ul>
+                                        <li>Built responsive web applications using HTML, CSS, and vanilla JavaScript</li>
+                                        <li>Collaborated with UX/UI designers to implement pixel-perfect designs</li>
+                                        <li>Optimized website performance achieving 95+ Lighthouse scores</li>
+                                        <li>Maintained compatibility across modern browsers and mobile devices</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="projects">
+            <div class="container">
+                <div class="projects-header">
+                    <h2 class="section-title">Projects</h2>
+                    <a href="projects.html" class="view-more-link">view more →</a>
+                </div>
+                <div class="projects-grid">
+                    <!-- Project Card 1 -->
+                    <div class="project-card" data-project-id="1">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">E-Commerce Platform</h3>
+                            <p class="project-description">A full-featured online shopping platform with real-time inventory management.</p>
+                            <div class="project-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">Node.js</span>
+                                <span class="tag">MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 2 -->
+                    <div class="project-card" data-project-id="2">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">Data Analytics Dashboard</h3>
+                            <p class="project-description">Interactive dashboard for visualizing complex datasets and business metrics.</p>
+                            <div class="project-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">Tableau</span>
+                                <span class="tag">SQL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card" data-project-id="3">
+                        <div class="project-image">
+                            <div class="placeholder-image">
+                                <span>Project Image</span>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3 class="project-name">AI Chat Application</h3>
+                            <p class="project-description">Real-time chat application powered by machine learning for intelligent responses.</p>
+                            <div class="project-tags">
+                                <span class="tag">TensorFlow</span>
+                                <span class="tag">WebSocket</span>
+                                <span class="tag">TypeScript</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Softwares Section -->
+        <section id="softwares" class="softwares">
+            <div class="container">
+                <h2 class="section-title">Softwares</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="data-science">Data Science</button>
+                    <button class="filter-btn" data-filter="front-end">Front End</button>
+                    <button class="filter-btn" data-filter="backend">Backend</button>
+                </div>
+                <div class="software-grid">
+                    <!-- Software Items with category data attributes -->
+                    <div class="software-item" data-categories="front-end">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2361dafb' width='100' height='100'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E" alt="React">
+                        </div>
+                        <p class="software-name">React</p>
+                    </div>
+
+                    <div class="software-item" data-categories="backend">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23339933' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='50' fill='white' text-anchor='middle' dy='.3em'%3E.js%3C/text%3E%3C/svg%3E" alt="Node.js">
+                        </div>
+                        <p class="software-name">Node.js</p>
+                    </div>
+
+                    <div class="software-item" data-categories="data-science">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%233776ab' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='60' fill='white' text-anchor='middle' dy='.3em'%3EPy%3C/text%3E%3C/svg%3E" alt="Python">
+                        </div>
+                        <p class="software-name">Python</p>
+                    </div>
+
+                    <div class="software-item" data-categories="backend">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23336791' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'%3ESQL%3C/text%3E%3C/svg%3E" alt="PostgreSQL">
+                        </div>
+                        <p class="software-name">PostgreSQL</p>
+                    </div>
+
+                    <div class="software-item" data-categories="front-end">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23F7DF1E' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='50' fill='black' text-anchor='middle' dy='.3em'%3EJS%3C/text%3E%3C/svg%3E" alt="JavaScript">
+                        </div>
+                        <p class="software-name">JavaScript</p>
+                    </div>
+
+                    <div class="software-item" data-categories="data-science front-end">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23173a58' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='35' fill='white' text-anchor='middle' dy='.3em'%3ETF%3C/text%3E%3C/svg%3E" alt="TensorFlow">
+                        </div>
+                        <p class="software-name">TensorFlow</p>
+                    </div>
+
+                    <div class="software-item" data-categories="backend">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2313aa52' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'%3EGo%3C/text%3E%3C/svg%3E" alt="Go">
+                        </div>
+                        <p class="software-name">Go</p>
+                    </div>
+
+                    <div class="software-item" data-categories="data-science">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='35' fill='white' text-anchor='middle' dy='.3em'%3EPD%3C/text%3E%3C/svg%3E" alt="Pandas">
+                        </div>
+                        <p class="software-name">Pandas</p>
+                    </div>
+
+                    <div class="software-item" data-categories="front-end">
+                        <div class="software-logo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230077b6' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'%3ECSS%3C/text%3E%3C/svg%3E" alt="CSS">
+                        </div>
+                        <p class="software-name">CSS</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Matthew C. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+
+
+
+
+
+</html>
