@@ -813,6 +813,29 @@ main {
     padding-bottom: var(--spacing-lg);
 }
 
+/* Featured jobs only - reduced spacing */
+/*
+ * FIX: Disconnect the height of the left and right columns.
+ * By changing align-items from the default 'stretch' to 'start',
+ * the right card will no longer be forced to match the height of the left logo container.
+ */
+.timeline > .timeline-item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: start; /* This is the critical change */
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+}
+
+/*
+ * FIX: Adjust the logo size for featured jobs for better visibility.
+ */
+.timeline > .timeline-item > .timeline-item-left .company-logo {
+    width: 120px;
+    height: 120px;
+}
+
 .timeline-item::before {
     content: '';
     position: absolute;
@@ -872,6 +895,16 @@ main {
     border-left: 3px solid var(--accent-color);
     transition: all var(--transition-smooth);
     cursor: pointer;
+}
+
+/* Featured jobs only - minimalist ghost container */
+.timeline > .timeline-item > .timeline-item-right {
+    padding: 0.5rem var(--spacing-md);
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 8px;
+    min-height: auto;
 }
 
 .timeline-item-right:hover {
