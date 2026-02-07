@@ -512,46 +512,34 @@ main {
 }
 
 #connector-fill-1 {
-    animation: master-connector-1 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
 #connector-fill-2 {
-    animation: master-connector-2 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 2s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
 #connector-fill-3 {
-    animation: master-connector-3 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 4s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
-@keyframes master-connector-1 {
-    0%, 100% {
+@keyframes fill-connector-path {
+    from {
         width: 0%;
     }
-    25%, 75% {
-        width: 100%;
-    }
-    99% {
-        width: 100%;
-    }
-}
-
-@keyframes master-connector-2 {
-    0%, 100% {
-        width: 0%;
-    }
-    50%, 75% {
-        width: 100%;
-    }
-    99% {
-        width: 100%;
-    }
-}
-
-@keyframes master-connector-3 {
-    0%, 100% {
-        width: 0%;
-    }
-    75%, 99% {
+    to {
         width: 100%;
     }
 }
