@@ -958,6 +958,13 @@ main {
     transition: transform 0.5s var(--easing-smooth);
 }
 
+/*
+ * Rotate the chevron when the parent container is open.
+ */
+.timeline-item.is-open .details-chevron {
+    transform: rotate(90deg);
+}
+
 .job-status {
     display: inline-flex;
     align-items: center;
@@ -977,6 +984,35 @@ main {
 .job-status.part-time {
     background-color: #4b82c3;
     color: #fff;
+}
+
+/* Container for a group of skill tags */
+.skill-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* Individual skill tag style */
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.85;
+}
+
+/* Styling for the icon inside the tag */
+.skill-tag i {
+    font-size: 0.9em;
+    color: var(--accent-color);
 }
 
 .job-details {
