@@ -5,7 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matthew C - Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" 
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -47,13 +53,128 @@
     <main>
         <!-- Hero Section -->
         <section id="top" class="hero">
-            <div class="container">
-                <h1 class="hero-title">Hello, I'm Matthew C</h1>
-                <p class="hero-subtitle">
-                    I'm a passionate developer and creative problem-solver with a keen interest in building elegant solutions 
-                    to complex problems. With experience across full-stack development, data science, and cloud technologies, 
-                    I love turning ideas into impactful digital products. Welcome to my corner of the web!
-                </p>
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <h1 class="hero-title">Hello, I'm Matthew Chow</h1>
+                    <div class="hero-links">
+                        <a href="https://github.com/matt-chow" target="_blank" class="hero-link github-link" aria-label="GitHub">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/mchowcl/" target="_blank" class="hero-link linkedin-link" aria-label="LinkedIn">
+                            <i class="fa-brands fa-linkedin"></i>
+                        </a>
+                        <a href="mailto:mchowcl@gmail.com" class="hero-link gmail-link" aria-label="Gmail">
+                            <i class="fa-solid fa-envelope"></i>
+                        </a>
+                        <a href="https://matt-chow.github.io/resume/cv.pdf" target="_blank" class="hero-link resume-link">
+                            <i class="fa-solid fa-link"></i>
+                            <span>Resume</span>
+                        </a>
+                    </div>
+                    <p class="hero-subtitle">
+                        I'm a <strong>data scientist</strong> and I love telling stories with data. I really enjoy learning new things and I'm 
+                        always looking for new opportunities to grow. My experience spans across data analytics, machine learning,
+                        and full-stack web development. 
+                    </p>
+
+                    <p class="hero-location">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Toronto, Canada
+                    </p>
+
+                </div>
+                <div class="hero-animation">
+                    <div class="pipeline-container">
+                        <!-- The animated particle that travels through the pipeline -->
+                        <div class="pipeline-particle"></div>
+
+                        <!-- The path the particle follows -->
+                        <div class="pipeline-path"></div>
+
+                        <!-- Stage 1: Collect -->
+                        <div class="pipeline-stage" id="stage-collect">
+                            <div class="stage-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                    <polyline points="13 2 13 9 20 9"></polyline>
+                                    <line x1="8" y1="13" x2="16" y2="13"></line>
+                                    <line x1="8" y1="17" x2="16" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="stage-label">Collect</div>
+                        </div>
+
+                        <!-- Connector 1 to 2 -->
+                        <div class="pipeline-connector" id="connector-1-2">
+                            <div class="pipeline-connector-bg"></div>
+                            <div class="pipeline-connector-fill" id="connector-fill-1"></div>
+                        </div>
+
+                        <!-- Stage 2: Clean -->
+                        <div class="pipeline-stage" id="stage-clean">
+                            <div class="stage-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                            </div>
+                            <div class="stage-label">Clean</div>
+                        </div>
+
+                        <!-- Connector 2 to 3 -->
+                        <div class="pipeline-connector" id="connector-2-3">
+                            <div class="pipeline-connector-bg"></div>
+                            <div class="pipeline-connector-fill" id="connector-fill-2"></div>
+                        </div>
+
+                        <!-- Stage 3: Model -->
+                        <div class="pipeline-stage" id="stage-model">
+                            <div class="stage-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                </svg>
+                            </div>
+                            <div class="stage-label">Model</div>
+                        </div>
+
+                        <!-- Connector 3 to 4 -->
+                        <div class="pipeline-connector" id="connector-3-4">
+                            <div class="pipeline-connector-bg"></div>
+                            <div class="pipeline-connector-fill" id="connector-fill-3"></div>
+                        </div>
+
+                        <!-- Stage 4: Analyze -->
+                        <div class="pipeline-stage" id="stage-analyze">
+                            <div class="stage-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                            </div>
+                            <div class="stage-label">Analyze</div>
+                            <div class="output-container">
+                                <div class="output-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg>
+                                </div>
+                                <div class="output-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 6 13.5 15.5 8 9.5 1 17"></polyline>
+                                        <polyline points="17 6 23 6 23 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="output-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="1 17 5 12 10 17 19 5"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -66,13 +187,13 @@
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="company-logo">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'%3ETC%3C/text%3E%3C/svg%3E" alt="Tech Company">
+                                <img src="https://s3.amazonaws.com/resumator/customer_20221006215101_YMF6W5CGEFJQ4Q2X/logos/20240422200640_tpa_logo_evmedallionmiddle.png" alt="Toronto Parking Authority">
                             </div>
-                            <p class="employment-dates">2023 - Present</p>
+                            <p class="employment-dates">Jan 2026 - Present</p>
                         </div>
                         <div class="timeline-right">
-                            <h3 class="job-title">Full Stack Developer</h3>
-                            <p class="company-name">Tech Company</p>
+                            <h3 class="job-title">Data Analyst</h3>
+                            <p class="company-name">Toronto Parking Authority</p>
                             <div class="job-description-container">
                                 <p class="job-description">
                                     Led the development of customer-facing web applications using React and Node.js. 
@@ -94,13 +215,13 @@
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="company-logo">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='35' fill='white' text-anchor='middle' dy='.3em'%3EDS%3C/text%3E%3C/svg%3E" alt="Data Solutions">
+                                <img src="https://venterra.com/wp-content/uploads/2022/12/University_of_Waterloo_seal.svg.png" alt="University of Waterloo">
                             </div>
-                            <p class="employment-dates">2021 - 2023</p>
+                            <p class="employment-dates">May 2025 - August 2025</p>
                         </div>
                         <div class="timeline-right">
-                            <h3 class="job-title">Data Science Intern</h3>
-                            <p class="company-name">Data Solutions Inc</p>
+                            <h3 class="job-title">Data Scientist</h3>
+                            <p class="company-name">University of Waterloo</p>
                             <div class="job-description-container">
                                 <p class="job-description">
                                     Developed machine learning models to predict customer churn and improve retention strategies.
@@ -122,13 +243,13 @@
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="company-logo">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23c94f6d' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='30' fill='white' text-anchor='middle' dy='.3em'%3EWS%3C/text%3E%3C/svg%3E" alt="Web Studio">
+                                <img src="https://venterra.com/wp-content/uploads/2022/12/University_of_Waterloo_seal.svg.png" alt="University of Waterloo">
                             </div>
-                            <p class="employment-dates">2020 - 2021</p>
+                            <p class="employment-dates">Sept 2024 - Dec 2024</p>
                         </div>
                         <div class="timeline-right">
-                            <h3 class="job-title">Frontend Developer</h3>
-                            <p class="company-name">Web Studio</p>
+                            <h3 class="job-title">Data Analyst</h3>
+                            <p class="company-name">University of Waterloo</p>
                             <div class="job-description-container">
                                 <p class="job-description">
                                     Designed and implemented responsive user interfaces for multiple client projects.
