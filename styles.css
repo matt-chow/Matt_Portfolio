@@ -665,6 +665,7 @@ main {
     width: 20px;
     height: 20px;
     color: white;
+    fill: white;
     stroke: white;
 }
 
@@ -1006,6 +1007,139 @@ main {
 
 .timeline-branch .timeline-item {
     margin-bottom: 0;
+}
+
+/* ===================================
+   COMPACT TIMELINE ITEMS (HIDDEN JOBS)
+   =================================== */
+
+#hidden-jobs .timeline-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    grid-template-columns: unset;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: nowrap;
+}
+
+#hidden-jobs .timeline-item::before {
+    width: 10px;
+    height: 10px;
+    left: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#hidden-jobs .timeline-item-left {
+    width: auto;
+    text-align: left;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+#hidden-jobs .company-logo {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border-radius: 4px;
+}
+
+#hidden-jobs .company-logo img {
+    padding: 4px;
+}
+
+#hidden-jobs .timeline-date {
+    font-size: 0.75rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+#hidden-jobs .timeline-item-right {
+    flex: 1;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    min-height: auto;
+}
+
+#hidden-jobs .timeline-card-header {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 200px;
+}
+
+#hidden-jobs .timeline-card-title {
+    gap: var(--spacing-xs);
+}
+
+#hidden-jobs .job-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#hidden-jobs .job-identity .separator {
+    opacity: 0.5;
+    font-weight: 300;
+}
+
+#hidden-jobs .job-title {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+#hidden-jobs .company-name {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+#hidden-jobs .details-trigger {
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+#hidden-jobs .details-trigger span {
+    font-size: 0.75rem;
+}
+
+#hidden-jobs .details-trigger .details-chevron {
+    width: 12px;
+    height: 12px;
+}
+
+#hidden-jobs .job-details {
+    width: 100%;
+    padding-left: 52px;
+    margin-top: 0;
+    border-top: none;
+}
+
+#hidden-jobs .timeline-item.is-open .job-details {
+    max-height: 150px;
+}
+
+#hidden-jobs .job-details ul {
+    margin: var(--spacing-xs) 0;
+}
+
+#hidden-jobs .job-details li {
+    font-size: 0.75rem;
+    padding: 2px 0;
+    padding-left: var(--spacing-sm);
+}
+
+#hidden-jobs .job-details li::before {
+    font-size: 0.7rem;
 }
 
 .show-more-container {
