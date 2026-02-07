@@ -4,10 +4,10 @@
 
 :root {
     /* Light Mode Colors */
-    --bg-light: #f2e5d9;
+    --bg-light: #dfd5cd;
     --text-dark: #303446;
-    --accent-color: #c94f6d;
-    --accent-light: #e8b4c9;
+    --accent-color: #9e5466;
+    --accent-light: #e09ab6;
     --white: #ffffff;
     
     /* Dark Mode Colors */
@@ -957,7 +957,8 @@ main {
     transition: transform var(--transition-smooth);
 }
 
-.timeline-item.is-open .details-chevron {
+     padding: 6px 12px;
+     font-size: 0.9rem;
     transform: rotate(90deg);
 }
 
@@ -1101,6 +1102,10 @@ main {
     gap: var(--spacing-sm);
     flex-wrap: wrap;
     min-height: auto;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-left: 2px solid rgba(201, 79, 109, 0.35);
 }
 
 #hidden-jobs .timeline-card-header {
@@ -1181,32 +1186,38 @@ main {
     margin: var(--spacing-lg) 0 var(--spacing-xl);
 }
 
-#show-more-btn {
+.is-initially-hidden {
+    display: none;
+}
+
+.show-more-container button {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
+    gap: 6px;
+    padding: 6px 12px;
     border-radius: 999px;
     border: 1px solid var(--accent-light);
     background: transparent;
     color: var(--accent-color);
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all var(--transition-fast);
 }
 
-#show-more-btn:hover {
+.show-more-container button:hover {
     background: rgba(201, 79, 109, 0.08);
     transform: translateY(-1px);
 }
 
-#show-more-btn .chevron-down {
-    width: 16px;
-    height: 16px;
+.show-more-container .chevron-down,
+.show-more-container .up-chevron {
+    width: 14px;
+    height: 14px;
     transition: transform var(--transition-smooth);
 }
 
-#show-more-btn.is-active .chevron-down {
+#show-more-btn-bottom .up-chevron {
     transform: rotate(180deg);
 }
 
@@ -1378,7 +1389,7 @@ html.dark-mode .tag {
     flex-wrap: wrap;
 }
 
-.filter-btn {
+.show-more-container button {
     padding: var(--spacing-sm) var(--spacing-lg);
     background-color: transparent;
     border: 2px solid var(--accent-light);
@@ -1392,20 +1403,16 @@ html.dark-mode .tag {
 
 .filter-btn:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+.show-more-container button:hover {
 }
 
 .filter-btn.active {
     background-color: var(--accent-color);
-    border-color: var(--accent-color);
+.show-more-container .chevron-down {
     color: white;
 }
 
 .software-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-lg);
 }
 
 .software-item {

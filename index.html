@@ -222,7 +222,7 @@
                             <div class="company-logo">
                                 <img src="images\commissionedlogo.png" alt="Commissioned">
                             </div>
-                            <p class="timeline-date">Feb 2026 - Present</p>
+                            <p class="timeline-date">Jan 2026 - Present</p>
                         </div>
                         <div class="timeline-item-right">
                             <div class="timeline-card-header">
@@ -315,8 +315,9 @@
                         </div>
                     </div>
 
-                    <div class="show-more-container">
-                        <button id="show-more-btn">
+                    <!-- Button 1: Visible when collapsed -->
+                    <div id="show-more-btn-top" class="show-more-container">
+                        <button>
                             <span>View Full History</span>
                             <svg class="chevron-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -483,6 +484,16 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Button 2: Visible when expanded -->
+                    <div id="show-more-btn-bottom" class="show-more-container is-initially-hidden">
+                        <button>
+                            <span>Show Less</span>
+                            <svg class="up-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>

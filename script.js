@@ -115,26 +115,65 @@ function initWorkExpand() {
 // ===================================
 
 function initShowMore() {
-    const button = document.getElementById('show-more-btn');
+    const topButton = document.getElementById('show-more-btn-top');
+    const bottomButton = document.getElementById('show-more-btn-bottom');
     const hiddenJobs = document.getElementById('hidden-jobs');
 
-    if (!button || !hiddenJobs) {
+    if (!topButton || !bottomButton || !hiddenJobs) {
         return;
     }
 
-    button.addEventListener('click', function(e) {
+    const showTopButton = () => {
+        topButton.classList.remove('is-initially-hidden');
+    };
+
+    const hideTopButton = () => {
+        topButton.classList.add('is-initially-hidden');
+    };
+
+    const showBottomButton = () => {
+        bottomButton.classList.remove('is-initially-hidden');
+    };
+
+    const hideBottomButton = () => {
+        bottomButton.classList.add('is-initially-hidden');
+    };
+
+    const toggleJobs = (e) => {
         e.preventDefault();
 
-        hiddenJobs.classList.toggle('is-hidden');
-        button.classList.toggle('is-active');
+        const isCurrentlyHidden = hiddenJobs.classList.contains('is-hidden');
 
-        const label = button.querySelector('span');
-        if (label) {
-            label.textContent = hiddenJobs.classList.contains('is-hidden')
-                ? 'View Full History'
-                : 'Show Less';
+        if (isCurrentlyHidden) {
+            hiddenJobs.classList.remove('is-hidden');
+            hideTopButton();
+            showBottomButton();
+        } else {
+            hiddenJobs.classList.add('is-hidden');
+            hideBottomButton();
+
+            const onTransitionEnd = (event) => {
+                if (event.target !== hiddenJobs || event.propertyName !== 'max-height') {
+                    return;
+                }
+                showTopButton();
+                hiddenJobs.removeEventListener('transitionend', onTransitionEnd);
+            };
+
+            hiddenJobs.addEventListener('transitionend', onTransitionEnd);
         }
-    });
+    };
+
+    topButton.addEventListener('click', toggleJobs);
+    bottomButton.addEventListener('click', toggleJobs);
+
+    if (hiddenJobs.classList.contains('is-hidden')) {
+        showTopButton();
+        hideBottomButton();
+    } else {
+        hideTopButton();
+        showBottomButton();
+    }
 }
 
 // ===================================
