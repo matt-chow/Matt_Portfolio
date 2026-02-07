@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     initHamburgerMenu();
     initWorkExpand();
+    initShowMore();
     initProjectCards();
     initSoftwareFilter();
 });
@@ -106,6 +107,33 @@ function initWorkExpand() {
                 item.classList.toggle('is-open');
             }
         });
+    });
+}
+
+// ===================================
+// WORK SECTION - SHOW MORE/LESS
+// ===================================
+
+function initShowMore() {
+    const button = document.getElementById('show-more-btn');
+    const hiddenJobs = document.getElementById('hidden-jobs');
+
+    if (!button || !hiddenJobs) {
+        return;
+    }
+
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        hiddenJobs.classList.toggle('is-hidden');
+        button.classList.toggle('is-active');
+
+        const label = button.querySelector('span');
+        if (label) {
+            label.textContent = hiddenJobs.classList.contains('is-hidden')
+                ? 'View Full History'
+                : 'Show Less';
+        }
     });
 }
 
