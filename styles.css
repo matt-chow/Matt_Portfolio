@@ -681,45 +681,45 @@ main {
 }
 
 @keyframes pop-out-1 {
-    0%, 74.5% {
+    0%, 72% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    75%, 85% {
+    75%, 92% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    85%, 100% {
+    92%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
 }
 
 @keyframes pop-out-2 {
-    0%, 75.5% {
+    0%, 73% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    76%, 86% {
+    76%, 93% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    86%, 100% {
+    93%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
 }
 
 @keyframes pop-out-3 {
-    0%, 76.5% {
+    0%, 74% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    77%, 87% {
+    77%, 94% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    87%, 100% {
+    94%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
