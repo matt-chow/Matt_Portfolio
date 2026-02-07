@@ -95,19 +95,16 @@ function closeMobileMenu() {
 // ===================================
 
 function initWorkExpand() {
-    const jobDescriptions = document.querySelectorAll('.job-description');
-    
-    jobDescriptions.forEach(description => {
-        description.addEventListener('click', function(e) {
+    const jobCards = document.querySelectorAll('.timeline-item-right');
+
+    jobCards.forEach(card => {
+        card.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            const container = this.closest('.job-description-container');
-            const details = container.querySelector('.job-details');
-            const arrow = this.querySelector('.expand-arrow');
-            
-            // Toggle expanded state
-            container.classList.toggle('expanded');
-            details.classList.toggle('expanded');
+
+            const item = this.closest('.timeline-item');
+            if (item) {
+                item.classList.toggle('is-open');
+            }
         });
     });
 }
