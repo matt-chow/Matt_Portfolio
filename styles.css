@@ -4,10 +4,10 @@
 
 :root {
     /* Light Mode Colors */
-    --bg-light: #f2e5d9;
+    --bg-light: #dfd5cd;
     --text-dark: #303446;
-    --accent-color: #c94f6d;
-    --accent-light: #e8b4c9;
+    --accent-color: #9e5466;
+    --accent-light: #e09ab6;
     --white: #ffffff;
     
     /* Dark Mode Colors */
@@ -23,8 +23,9 @@
     --spacing-2xl: 4rem;
     
     /* Transitions */
-    --transition-smooth: 0.3s ease-in-out;
-    --transition-fast: 0.15s ease;
+    --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.5s var(--easing-smooth);
+    --transition-fast: 0.25s var(--easing-smooth);
 }
 
 /* Light Mode (Default) */
@@ -512,46 +513,34 @@ main {
 }
 
 #connector-fill-1 {
-    animation: master-connector-1 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
 #connector-fill-2 {
-    animation: master-connector-2 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 2s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
 #connector-fill-3 {
-    animation: master-connector-3 8s ease-in-out infinite;
+    animation-name: fill-connector-path;
+    animation-duration: 2s;
+    animation-delay: 4s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
 }
 
-@keyframes master-connector-1 {
-    0%, 100% {
+@keyframes fill-connector-path {
+    from {
         width: 0%;
     }
-    25%, 75% {
-        width: 100%;
-    }
-    99% {
-        width: 100%;
-    }
-}
-
-@keyframes master-connector-2 {
-    0%, 100% {
-        width: 0%;
-    }
-    50%, 75% {
-        width: 100%;
-    }
-    99% {
-        width: 100%;
-    }
-}
-
-@keyframes master-connector-3 {
-    0%, 100% {
-        width: 0%;
-    }
-    75%, 99% {
+    to {
         width: 100%;
     }
 }
@@ -677,6 +666,7 @@ main {
     width: 20px;
     height: 20px;
     color: white;
+    fill: white;
     stroke: white;
 }
 
@@ -693,45 +683,45 @@ main {
 }
 
 @keyframes pop-out-1 {
-    0%, 74.5% {
+    0%, 72% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    75%, 85% {
+    75%, 92% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    85%, 100% {
+    92%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
 }
 
 @keyframes pop-out-2 {
-    0%, 75.5% {
+    0%, 73% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    76%, 86% {
+    76%, 93% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    86%, 100% {
+    93%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
 }
 
 @keyframes pop-out-3 {
-    0%, 76.5% {
+    0%, 74% {
         opacity: 0;
         transform: translateY(10px) scale(0.3);
     }
-    77%, 87% {
+    77%, 94% {
         opacity: 1;
         transform: translateY(-40px) scale(1);
     }
-    87%, 100% {
+    94%, 100% {
         opacity: 0;
         transform: translateY(-80px) scale(1);
     }
@@ -816,11 +806,35 @@ main {
 }
 
 .timeline-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 150px 1fr;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
     position: relative;
     padding-bottom: var(--spacing-lg);
+}
+
+/* Featured jobs only - reduced spacing */
+/*
+ * FIX: Disconnect the height of the left and right columns.
+ * By changing align-items from the default 'stretch' to 'start',
+ * the right card will no longer be forced to match the height of the left logo container.
+ */
+.timeline > .timeline-item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: start; /* This is the critical change */
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+}
+
+/*
+ * FIX: Adjust the logo size for featured jobs for better visibility.
+ */
+.timeline > .timeline-item > .timeline-item-left .company-logo {
+    width: 120px;
+    height: 120px;
 }
 
 .timeline-item::before {
@@ -840,14 +854,17 @@ main {
     transform: scale(1.2);
 }
 
-.timeline-left {
-    flex: 0 0 150px;
+.timeline-item-left {
+    width: 150px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .company-logo {
-    width: 140px;
-    height: 140px;
+    width: 150px;
+    height: 150px;
     margin: 0 auto var(--spacing-md);
     border-radius: 8px;
     overflow: hidden;
@@ -865,31 +882,57 @@ main {
     padding: 8px;
 }
 
-.employment-dates {
-    font-size: 0.95rem;
+.timeline-date {
+    font-size: 0.86rem;
     color: var(--accent-color);
     font-weight: 600;
 }
 
-.timeline-right {
+.timeline-item-right {
     flex: 1;
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background-color: rgba(201, 79, 109, 0.05);
     border-radius: 8px;
     border-left: 3px solid var(--accent-color);
     transition: all var(--transition-smooth);
+    cursor: pointer;
 }
 
-.timeline-right:hover {
+/* Featured jobs only - minimalist ghost container */
+.timeline > .timeline-item > .timeline-item-right {
+    padding: 0.5rem var(--spacing-md);
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent-color);
+    border-radius: 8px;
+    min-height: auto;
+}
+
+.timeline-item-right:hover {
     transform: translateX(5px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xs);
+}
+
+.timeline-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
 }
 
 .job-title {
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--text-color);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 0;
 }
 
 .company-name {
@@ -899,32 +942,41 @@ main {
     margin-bottom: var(--spacing-md);
 }
 
-.job-description-container {
-    position: relative;
-}
-
-.job-description {
-    font-size: 0.95rem;
-    color: var(--text-color);
-    cursor: pointer;
-    display: flex;
+.details-trigger {
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    transition: color var(--transition-fast);
-}
-
-.job-description:hover {
-    color: var(--accent-color);
-}
-
-.expand-arrow {
-    display: inline-block;
+    gap: 6px;
     font-size: 0.85rem;
-    transition: transform var(--transition-smooth);
+    font-weight: 600;
+    color: var(--accent-color);
+    white-space: nowrap;
 }
 
-.job-description-container.expanded .expand-arrow {
-    transform: rotate(180deg);
+.details-chevron {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.5s var(--easing-smooth);
+}
+
+.job-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.job-status.full-time {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.job-status.part-time {
+    background-color: #4b82c3;
+    color: #fff;
 }
 
 .job-details {
@@ -934,12 +986,14 @@ main {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: all var(--transition-smooth);
+    transform: translateY(-10px);
+    transition: max-height 0.5s var(--easing-smooth), opacity 0.5s var(--easing-smooth), transform 0.5s var(--easing-smooth);
 }
 
-.job-details.expanded {
+.timeline-item.is-open .job-details {
     max-height: 500px;
     opacity: 1;
+    transform: translateY(0);
 }
 
 .job-details ul {
@@ -960,6 +1014,217 @@ main {
     left: 0;
     color: var(--accent-color);
     font-weight: bold;
+}
+
+.timeline-branch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    padding-left: 0;
+}
+
+.timeline-branch::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 18px;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent-color), var(--accent-light));
+}
+
+.timeline-branch .timeline-item {
+    margin-bottom: 0;
+}
+
+/* ===================================
+   COMPACT TIMELINE ITEMS (HIDDEN JOBS)
+   =================================== */
+
+#hidden-jobs .timeline-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    grid-template-columns: unset;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: nowrap;
+}
+
+#hidden-jobs .timeline-item::before {
+    width: 10px;
+    height: 10px;
+    left: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#hidden-jobs .timeline-item-left {
+    width: auto;
+    text-align: left;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+#hidden-jobs .company-logo {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border-radius: 4px;
+}
+
+#hidden-jobs .company-logo img {
+    padding: 4px;
+}
+
+#hidden-jobs .timeline-date {
+    font-size: 0.75rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+#hidden-jobs .timeline-item-right {
+    flex: 1;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    min-height: auto;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-left: 2px solid rgba(201, 79, 109, 0.35);
+}
+
+#hidden-jobs .timeline-card-header {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 200px;
+}
+
+#hidden-jobs .timeline-card-title {
+    gap: var(--spacing-xs);
+}
+
+#hidden-jobs .job-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#hidden-jobs .job-identity .separator {
+    opacity: 0.5;
+    font-weight: 300;
+}
+
+#hidden-jobs .job-title {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+#hidden-jobs .company-name {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+#hidden-jobs .details-trigger {
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+#hidden-jobs .details-trigger span {
+    font-size: 0.75rem;
+}
+
+#hidden-jobs .details-trigger .details-chevron {
+    width: 12px;
+    height: 12px;
+}
+
+#hidden-jobs .job-details {
+    width: 100%;
+    padding-left: 52px;
+    margin-top: 0;
+    border-top: none;
+}
+
+#hidden-jobs .timeline-item.is-open .job-details {
+    max-height: 150px;
+}
+
+#hidden-jobs .job-details ul {
+    margin: var(--spacing-xs) 0;
+}
+
+#hidden-jobs .job-details li {
+    font-size: 0.75rem;
+    padding: 2px 0;
+    padding-left: var(--spacing-sm);
+}
+
+#hidden-jobs .job-details li::before {
+    font-size: 0.7rem;
+}
+
+.show-more-container {
+    display: flex;
+    justify-content: center;
+    margin: var(--spacing-lg) 0 var(--spacing-xl);
+}
+
+.is-initially-hidden {
+    display: none;
+}
+
+.show-more-container button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--accent-light);
+    background: transparent;
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.show-more-container button:hover {
+    background: rgba(201, 79, 109, 0.08);
+    transform: translateY(-1px);
+}
+
+.show-more-container .chevron-down,
+.show-more-container .up-chevron {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.5s var(--easing-smooth);
+}
+
+#show-more-btn-bottom .up-chevron {
+    transform: rotate(180deg);
+}
+
+#hidden-jobs {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.6s var(--easing-smooth);
+}
+
+#hidden-jobs.is-hidden {
+    max-height: 0;
 }
 
 /* ===================================
@@ -1120,7 +1385,7 @@ html.dark-mode .tag {
     flex-wrap: wrap;
 }
 
-.filter-btn {
+.show-more-container button {
     padding: var(--spacing-sm) var(--spacing-lg);
     background-color: transparent;
     border: 2px solid var(--accent-light);
@@ -1134,20 +1399,16 @@ html.dark-mode .tag {
 
 .filter-btn:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
+.show-more-container button:hover {
 }
 
 .filter-btn.active {
     background-color: var(--accent-color);
-    border-color: var(--accent-color);
+.show-more-container .chevron-down {
     color: white;
 }
 
 .software-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-lg);
 }
 
 .software-item {
@@ -1267,7 +1528,7 @@ html.dark-mode .tag {
     }
 
     .timeline-item {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: var(--spacing-md);
     }
 
@@ -1275,12 +1536,16 @@ html.dark-mode .tag {
         left: -20px;
     }
 
-    .timeline-left {
-        flex: none;
+    .timeline-item-left {
+        width: 100%;
     }
 
-    .timeline-right {
-        padding: var(--spacing-md);
+    .timeline-item-right {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .timeline-branch {
+        grid-template-columns: 1fr;
     }
 
     .projects-header {

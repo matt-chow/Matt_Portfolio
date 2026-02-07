@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     initHamburgerMenu();
     initWorkExpand();
+    initShowMore();
     initProjectCards();
     initSoftwareFilter();
 });
@@ -95,21 +96,84 @@ function closeMobileMenu() {
 // ===================================
 
 function initWorkExpand() {
-    const jobDescriptions = document.querySelectorAll('.job-description');
-    
-    jobDescriptions.forEach(description => {
-        description.addEventListener('click', function(e) {
+    const jobCards = document.querySelectorAll('.timeline-item-right');
+
+    jobCards.forEach(card => {
+        card.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            const container = this.closest('.job-description-container');
-            const details = container.querySelector('.job-details');
-            const arrow = this.querySelector('.expand-arrow');
-            
-            // Toggle expanded state
-            container.classList.toggle('expanded');
-            details.classList.toggle('expanded');
+
+            const item = this.closest('.timeline-item');
+            if (item) {
+                item.classList.toggle('is-open');
+            }
         });
     });
+}
+
+// ===================================
+// WORK SECTION - SHOW MORE/LESS
+// ===================================
+
+function initShowMore() {
+    const topButton = document.getElementById('show-more-btn-top');
+    const bottomButton = document.getElementById('show-more-btn-bottom');
+    const hiddenJobs = document.getElementById('hidden-jobs');
+
+    if (!topButton || !bottomButton || !hiddenJobs) {
+        return;
+    }
+
+    const showTopButton = () => {
+        topButton.classList.remove('is-initially-hidden');
+    };
+
+    const hideTopButton = () => {
+        topButton.classList.add('is-initially-hidden');
+    };
+
+    const showBottomButton = () => {
+        bottomButton.classList.remove('is-initially-hidden');
+    };
+
+    const hideBottomButton = () => {
+        bottomButton.classList.add('is-initially-hidden');
+    };
+
+    const toggleJobs = (e) => {
+        e.preventDefault();
+
+        const isCurrentlyHidden = hiddenJobs.classList.contains('is-hidden');
+
+        if (isCurrentlyHidden) {
+            hiddenJobs.classList.remove('is-hidden');
+            hideTopButton();
+            showBottomButton();
+        } else {
+            hiddenJobs.classList.add('is-hidden');
+            hideBottomButton();
+
+            const onTransitionEnd = (event) => {
+                if (event.target !== hiddenJobs || event.propertyName !== 'max-height') {
+                    return;
+                }
+                showTopButton();
+                hiddenJobs.removeEventListener('transitionend', onTransitionEnd);
+            };
+
+            hiddenJobs.addEventListener('transitionend', onTransitionEnd);
+        }
+    };
+
+    topButton.addEventListener('click', toggleJobs);
+    bottomButton.addEventListener('click', toggleJobs);
+
+    if (hiddenJobs.classList.contains('is-hidden')) {
+        showTopButton();
+        hideBottomButton();
+    } else {
+        hideTopButton();
+        showBottomButton();
+    }
 }
 
 // ===================================
