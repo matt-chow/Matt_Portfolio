@@ -749,6 +749,12 @@ main {
     }
 }
 
+/* Animation class - triggered by JS on scroll */
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards !important;
+    will-change: opacity, transform;
+}
+
 /* ===================================
    SECTION TITLES
    =================================== */
@@ -812,6 +818,8 @@ main {
     margin-bottom: var(--spacing-xl);
     position: relative;
     padding-bottom: var(--spacing-lg);
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 /* Featured jobs only - reduced spacing */
@@ -1328,6 +1336,8 @@ main {
     transition: all var(--transition-smooth);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 html.dark-mode .project-card {
@@ -1345,6 +1355,73 @@ html.dark-mode .project-card {
     height: 200px;
     background: linear-gradient(135deg, var(--accent-light), var(--accent-color));
     overflow: hidden;
+    position: relative;
+}
+
+/* Badge Stack Layout for Project 1 */
+.badge-stack-container {
+    position: relative;
+    background: linear-gradient(135deg, var(--accent-light), var(--accent-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-stack-container img {
+    position: absolute;
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    transition: filter var(--transition-fast);
+}
+
+.badge-left {
+    left: 10%;
+    transform: rotate(-8deg);
+    z-index: 1;
+}
+
+.badge-center {
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.badge-right {
+    right: 10%;
+    transform: rotate(8deg);
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .badge-stack-container img {
+        height: 100px;
+    }
+    
+    .badge-left {
+        left: 5%;
+    }
+    
+    .badge-right {
+        right: 5%;
+    }
+}
+
+@media (max-width: 480px) {
+    .badge-stack-container img {
+        height: 70px;
+    }
+    
+    .badge-left {
+        left: 0%;
+        margin-left: var(--spacing-xs);
+    }
+    
+    .badge-right {
+        right: 0%;
+        margin-right: var(--spacing-xs);
+    }
 }
 
 .placeholder-image {
@@ -1386,7 +1463,9 @@ html.dark-mode .project-card {
 }
 
 .tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: var(--spacing-xs) var(--spacing-sm);
     background-color: var(--accent-light);
     color: white;
@@ -1396,6 +1475,11 @@ html.dark-mode .project-card {
     transition: all var(--transition-fast);
 }
 
+.tag i {
+    font-size: 0.9em;
+    color: white;
+}
+
 html.dark-mode .tag {
     background-color: var(--accent-color);
 }
@@ -1403,6 +1487,90 @@ html.dark-mode .tag {
 .tag:hover {
     background-color: var(--accent-color);
     transform: scale(1.05);
+}
+
+/* In-Progress Badge with Spinning Gear */
+.in-progress-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: var(--accent-color);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 12px rgba(201, 79, 109, 0.4);
+    z-index: 10;
+}
+
+.in-progress-badge i {
+    font-size: 14px;
+    color: white;
+    animation: spin 2s linear infinite;
+}
+
+.in-progress-badge span {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Skills Toggle Button */
+.skills-toggle {
+    cursor: pointer;
+    border: none !important;
+    padding: var(--spacing-xs) var(--spacing-sm) !important;
+    background-color: rgba(201, 79, 109, 0.2) !important;
+    color: var(--accent-color) !important;
+    transition: all var(--transition-fast);
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+}
+
+.skills-toggle i {
+    font-size: 0.9em !important;
+    color: var(--accent-color) !important;
+    transition: transform var(--transition-fast);
+}
+
+.skills-toggle:hover {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+
+.skills-toggle:hover i {
+    color: white !important;
+    transform: rotate(180deg);
+}
+
+/* Secondary Skills Container */
+.secondary-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s var(--easing-smooth), max-height 0.3s var(--easing-smooth);
+}
+
+.secondary-skills.expanded {
+    opacity: 1;
+    max-height: 500px;
 }
 
 /* ===================================
@@ -1439,7 +1607,8 @@ html.dark-mode .tag {
     border-radius: 12px;
     transition: all var(--transition-smooth);
     cursor: pointer;
-    opacity: 1;
+    opacity: 0;
+    transform: translateY(30px);
     animation: fadeIn var(--transition-smooth);
 }
 

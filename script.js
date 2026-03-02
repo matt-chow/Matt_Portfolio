@@ -184,12 +184,45 @@ function initProjectCards() {
     const projectCards = document.querySelectorAll('.project-card');
     
     projectCards.forEach(card => {
-        card.addEventListener('click', function() {
+        const isComingSoon = card.getAttribute('data-coming-soon') === 'true';
+        
+        card.addEventListener('click', function(e) {
             const projectId = this.getAttribute('data-project-id');
+            
+            if (isComingSoon) {
+                e.preventDefault();
+                alert('This project repository is currently private. Coming soon!');
+                return;
+            }
+            
             // Navigate to project detail page (currently disabled as per spec)
             // window.location.href = `project-detail.html?id=${projectId}`;
             console.log('Project clicked:', projectId);
         });
+
+        // Handle skills toggle click
+        const skillsToggle = card.querySelector('.skills-toggle');
+        if (skillsToggle) {
+            skillsToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isExpanded = this.getAttribute('data-expanded') === 'true';
+                const secondarySkills = card.querySelector('.secondary-skills');
+                
+                if (!isExpanded) {
+                    secondarySkills.classList.add('expanded');
+                    secondarySkills.style.display = 'flex';
+                    this.setAttribute('data-expanded', 'true');
+                    this.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+                } else {
+                    secondarySkills.classList.remove('expanded');
+                    setTimeout(() => {
+                        secondarySkills.style.display = 'none';
+                    }, 300);
+                    this.setAttribute('data-expanded', 'false');
+                    this.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+                }
+            });
+        }
     });
 }
 
@@ -249,7 +282,7 @@ const observerOptions = {
 const observer = new IntersectionObserver(function(entries) {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+            entry.target.classList.add('animate-fade-in-up');
             observer.unobserve(entry.target);
         }
     });

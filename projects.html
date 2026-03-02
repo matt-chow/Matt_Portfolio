@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects - Matthew C</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css\" 
+    integrity=\"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==\" 
+    crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\" />
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -50,18 +53,20 @@
                 <div class="projects-grid-expanded">
                     <!-- Project Card 1 -->
                     <div class="project-card" data-project-id="1">
-                        <div class="project-image">
-                            <div class="placeholder-image">
-                                <span>Project Image</span>
-                            </div>
+                        <div class="project-image badge-stack-container">
+                            <img src="images/ceblr.png" alt="CEBLR" class="badge-left">
+                            <img src="images/usports.svg" alt="USports" class="badge-center">
+                            <img src="images/rvolleydata.svg" alt="RVolleyData" class="badge-right">
                         </div>
                         <div class="project-info">
-                            <h3 class="project-name">E-Commerce Platform</h3>
-                            <p class="project-description">A full-featured online shopping platform with real-time inventory management.</p>
+                            <h3 class="project-name">R and Python Packages</h3>
+                            <p class="project-description">Collection of reusable R and Python packages for data analysis and web scraping with automated CI/CD deployment.</p>
                             <div class="project-tags">
-                                <span class="tag">React</span>
-                                <span class="tag">Node.js</span>
-                                <span class="tag">MongoDB</span>
+                                <span class="tag"><i class="fa-brands fa-r-project"></i> R</span>
+                                <span class="tag"><i class="fa-brands fa-python"></i> Python</span>
+                                <span class="tag"><i class="fa-brands fa-github"></i> Git</span>
+                                <span class="tag"><i class="fa-solid fa-sync"></i> CI/CD</span>
+                                <span class="tag"><i class="fa-solid fa-spider"></i> Webscraping</span>
                             </div>
                         </div>
                     </div>
@@ -69,35 +74,47 @@
                     <!-- Project Card 2 -->
                     <div class="project-card" data-project-id="2">
                         <div class="project-image">
-                            <div class="placeholder-image">
-                                <span>Project Image</span>
-                            </div>
+                            <img src="images/peaksandprimes.jpeg" alt="Peaks and Primes" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
                         </div>
                         <div class="project-info">
-                            <h3 class="project-name">Data Analytics Dashboard</h3>
-                            <p class="project-description">Interactive dashboard for visualizing complex datasets and business metrics.</p>
+                            <h3 class="project-name">Machine Learning Predictive Modelling (Published)</h3>
+                            <p class="project-description">Advanced predictive modelling framework using machine learning algorithms for classification and regression tasks.</p>
                             <div class="project-tags">
-                                <span class="tag">Python</span>
-                                <span class="tag">Tableau</span>
-                                <span class="tag">SQL</span>
+                                <span class="tag"><i class="fa-brands fa-r-project"></i> R</span>
+                                <span class="tag"><i class="fa-solid fa-brain"></i> Machine Learning</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Project Card 3 -->
-                    <div class="project-card" data-project-id="3">
+                    <div class="project-card" data-project-id="3" data-coming-soon="true" style="cursor: default;">
                         <div class="project-image">
-                            <div class="placeholder-image">
-                                <span>Project Image</span>
+                            <img src="images/plannerapp.png" alt="Planner App" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div class="in-progress-badge">
+                                <i class="fa-solid fa-gear fa-spin"></i>
+                                <span>In Progress</span>
                             </div>
                         </div>
                         <div class="project-info">
-                            <h3 class="project-name">AI Chat Application</h3>
-                            <p class="project-description">Real-time chat application powered by machine learning for intelligent responses.</p>
+                            <div class="project-header">
+                                <h3 class="project-name">Planner App (In Progress)</h3>
+                            </div>
+                            <p class="project-description">A personal time-blocking planner application designed to optimize daily productivity through structured scheduling and task prioritization.</p>
                             <div class="project-tags">
-                                <span class="tag">TensorFlow</span>
-                                <span class="tag">WebSocket</span>
-                                <span class="tag">TypeScript</span>
+                                <span class="tag"><i class="fa-brands fa-docker"></i> Docker</span>
+                                <span class="tag"><i class="fa-solid fa-bolt"></i> FastAPI</span>
+                                <span class="tag"><i class="fa-solid fa-database"></i> PostgreSQL</span>
+                                <span class="tag"><i class="fa-brands fa-python"></i> Python</span>
+                                <span class="tag"><i class="fa-solid fa-layer-group"></i> Full-Stack</span>
+                                <span class="tag skills-toggle" data-expanded="false">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </span>
+                            </div>
+                            <div class="secondary-skills" style="display: none;">
+                                <span class="tag"><i class="fa-solid fa-database"></i> Redis</span>
+                                <span class="tag"><i class="fa-solid fa-code"></i> REST API</span>
+                                <span class="tag"><i class="fa-solid fa-arrow-right"></i> CRUD</span>
+                                <span class="tag"><i class="fa-solid fa-hourglass-end"></i> Asynchronous Programming</span>
                             </div>
                         </div>
                     </div>
