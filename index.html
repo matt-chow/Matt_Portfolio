@@ -610,13 +610,18 @@
         <section id="softwares" class="softwares">
             <div class="container">
                 <h2 class="section-title">Softwares</h2>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="data-science">Data Science</button>
-                    <button class="filter-btn" data-filter="frontend">Frontend</button>
-                    <button class="filter-btn" data-filter="backend">Backend</button>
-                    <button class="filter-btn" data-filter="full-stack">Full Stack</button>
-                    <button class="filter-btn" data-filter="devops">DevOps</button>
+                <div class="filter-container">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">
+                            All
+                            <span class="tooltip-hint" title="Click again to toggle all dropdowns">?</span>
+                        </button>
+                        <button class="filter-btn" data-filter="data-science">Data Science</button>
+                        <button class="filter-btn" data-filter="frontend">Frontend</button>
+                        <button class="filter-btn" data-filter="backend">Backend</button>
+                        <button class="filter-btn" data-filter="full-stack">Full Stack</button>
+                        <button class="filter-btn" data-filter="devops">DevOps</button>
+                    </div>
                 </div>
                 <div class="software-grid">
                     <!-- R Package -->
@@ -627,11 +632,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">R</h3>
-                                <span class="library-count">4 libs</span>
                             </div>
+                            <span class="lib-badge">4</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-layer-group"></i> <span>tidyverse</span></div>
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-spider"></i> <span>rvest</span></div>
@@ -649,11 +654,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">Python</h3>
-                                <span class="library-count">7 libs</span>
                             </div>
+                            <span class="lib-badge">7</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-shield-halved"></i> <span>pydantic</span></div>
                                 <div class="software-lib" data-lib-category="backend"><i class="fa-solid fa-database"></i> <span>sqlalchemy</span></div>
@@ -674,11 +679,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">SQL</h3>
-                                <span class="library-count">4 libs</span>
                             </div>
+                            <span class="lib-badge">4</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-code-branch"></i> <span>CTEs</span></div>
                                 <div class="software-lib" data-lib-category="backend"><i class="fa-solid fa-window-maximize"></i> <span>Window Functions</span></div>
@@ -696,11 +701,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">Power BI</h3>
-                                <span class="library-count">4 libs</span>
                             </div>
+                            <span class="lib-badge">4</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-calculator"></i> <span>DAX</span></div>
                                 <div class="software-lib" data-lib-category="data-science"><i class="fa-solid fa-filter"></i> <span>PowerQuery</span></div>
@@ -718,11 +723,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">Web Dev</h3>
-                                <span class="library-count">6 libs</span>
                             </div>
+                            <span class="lib-badge">6</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="frontend"><i class="fa-brands fa-js"></i> <span>JavaScript</span></div>
                                 <div class="software-lib" data-lib-category="frontend"><i class="fa-brands fa-html5"></i> <span>HTML</span></div>
@@ -742,11 +747,11 @@
                             </div>
                             <div class="software-header-text">
                                 <h3 class="software-name">DevOps</h3>
-                                <span class="library-count">4 libs</span>
                             </div>
+                            <span class="lib-badge">4</span>
                             <i class="fa-solid fa-chevron-down software-chevron"></i>
                         </div>
-                        <div class="software-dropdown" style="display: none;">
+                        <div class="software-dropdown">
                             <div class="software-libs">
                                 <div class="software-lib" data-lib-category="devops"><i class="fa-brands fa-docker"></i> <span>Docker</span></div>
                                 <div class="software-lib" data-lib-category="devops"><i class="fa-brands fa-github"></i> <span>Git/GitHub</span></div>
