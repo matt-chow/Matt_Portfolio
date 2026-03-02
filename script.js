@@ -233,14 +233,9 @@ function initProjectCards() {
 function initSoftwareFilter() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     const softwareCards = document.querySelectorAll('.software-card');
-    const softwareGrid = document.querySelector('.software-grid');
-    let isAnimating = false;
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            if (isAnimating) return; // Prevent rapid clicking during animation
-            isAnimating = true;
-            
             // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
@@ -248,115 +243,113 @@ function initSoftwareFilter() {
             // Get selected filter
             const filter = this.getAttribute('data-filter');
             
-            // Add transition class to grid
-            softwareGrid.classList.add('grid-transitioning');
-            
-            // First pass: start fade-out animation for hidden cards
-            const cardsToHide = [];
-            const cardsToShow = [];
-            
+            // Step 1: CLOSE all currently open dropdowns smoothly
             softwareCards.forEach(card => {
-                const categories = card.getAttribute('data-categories').split(' ');
-                const shouldShow = filter === 'all' || categories.includes(filter);
-                
-                if (shouldShow) {
-                    cardsToShow.push(card);
-                } else {
-                    cardsToHide.push(card);
+                if (card.getAttribute('data-expanded') === 'true') {
+                    closeDropdownSmooth(card);
                 }
             });
             
-            // Start fade-out for hidden cards
-            cardsToHide.forEach(card => {
-                card.classList.add('fade-out');
-            });
-            
-            // Wait for fade animation, then handle logic
+            // Step 2: Wait for dropdown close, then apply opacity filter and expand matching
             setTimeout(() => {
                 if (filter === 'all') {
-                    // Reset everything for "All" filter
+                    // Reset everything smoothly
                     softwareCards.forEach(card => {
-                        card.classList.remove('hidden', 'fade-out');
-                        card.setAttribute('data-expanded', 'false');
-                        const dropdown = card.querySelector('.software-dropdown');
-                        dropdown.style.display = 'none';
-                        
-                        // Remove highlights
-                        const libs = card.querySelectorAll('.software-lib');
-                        libs.forEach(lib => lib.classList.remove('highlighted'));
+                        card.classList.remove('filtered-out', 'filtered-in');
+                        resetLibraryStyles(card);
                     });
                 } else {
-                    // Specific category filter
-                    softwareCards.forEach(card => {
+                    // Apply transparency filter with staggered effect
+                    let staggerDelay = 0;
+                    
+                    softwareCards.forEach((card, index) => {
                         const categories = card.getAttribute('data-categories').split(' ');
                         
                         if (categories.includes(filter)) {
-                            // Show card and expand dropdown
-                            card.classList.remove('hidden', 'fade-out');
-                            card.setAttribute('data-expanded', 'true');
-                            const dropdown = card.querySelector('.software-dropdown');
-                            dropdown.style.display = 'block';
+                            // Matching card
+                            card.classList.remove('filtered-out');
+                            card.classList.add('filtered-in');
                             
-                            // Highlight matching libraries
-                            const libs = card.querySelectorAll('.software-lib');
-                            libs.forEach(lib => {
-                                const libCategory = lib.getAttribute('data-lib-category');
-                                if (libCategory === filter) {
-                                    lib.classList.add('highlighted');
-                                } else {
-                                    lib.classList.remove('highlighted');
-                                }
-                            });
+                            // Stagger the expansion
+                            setTimeout(() => {
+                                expandDropdownSmooth(card);
+                                highlightMatchingLibraries(card, filter);
+                            }, staggerDelay);
+                            
+                            staggerDelay += 50; // 50ms stagger between cards
                         } else {
-                            // Hide card
-                            card.classList.add('hidden');
+                            // Non-matching card
+                            card.classList.remove('filtered-in');
+                            card.classList.add('filtered-out');
+                            resetLibraryStyles(card);
                         }
                     });
                 }
-                
-                softwareGrid.classList.remove('grid-transitioning');
-                isAnimating = false;
-            }, 300); // Match the CSS fade-out duration
+            }, 100); // Wait for dropdowns to close first
         });
     });
     
-    // Add dropdown toggle handlers
+    // Add dropdown toggle handlers for manual interaction
     softwareCards.forEach(card => {
         const header = card.querySelector('.software-header');
         header.addEventListener('click', function(e) {
             e.stopPropagation();
-            toggleSoftwareDropdown(card);
+            
+            // Check if card is filtered out - prevent manual toggle
+            if (!card.classList.contains('filtered-out')) {
+                toggleSoftwareDropdown(card);
+            }
         });
     });
 }
 
+function expandDropdownSmooth(card) {
+    card.setAttribute('data-expanded', 'true');
+    const dropdown = card.querySelector('.software-dropdown');
+    dropdown.style.display = 'block';
+    // Trigger layout recalculation for smooth animation
+    void dropdown.offsetHeight;
+}
+
+function closeDropdownSmooth(card) {
+    card.setAttribute('data-expanded', 'false');
+    const dropdown = card.querySelector('.software-dropdown');
+    // Use transition to close
+    setTimeout(() => {
+        dropdown.style.display = 'none';
+    }, 400); // Match CSS transition timing
+    resetLibraryStyles(card);
+}
+
 function toggleSoftwareDropdown(card) {
     const isExpanded = card.getAttribute('data-expanded') === 'true';
-    const dropdown = card.querySelector('.software-dropdown');
-    const chevron = card.querySelector('.software-chevron');
     
     if (isExpanded) {
-        // Close dropdown with smooth animation
-        card.setAttribute('data-expanded', 'false');
-        chevron.style.transform = 'rotate(0deg)';
-        
-        setTimeout(() => {
-            dropdown.style.display = 'none';
-        }, 150);
-        
-        // Remove highlights
-        const libs = card.querySelectorAll('.software-lib');
-        libs.forEach(lib => lib.classList.remove('highlighted'));
+        closeDropdownSmooth(card);
     } else {
-        // Open dropdown with smooth animation
-        card.setAttribute('data-expanded', 'true');
-        dropdown.style.display = 'block';
-        
-        // Trigger animation with small delay
-        setTimeout(() => {
-            chevron.style.transform = 'rotate(180deg)';
-        }, 10);
+        expandDropdownSmooth(card);
     }
+}
+
+function highlightMatchingLibraries(card, filter) {
+    const libs = card.querySelectorAll('.software-lib');
+    libs.forEach(lib => {
+        const libCategory = lib.getAttribute('data-lib-category');
+        if (libCategory === filter) {
+            lib.classList.add('lib-highlighted');
+            lib.classList.remove('lib-filtered-out');
+        } else {
+            lib.classList.remove('lib-highlighted');
+            lib.classList.add('lib-filtered-out');
+        }
+    });
+}
+
+function resetLibraryStyles(card) {
+    const libs = card.querySelectorAll('.software-lib');
+    libs.forEach(lib => {
+        lib.classList.remove('lib-highlighted', 'lib-filtered-out');
+    });
 }
 
 // ===================================
