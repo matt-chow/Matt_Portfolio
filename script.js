@@ -233,59 +233,119 @@ function initProjectCards() {
 function initSoftwareFilter() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     const softwareCards = document.querySelectorAll('.software-card');
+    let isFilterAnimating = false;
+    let allButtonState = 'closed'; // Tracks whether "All" cards are expanded or collapsed
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
+            if (isFilterAnimating) return; // Prevent rapid clicks
+            isFilterAnimating = true;
+            
+            // STRICT RESET: Remove all ghost highlights from the entire section FIRST
+            const allLibraries = document.querySelectorAll('.software-lib');
+            allLibraries.forEach(lib => {
+                lib.classList.remove('glowing-border', 'lib-highlighted');
+            });
+            
+            const filter = this.getAttribute('data-filter');
+            const isCurrentlyActive = this.classList.contains('active');
+            
+            // Special handling for "All" button
+            if (filter === 'all') {
+                if (isCurrentlyActive) {
+                    // "All" is already active - toggle expand/collapse behavior
+                    const isMobile = window.innerWidth < 768;
+                    
+                    if (!isMobile) {
+                        // Desktop: toggle expand/collapse with waterfall stagger
+                        if (allButtonState === 'closed') {
+                            // Expand all cards with waterfall stagger
+                            allButtonState = 'open';
+                            let staggerDelay = 0;
+                            softwareCards.forEach(card => {
+                                setTimeout(() => {
+                                    card.setAttribute('data-expanded', 'true');
+                                }, staggerDelay);
+                                staggerDelay += 50; // 50ms stagger per card for waterfall effect
+                            });
+                        } else {
+                            // Collapse all cards
+                            allButtonState = 'closed';
+                            softwareCards.forEach(card => {
+                                card.setAttribute('data-expanded', 'false');
+                                resetLibraryStyles(card);
+                            });
+                        }
+                    } else {
+                        // Mobile: just reset opacities to 100%, no expand behavior
+                        softwareCards.forEach(card => {
+                            card.classList.remove('filtered-out', 'filtered-in');
+                            resetLibraryStyles(card);
+                        });
+                        allButtonState = 'reset';
+                    }
+                    
+                    isFilterAnimating = false;
+                    return;
+                } else {
+                    // "All" is not active yet - activate it normally
+                    allButtonState = 'reset';
+                }
+            } else {
+                // Non-"All" filter selected
+                allButtonState = 'filtered';
+            }
+            
             // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
-            // Get selected filter
-            const filter = this.getAttribute('data-filter');
+            // Step 1: CLOSE all currently open dropdowns
+            const openCards = Array.from(softwareCards).filter(card => card.getAttribute('data-expanded') === 'true');
             
-            // Step 1: CLOSE all currently open dropdowns smoothly
-            softwareCards.forEach(card => {
-                if (card.getAttribute('data-expanded') === 'true') {
-                    closeDropdownSmooth(card);
-                }
+            openCards.forEach(card => {
+                card.setAttribute('data-expanded', 'false');
             });
             
-            // Step 2: Wait for dropdown close, then apply opacity filter and expand matching
+            // Wait for dropdown animation to complete
             setTimeout(() => {
                 if (filter === 'all') {
-                    // Reset everything smoothly
+                    // Reset everything - remove all filter classes and highlights
                     softwareCards.forEach(card => {
                         card.classList.remove('filtered-out', 'filtered-in');
                         resetLibraryStyles(card);
                     });
                 } else {
-                    // Apply transparency filter with staggered effect
+                    // Apply transparency filter
                     let staggerDelay = 0;
                     
-                    softwareCards.forEach((card, index) => {
+                    softwareCards.forEach(card => {
                         const categories = card.getAttribute('data-categories').split(' ');
                         
                         if (categories.includes(filter)) {
-                            // Matching card
+                            // Matching card - full opacity
                             card.classList.remove('filtered-out');
                             card.classList.add('filtered-in');
                             
                             // Stagger the expansion
                             setTimeout(() => {
-                                expandDropdownSmooth(card);
+                                card.setAttribute('data-expanded', 'true');
+                                // ONLY highlight if filter is NOT 'all'
                                 highlightMatchingLibraries(card, filter);
                             }, staggerDelay);
                             
-                            staggerDelay += 50; // 50ms stagger between cards
+                            staggerDelay += 80; // 80ms stagger between cards
                         } else {
-                            // Non-matching card
+                            // Non-matching card - dimmed
                             card.classList.remove('filtered-in');
                             card.classList.add('filtered-out');
                             resetLibraryStyles(card);
                         }
                     });
                 }
-            }, 100); // Wait for dropdowns to close first
+                
+                isFilterAnimating = false;
+            }, 400); // Wait for dropdown close animation
         });
     });
     
@@ -294,40 +354,21 @@ function initSoftwareFilter() {
         const header = card.querySelector('.software-header');
         header.addEventListener('click', function(e) {
             e.stopPropagation();
-            
-            // Check if card is filtered out - prevent manual toggle
-            if (!card.classList.contains('filtered-out')) {
-                toggleSoftwareDropdown(card);
-            }
+            toggleSoftwareDropdown(card);
         });
     });
-}
-
-function expandDropdownSmooth(card) {
-    card.setAttribute('data-expanded', 'true');
-    const dropdown = card.querySelector('.software-dropdown');
-    dropdown.style.display = 'block';
-    // Trigger layout recalculation for smooth animation
-    void dropdown.offsetHeight;
-}
-
-function closeDropdownSmooth(card) {
-    card.setAttribute('data-expanded', 'false');
-    const dropdown = card.querySelector('.software-dropdown');
-    // Use transition to close
-    setTimeout(() => {
-        dropdown.style.display = 'none';
-    }, 400); // Match CSS transition timing
-    resetLibraryStyles(card);
 }
 
 function toggleSoftwareDropdown(card) {
     const isExpanded = card.getAttribute('data-expanded') === 'true';
     
     if (isExpanded) {
-        closeDropdownSmooth(card);
+        // Close dropdown
+        card.setAttribute('data-expanded', 'false');
+        resetLibraryStyles(card);
     } else {
-        expandDropdownSmooth(card);
+        // Open dropdown
+        card.setAttribute('data-expanded', 'true');
     }
 }
 
@@ -336,10 +377,10 @@ function highlightMatchingLibraries(card, filter) {
     libs.forEach(lib => {
         const libCategory = lib.getAttribute('data-lib-category');
         if (libCategory === filter) {
-            lib.classList.add('lib-highlighted');
+            lib.classList.add('lib-highlighted', 'glowing-border');
             lib.classList.remove('lib-filtered-out');
         } else {
-            lib.classList.remove('lib-highlighted');
+            lib.classList.remove('lib-highlighted', 'glowing-border');
             lib.classList.add('lib-filtered-out');
         }
     });
@@ -348,7 +389,7 @@ function highlightMatchingLibraries(card, filter) {
 function resetLibraryStyles(card) {
     const libs = card.querySelectorAll('.software-lib');
     libs.forEach(lib => {
-        lib.classList.remove('lib-highlighted', 'lib-filtered-out');
+        lib.classList.remove('lib-highlighted', 'lib-filtered-out', 'glowing-border');
     });
 }
 
@@ -371,10 +412,10 @@ const observer = new IntersectionObserver(function(entries) {
     });
 }, observerOptions);
 
-// Observe timeline items, project cards, and software cards
+// Observe timeline items and project cards (exclude software cards to prevent animation conflicts)
 document.addEventListener('DOMContentLoaded', function() {
     const elementsToObserve = document.querySelectorAll(
-        '.timeline-item, .project-card, .software-card'
+        '.timeline-item, .project-card'
     );
     elementsToObserve.forEach(el => observer.observe(el));
 });

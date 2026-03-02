@@ -1582,39 +1582,69 @@ html.dark-mode .tag {
     background-color: var(--bg-color);
 }
 
+.software-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.filter-container {
+    margin-bottom: var(--spacing-xl);
+}
+
 .filter-buttons {
     display: flex;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .filter-btn {
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 2px solid var(--accent-light);
-    border-radius: 20px;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 2px solid var(--accent-color);
     background-color: transparent;
     color: var(--text-color);
-    font-size: 0.9rem;
-    font-weight: 500;
+    border-radius: 25px;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .filter-btn:hover {
-    border-color: var(--accent-color);
+    background-color: var(--accent-light);
+    color: var(--text-color);
 }
 
 .filter-btn.active {
     background-color: var(--accent-color);
     color: white;
-    border-color: var(--accent-color);
 }
 
-.software-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-xl);
+.tooltip-hint {
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    cursor: help;
+    transition: background-color 0.3s ease;
+}
+
+.filter-btn.active .tooltip-hint {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.tooltip-hint:hover {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .software-card {
@@ -1639,10 +1669,10 @@ html.dark-mode .tag {
 .software-header {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--spacing-sm);
     padding: var(--spacing-lg) var(--spacing-md);
-    text-align: center;
+    text-align: left;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
 }
@@ -1657,6 +1687,7 @@ html.dark-mode .tag {
     background: linear-gradient(135deg, rgba(158, 84, 102, 0.1), rgba(224, 154, 182, 0.1));
     font-size: 2.5rem;
     color: var(--accent-color);
+    margin: 0;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1677,15 +1708,22 @@ html.dark-mode .tag {
     margin: 0;
 }
 
-.library-count {
-    font-size: 0.8rem;
-    color: var(--accent-color);
-    font-weight: 500;
-    background-color: rgba(158, 84, 102, 0.1);
-    padding: 2px 8px;
+.lib-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
     border-radius: 12px;
-    display: inline-block;
-    width: fit-content;
+    min-width: 24px;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(158, 84, 102, 0.3);
 }
 
 .software-chevron {
@@ -1722,6 +1760,7 @@ html.dark-mode .tag {
 .software-libs {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: var(--spacing-sm);
 }
 
@@ -1735,7 +1774,8 @@ html.dark-mode .tag {
     font-size: 0.8rem;
     font-weight: 500;
     transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
 }
 
@@ -1758,12 +1798,19 @@ html.dark-mode .tag {
     animation: libPulse 2s ease-in-out infinite;
 }
 
+.software-lib.glowing-border {
+    box-shadow: 0 0 0 2px white, inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    transition: box-shadow 0.3s ease;
+}
+
 @keyframes libPulse {
     0%, 100% {
         background-color: rgba(255, 255, 255, 0.28);
+        transform: scale(1);
     }
     50% {
         background-color: rgba(255, 255, 255, 0.38);
+        transform: scale(1.03);
     }
 }
 
