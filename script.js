@@ -227,15 +227,20 @@ function initProjectCards() {
 }
 
 // ===================================
-// SOFTWARE FILTER
+// SOFTWARE FILTER & DROPDOWN INTERACTIONS
 // ===================================
 
 function initSoftwareFilter() {
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const softwareItems = document.querySelectorAll('.software-item');
+    const softwareCards = document.querySelectorAll('.software-card');
+    const softwareGrid = document.querySelector('.software-grid');
+    let isAnimating = false;
     
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
+            if (isAnimating) return; // Prevent rapid clicking during animation
+            isAnimating = true;
+            
             // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
@@ -243,30 +248,115 @@ function initSoftwareFilter() {
             // Get selected filter
             const filter = this.getAttribute('data-filter');
             
-            // Filter software items
-            softwareItems.forEach(item => {
-                const categories = item.getAttribute('data-categories').split(' ');
+            // Add transition class to grid
+            softwareGrid.classList.add('grid-transitioning');
+            
+            // First pass: start fade-out animation for hidden cards
+            const cardsToHide = [];
+            const cardsToShow = [];
+            
+            softwareCards.forEach(card => {
+                const categories = card.getAttribute('data-categories').split(' ');
+                const shouldShow = filter === 'all' || categories.includes(filter);
                 
-                if (filter === 'all' || categories.includes(filter)) {
-                    showItem(item);
+                if (shouldShow) {
+                    cardsToShow.push(card);
                 } else {
-                    hideItem(item);
+                    cardsToHide.push(card);
                 }
             });
+            
+            // Start fade-out for hidden cards
+            cardsToHide.forEach(card => {
+                card.classList.add('fade-out');
+            });
+            
+            // Wait for fade animation, then handle logic
+            setTimeout(() => {
+                if (filter === 'all') {
+                    // Reset everything for "All" filter
+                    softwareCards.forEach(card => {
+                        card.classList.remove('hidden', 'fade-out');
+                        card.setAttribute('data-expanded', 'false');
+                        const dropdown = card.querySelector('.software-dropdown');
+                        dropdown.style.display = 'none';
+                        
+                        // Remove highlights
+                        const libs = card.querySelectorAll('.software-lib');
+                        libs.forEach(lib => lib.classList.remove('highlighted'));
+                    });
+                } else {
+                    // Specific category filter
+                    softwareCards.forEach(card => {
+                        const categories = card.getAttribute('data-categories').split(' ');
+                        
+                        if (categories.includes(filter)) {
+                            // Show card and expand dropdown
+                            card.classList.remove('hidden', 'fade-out');
+                            card.setAttribute('data-expanded', 'true');
+                            const dropdown = card.querySelector('.software-dropdown');
+                            dropdown.style.display = 'block';
+                            
+                            // Highlight matching libraries
+                            const libs = card.querySelectorAll('.software-lib');
+                            libs.forEach(lib => {
+                                const libCategory = lib.getAttribute('data-lib-category');
+                                if (libCategory === filter) {
+                                    lib.classList.add('highlighted');
+                                } else {
+                                    lib.classList.remove('highlighted');
+                                }
+                            });
+                        } else {
+                            // Hide card
+                            card.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                softwareGrid.classList.remove('grid-transitioning');
+                isAnimating = false;
+            }, 300); // Match the CSS fade-out duration
+        });
+    });
+    
+    // Add dropdown toggle handlers
+    softwareCards.forEach(card => {
+        const header = card.querySelector('.software-header');
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSoftwareDropdown(card);
         });
     });
 }
 
-function showItem(item) {
-    item.classList.remove('hidden');
-    item.style.display = 'flex';
-    item.style.flexDirection = 'column';
-    item.style.alignItems = 'center';
-}
-
-function hideItem(item) {
-    item.classList.add('hidden');
-    item.style.display = 'none';
+function toggleSoftwareDropdown(card) {
+    const isExpanded = card.getAttribute('data-expanded') === 'true';
+    const dropdown = card.querySelector('.software-dropdown');
+    const chevron = card.querySelector('.software-chevron');
+    
+    if (isExpanded) {
+        // Close dropdown with smooth animation
+        card.setAttribute('data-expanded', 'false');
+        chevron.style.transform = 'rotate(0deg)';
+        
+        setTimeout(() => {
+            dropdown.style.display = 'none';
+        }, 150);
+        
+        // Remove highlights
+        const libs = card.querySelectorAll('.software-lib');
+        libs.forEach(lib => lib.classList.remove('highlighted'));
+    } else {
+        // Open dropdown with smooth animation
+        card.setAttribute('data-expanded', 'true');
+        dropdown.style.display = 'block';
+        
+        // Trigger animation with small delay
+        setTimeout(() => {
+            chevron.style.transform = 'rotate(180deg)';
+        }, 10);
+    }
 }
 
 // ===================================
@@ -288,10 +378,10 @@ const observer = new IntersectionObserver(function(entries) {
     });
 }, observerOptions);
 
-// Observe timeline items, project cards, and software items
+// Observe timeline items, project cards, and software cards
 document.addEventListener('DOMContentLoaded', function() {
     const elementsToObserve = document.querySelectorAll(
-        '.timeline-item, .project-card, .software-item'
+        '.timeline-item, .project-card, .software-card'
     );
     elementsToObserve.forEach(el => observer.observe(el));
 });
