@@ -233,6 +233,7 @@ function initProjectCards() {
 function initSoftwareFilter() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     const softwareCards = document.querySelectorAll('.software-card');
+    const allButton = document.querySelector('[data-filter="all"]');
     let isFilterAnimating = false;
     let allButtonState = 'closed'; // Tracks whether "All" cards are expanded or collapsed
     
@@ -259,8 +260,10 @@ function initSoftwareFilter() {
                     if (!isMobile) {
                         // Desktop: toggle expand/collapse with waterfall stagger
                         if (allButtonState === 'closed') {
-                            // Expand all cards with waterfall stagger
+                            // Expand all cards with waterfall stagger (50ms per card)
                             allButtonState = 'open';
+                            allButton.textContent = 'Collapse All';
+                            
                             let staggerDelay = 0;
                             softwareCards.forEach(card => {
                                 setTimeout(() => {
@@ -271,6 +274,8 @@ function initSoftwareFilter() {
                         } else {
                             // Collapse all cards
                             allButtonState = 'closed';
+                            allButton.textContent = 'All';
+                            
                             softwareCards.forEach(card => {
                                 card.setAttribute('data-expanded', 'false');
                                 resetLibraryStyles(card);
@@ -290,6 +295,7 @@ function initSoftwareFilter() {
                 } else {
                     // "All" is not active yet - activate it normally
                     allButtonState = 'reset';
+                    allButton.textContent = 'All';
                 }
             } else {
                 // Non-"All" filter selected
@@ -307,7 +313,7 @@ function initSoftwareFilter() {
                 card.setAttribute('data-expanded', 'false');
             });
             
-            // Wait for dropdown animation to complete
+            // Wait for dropdown close animation (0.4s) + staggered close delay (0.2s)
             setTimeout(() => {
                 if (filter === 'all') {
                     // Reset everything - remove all filter classes and highlights
@@ -327,12 +333,13 @@ function initSoftwareFilter() {
                             card.classList.remove('filtered-out');
                             card.classList.add('filtered-in');
                             
-                            // Stagger the expansion
+                            // Staggered close delay (0.2s) before opening new dropdown
                             setTimeout(() => {
                                 card.setAttribute('data-expanded', 'true');
-                                // ONLY highlight if filter is NOT 'all'
                                 highlightMatchingLibraries(card, filter);
-                            }, staggerDelay);
+                                // Auto-scroll to highlight library items if beyond index 8
+                                autoScrollToHighlight(card);
+                            }, 200); // 0.2s staggered close delay
                             
                             staggerDelay += 80; // 80ms stagger between cards
                         } else {
@@ -345,7 +352,7 @@ function initSoftwareFilter() {
                 }
                 
                 isFilterAnimating = false;
-            }, 400); // Wait for dropdown close animation
+            }, 400); // Wait for dropdown close animation (0.4s)
         });
     });
     
@@ -375,8 +382,8 @@ function toggleSoftwareDropdown(card) {
 function highlightMatchingLibraries(card, filter) {
     const libs = card.querySelectorAll('.software-lib');
     libs.forEach(lib => {
-        const libCategory = lib.getAttribute('data-lib-category');
-        if (libCategory === filter) {
+        const highlights = lib.getAttribute('data-highlights');
+        if (highlights && highlights.split(' ').includes(filter)) {
             lib.classList.add('lib-highlighted', 'glowing-border');
             lib.classList.remove('lib-filtered-out');
         } else {
@@ -391,6 +398,27 @@ function resetLibraryStyles(card) {
     libs.forEach(lib => {
         lib.classList.remove('lib-highlighted', 'lib-filtered-out', 'glowing-border');
     });
+}
+
+function autoScrollToHighlight(card) {
+    const libs = card.querySelectorAll('.software-lib');
+    const libsArray = Array.from(libs);
+    const highlightedIndex = libsArray.findIndex(lib => lib.classList.contains('lib-highlighted'));
+    
+    // If highlighted item is beyond index 7 (8+ items), smooth scroll into view
+    if (highlightedIndex > 7) {
+        const libsContainer = card.querySelector('.software-libs');
+        const highlightedLib = libsArray[highlightedIndex];
+        if (libsContainer && highlightedLib) {
+            // Slight delay to ensure dropdown is expanded before scrolling
+            setTimeout(() => {
+                highlightedLib.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+            }, 150);
+        }
+    }
 }
 
 // ===================================
