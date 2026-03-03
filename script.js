@@ -19,10 +19,17 @@ function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme');
     
-    // Apply saved theme or default to light mode
-    if (savedTheme === 'dark') {
+    // Apply saved theme or default to dark mode
+    if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark-mode');
+        themeToggle.checked = false;
+    } else {
+        // Default to dark mode (when savedTheme is null or 'dark')
         document.documentElement.classList.add('dark-mode');
         themeToggle.checked = true;
+        if (!savedTheme) {
+            localStorage.setItem('theme', 'dark');
+        }
     }
     
     // Toggle theme on checkbox change
