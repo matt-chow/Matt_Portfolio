@@ -607,210 +607,94 @@
         </section>
 
         <!-- Softwares Section -->
-        <section id="softwares" class="softwares">
+        <section id="technologies" class="tech-section">
             <div class="container">
-                <h2 class="section-title">Softwares</h2>
-                <div class="filter-container">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="data-science">Data Science</button>
-                        <button class="filter-btn" data-filter="data-engineering">Data Engineering</button>
-                        <button class="filter-btn" data-filter="backend">Backend</button>
-                        <button class="filter-btn" data-filter="frontend">Frontend</button>
-                        <button class="filter-btn" data-filter="full-stack">Full Stack</button>
+                <h2 class="section-title">Technologies & Core Stack</h2>
+                <div class="tech-cloud">
+                    <!-- R -->
+                    <div class="tech-pill" style="--bg-color: #276DC3;">
+                        <i class="fa-brands fa-r-project"></i>
+                        <span>R</span>
                     </div>
-                </div>
-                <div class="software-grid">
-                    <!-- R Ecosystem -->
-                    <div class="software-card" data-software="r-ecosystem" data-categories="data-science data-engineering" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-brands fa-r-project"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">R Ecosystem</h3>
-                            </div>
-                            <span class="lib-badge">10</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="data-science data-engineering"><i class="fa-solid fa-city"></i> <span>dplyr</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-chart-line"></i> <span>ggplot2</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-table"></i> <span>data.table</span></div>
-                                <div class="software-lib" data-highlights="frontend data-science"><i class="fa-solid fa-wand-magic-sparkles"></i> <span>Shiny</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-brain"></i> <span>caret</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-network-wired"></i> <span>igraph</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-file-code"></i> <span>rmarkdown</span></div>
-                                <div class="software-lib" data-highlights="data-science data-engineering"><i class="fa-solid fa-layer-group"></i> <span>tidyr</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-arrow-right-arrow-left"></i> <span>purrr</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-gears"></i> <span>furrr</span></div>
-                            </div>
-                        </div>
+                    <!-- Python -->
+                    <div class="tech-pill" style="--bg-color: #3776AB;">
+                        <i class="fa-brands fa-python"></i>
+                        <span>Python</span>
                     </div>
-
-                    <!-- Python & ML -->
-                    <div class="software-card" data-software="python-ml" data-categories="data-science data-engineering backend full-stack" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-brands fa-python"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">Python & ML</h3>
-                            </div>
-                            <span class="lib-badge">12</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="data-science data-engineering"><i class="fa-solid fa-table"></i> <span>pandas</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-cube"></i> <span>numpy</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-brain"></i> <span>scikit-learn</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-fire"></i> <span>pytorch</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-sun"></i> <span>tensorflow</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-chart-pie"></i> <span>mlflow</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-diagram-project"></i> <span>polars</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-shield-halved"></i> <span>pydantic</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-database"></i> <span>sqlalchemy</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-bolt-lightning"></i> <span>fastapi</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-stream"></i> <span>airflow</span></div>
-                                <div class="software-lib" data-highlights="data-science"><i class="fa-solid fa-wandb"></i> <span>huggingface</span></div>
-                            </div>
-                        </div>
+                    <!-- MSSQL -->
+                    <div class="tech-pill" style="--bg-color: #CC2927;">
+                        <i class="fa-solid fa-database"></i>
+                        <span>MSSQL</span>
                     </div>
-
+                    <!-- JavaScript -->
+                    <div class="tech-pill" style="--bg-color: #F7DF1E; --text-color: #333333;">
+                        <i class="fa-brands fa-js"></i>
+                        <span>JavaScript</span>
+                    </div>
+                    <!-- HTML -->
+                    <div class="tech-pill" style="--bg-color: #E34F26;">
+                        <i class="fa-brands fa-html5"></i>
+                        <span>HTML</span>
+                    </div>
+                    <!-- CSS -->
+                    <div class="tech-pill" style="--bg-color: #1572B6;">
+                        <i class="fa-brands fa-css3-alt"></i>
+                        <span>CSS</span>
+                    </div>
+                    <!-- Node.js -->
+                    <div class="tech-pill" style="--bg-color: #339933;">
+                        <i class="fa-brands fa-node-js"></i>
+                        <span>Node.js</span>
+                    </div>
+                    <!-- NPM -->
+                    <div class="tech-pill" style="--bg-color: #CB3837;">
+                        <i class="fa-brands fa-npm"></i>
+                        <span>NPM</span>
+                    </div>
+                    <!-- Java -->
+                    <div class="tech-pill" style="--bg-color: #007396;">
+                        <i class="fa-brands fa-java"></i>
+                        <span>Java</span>
+                    </div>
+                    <!-- Git -->
+                    <div class="tech-pill" style="--bg-color: #F05032;">
+                        <i class="fa-brands fa-git-alt"></i>
+                        <span>Git</span>
+                    </div>
+                    <!-- PostgreSQL -->
+                    <div class="tech-pill" style="--bg-color: #4169E1;">
+                        <i class="fa-solid fa-leaf"></i>
+                        <span>PostgreSQL</span>
+                    </div>
+                    <!-- MLFlow -->
+                    <div class="tech-pill" style="--bg-color: #0194E2;">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>MLFlow</span>
+                    </div>
+                    <!-- TensorFlow -->
+                    <div class="tech-pill" style="--bg-color: #FF6F00; --text-color: #333333;">
+                        <i class="fa-solid fa-sun"></i>
+                        <span>TensorFlow</span>
+                    </div>
+                    <!-- FastAPI -->
+                    <div class="tech-pill" style="--bg-color: #05998B;">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                        <span>FastAPI</span>
+                    </div>
+                    <!-- Power BI -->
+                    <div class="tech-pill" style="--bg-color: #F2C811; --text-color: #333333;">
+                        <i class="fa-solid fa-chart-column"></i>
+                        <span>Power BI</span>
+                    </div>
                     <!-- Microsoft Fabric -->
-                    <div class="software-card" data-software="fabric" data-categories="data-engineering full-stack" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-solid fa-microchip"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">MS Fabric</h3>
-                            </div>
-                            <span class="lib-badge">8</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-brands fa-python"></i> <span>Python in Fabric</span></div>
-                                <div class="software-lib" data-highlights="data-engineering full-stack"><i class="fa-solid fa-bolt"></i> <span>Spark SQL</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-cube"></i> <span>Semantic Models</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-lake"></i> <span>Lakehouse Tables</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-book"></i> <span>Notebooks</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-warehouse"></i> <span>Warehouses</span></div>
-                                <div class="software-lib" data-highlights="data-engineering"><i class="fa-solid fa-stream"></i> <span>Data Pipelines</span></div>
-                                <div class="software-lib" data-highlights="devops full-stack"><i class="fa-brands fa-git-alt"></i> <span>Git Integration</span></div>
-                            </div>
-                        </div>
+                    <div class="tech-pill" style="--bg-color: #0078D4;">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Fabric</span>
                     </div>
-
-                    <!-- DevOps & Tooling -->
-                    <div class="software-card" data-software="devops-tooling" data-categories="devops full-stack" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-solid fa-terminal"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">DevOps</h3>
-                            </div>
-                            <span class="lib-badge">10</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="devops"><i class="fa-brands fa-docker"></i> <span>Docker</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-ellipsis"></i> <span>Kubernetes</span></div>
-                                <div class="software-lib" data-highlights="devops full-stack"><i class="fa-brands fa-github"></i> <span>Git/GitHub</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-rotate"></i> <span>CI/CD (GH Actions)</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-brands fa-aws"></i> <span>AWS</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-brands fa-microsoft"></i> <span>Azure</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-code-branch"></i> <span>Terraform</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-play"></i> <span>Ansible</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-magnifying-glass"></i> <span>Monitoring</span></div>
-                                <div class="software-lib" data-highlights="devops"><i class="fa-solid fa-layer-group"></i> <span>IaC</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Backend & DBs -->
-                    <div class="software-card" data-software="backend-dbs" data-categories="backend full-stack data-engineering" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">Backend & DBs</h3>
-                            </div>
-                            <span class="lib-badge">11</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="backend data-engineering"><i class="fa-solid fa-leaf"></i> <span>PostgreSQL</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-water"></i> <span>MySQL</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-scroll"></i> <span>MongoDB</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-fire"></i> <span>Redis</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-brands fa-aws"></i> <span>DynamoDB</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-share-nodes"></i> <span>GraphQL</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-code"></i> <span>REST APIs</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-cubes"></i> <span>Microservices</span></div>
-                                <div class="software-lib" data-highlights="backend data-engineering"><i class="fa-solid fa-flash"></i> <span>Event-Driven</span></div>
-                                <div class="software-lib" data-highlights="backend"><i class="fa-solid fa-link"></i> <span>Transactions</span></div>
-                                <div class="software-lib" data-highlights="backend devops"><i class="fa-solid fa-memory"></i> <span>Caching</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Web Development -->
-                    <div class="software-card" data-software="web-dev" data-categories="frontend full-stack backend" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-brands fa-react"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">Web Dev</h3>
-                            </div>
-                            <span class="lib-badge">9</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="frontend full-stack"><i class="fa-brands fa-js"></i> <span>JavaScript</span></div>
-                                <div class="software-lib" data-highlights="frontend"><i class="fa-brands fa-js"></i> <span>TypeScript</span></div>
-                                <div class="software-lib" data-highlights="frontend full-stack"><i class="fa-brands fa-react"></i> <span>React</span></div>
-                                <div class="software-lib" data-highlights="frontend"><i class="fa-solid fa-v"></i> <span>Vue</span></div>
-                                <div class="software-lib" data-highlights="frontend"><i class="fa-solid fa-palette"></i> <span>Tailwind CSS</span></div>
-                                <div class="software-lib" data-highlights="frontend full-stack"><i class="fa-solid fa-cube"></i> <span>Webpack</span></div>
-                                <div class="software-lib" data-highlights="frontend full-stack"><i class="fa-solid fa-arrow-right"></i> <span>Next.js</span></div>
-                                <div class="software-lib" data-highlights="frontend"><i class="fa-solid fa-server"></i> <span>SSR</span></div>
-                                <div class="software-lib" data-highlights="frontend full-stack"><i class="fa-solid fa-flask-vial"></i> <span>Testing (Jest)</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Theoretical Concepts -->
-                    <div class="software-card" data-software="concepts" data-categories="data-science backend full-stack" data-expanded="false">
-                        <div class="software-header">
-                            <div class="software-logo-container">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                            <div class="software-header-text">
-                                <h3 class="software-name">Concepts</h3>
-                            </div>
-                            <span class="lib-badge">6</span>
-                            <i class="fa-solid fa-chevron-down software-chevron"></i>
-                        </div>
-                        <div class="software-dropdown">
-                            <div class="software-libs">
-                                <div class="software-lib" data-highlights="data-science full-stack"><i class="fa-solid fa-diagram-project"></i> <span>Algorithms</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-building"></i> <span>System Design</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-cubes"></i> <span>OOP</span></div>
-                                <div class="software-lib" data-highlights="data-science full-stack"><i class="fa-solid fa-code-branch"></i> <span>Functional Prog</span></div>
-                                <div class="software-lib" data-highlights="backend full-stack"><i class="fa-solid fa-chess"></i> <span>Design Patterns</span></div>
-                                <div class="software-lib" data-highlights="backend data-science"><i class="fa-solid fa-sitemap"></i> <span>Databases</span></div>
-                            </div>
-                        </div>
+                    <!-- Docker -->
+                    <div class="tech-pill" style="--bg-color: #2496ED;">
+                        <i class="fa-brands fa-docker"></i>
+                        <span>Docker</span>
                     </div>
                 </div>
             </div>
@@ -820,16 +704,11 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Matthew C. All rights reserved.</p>
+            <p>&copy; 2026 Matthew Chow. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="script.js"></script>
 </body>
-
-
-
-
-
 
 </html>
