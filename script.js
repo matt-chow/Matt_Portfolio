@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initWorkExpand();
     initShowMore();
     initProjectCards();
-    initSoftwareFilter();
 });
 
 // ===================================
@@ -227,47 +226,8 @@ function initProjectCards() {
 }
 
 // ===================================
-// SOFTWARE FILTER
+// SOFTWARE FILTER & DROPDOWN INTERACTIONS
 // ===================================
-
-function initSoftwareFilter() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const softwareItems = document.querySelectorAll('.software-item');
-    
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Update active button
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Get selected filter
-            const filter = this.getAttribute('data-filter');
-            
-            // Filter software items
-            softwareItems.forEach(item => {
-                const categories = item.getAttribute('data-categories').split(' ');
-                
-                if (filter === 'all' || categories.includes(filter)) {
-                    showItem(item);
-                } else {
-                    hideItem(item);
-                }
-            });
-        });
-    });
-}
-
-function showItem(item) {
-    item.classList.remove('hidden');
-    item.style.display = 'flex';
-    item.style.flexDirection = 'column';
-    item.style.alignItems = 'center';
-}
-
-function hideItem(item) {
-    item.classList.add('hidden');
-    item.style.display = 'none';
-}
 
 // ===================================
 // SCROLL ANIMATIONS
@@ -288,10 +248,10 @@ const observer = new IntersectionObserver(function(entries) {
     });
 }, observerOptions);
 
-// Observe timeline items, project cards, and software items
+// Observe timeline items and project cards (exclude software cards to prevent animation conflicts)
 document.addEventListener('DOMContentLoaded', function() {
     const elementsToObserve = document.querySelectorAll(
-        '.timeline-item, .project-card, .software-item'
+        '.timeline-item, .project-card'
     );
     elementsToObserve.forEach(el => observer.observe(el));
 });
