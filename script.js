@@ -188,16 +188,71 @@ function initShowMore() {
 
 function initProjectCards() {
     const projectCards = document.querySelectorAll('.project-card');
+    const projectLinksModal = document.getElementById('projectLinksModal');
+    const projectLinksModalClose = document.getElementById('projectLinksModalClose');
+
+    const openProjectLinksModal = () => {
+        if (!projectLinksModal) {
+            return;
+        }
+
+        projectLinksModal.classList.add('active');
+        projectLinksModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    };
+
+    const closeProjectLinksModal = () => {
+        if (!projectLinksModal) {
+            return;
+        }
+
+        projectLinksModal.classList.remove('active');
+        projectLinksModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    };
+
+    if (projectLinksModal && !projectLinksModal.dataset.bound) {
+        projectLinksModal.dataset.bound = 'true';
+
+        projectLinksModal.addEventListener('click', function(e) {
+            if (e.target === projectLinksModal) {
+                closeProjectLinksModal();
+            }
+        });
+
+        if (projectLinksModalClose) {
+            projectLinksModalClose.addEventListener('click', closeProjectLinksModal);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && projectLinksModal.classList.contains('active')) {
+                closeProjectLinksModal();
+            }
+        });
+    }
     
     projectCards.forEach(card => {
         const isComingSoon = card.getAttribute('data-coming-soon') === 'true';
         
         card.addEventListener('click', function(e) {
             const projectId = this.getAttribute('data-project-id');
+            const projectLink = this.getAttribute('data-project-link');
+            const projectPopup = this.getAttribute('data-project-popup');
             
             if (isComingSoon) {
                 e.preventDefault();
                 alert('This project repository is currently private. Coming soon!');
+                return;
+            }
+
+            if (projectPopup === 'r-python-packages') {
+                e.preventDefault();
+                openProjectLinksModal();
+                return;
+            }
+
+            if (projectLink) {
+                window.open(projectLink, '_blank', 'noopener,noreferrer');
                 return;
             }
             

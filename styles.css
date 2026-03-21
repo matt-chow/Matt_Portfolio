@@ -1573,6 +1573,90 @@ html.dark-mode .tag {
     max-height: 500px;
 }
 
+/* Project Links Modal */
+body.modal-open {
+    overflow: hidden;
+}
+
+.project-links-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+    z-index: 2000;
+}
+
+.project-links-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.project-links-modal-content {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--white);
+    color: var(--text-dark);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    position: relative;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+}
+
+html.dark-mode .project-links-modal-content {
+    background-color: #2a2e3b;
+    color: var(--text-light);
+}
+
+.project-links-modal-content h3 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.project-links-modal-content p {
+    opacity: 0.85;
+    margin-bottom: var(--spacing-md);
+}
+
+.project-links-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: transparent;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--accent-color);
+    cursor: pointer;
+}
+
+.project-links-list {
+    list-style: none;
+    display: grid;
+    gap: var(--spacing-sm);
+}
+
+.project-links-list a {
+    display: block;
+    text-decoration: none;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--accent-light);
+    border-radius: 8px;
+    color: var(--accent-color);
+    font-weight: 600;
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.project-links-list a:hover {
+    background-color: var(--accent-color);
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
 /* ===================================
    SOFTWARES SECTION
    =================================== */
