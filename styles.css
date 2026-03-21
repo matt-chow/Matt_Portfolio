@@ -575,6 +575,15 @@ main {
     stroke: currentColor;
 }
 
+.stage-icon i {
+    font-size: 28px;
+    color: var(--text-color);
+}
+
+.model-flask-icon {
+    opacity: 0.75;
+}
+
 .stage-label {
     font-size: 0.9rem;
     font-weight: 600;
