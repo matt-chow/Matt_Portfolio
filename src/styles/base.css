@@ -444,6 +444,21 @@ a {
 .nav-pill[aria-current='page'] {
   color: var(--accent);
 }
+.nav-pill.nav-icon {
+  flex: none;
+  width: 44px;
+  padding: 0;
+  justify-content: center;
+}
+.nav-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .count {
   font: 600 0.72rem var(--mono);
   background: var(--grad);

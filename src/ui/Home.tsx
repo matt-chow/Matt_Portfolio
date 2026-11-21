@@ -5,6 +5,7 @@ import { cardsInPack, packs, type PackDef } from '../engine/packs';
 import { openAndGo } from './Opening';
 import type { State } from '../engine/state';
 import { useStore } from '../store';
+import { Icon } from './Icons';
 import { useTilt } from './Card';
 import { canGL, PackArt } from './Pack';
 import type { RingHandle } from './ring3d';
@@ -87,7 +88,6 @@ function PackRing({ handle, onFail, focus, setFocus }: { handle: React.MutableRe
             exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }}
             transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            <p className="ring-count small muted">{focus + 1} of {packs.length}{pack.id === 'starter' && !s.opened.starter ? ' · start here' : ''}</p>
             <h3>{pack.name}</h3>
             <p>{pack.tagline}</p>
             <p className="muted small">{packStatus(s, pack)}</p>
@@ -158,22 +158,18 @@ export function Home() {
           <h1>{profile.name}</h1>
           <p className="lede">{profile.tagline}</p>
           <p className="muted sub">{profile.sub}</p>
-          <p className="shortcuts">
-            <a className="btn" href={profile.resume}>Résumé (PDF)</a>
-            <a className="btn btn-quiet" href={`mailto:${profile.email}`}>Email</a>
-            <a className="btn btn-quiet" href={profile.github}>GitHub</a>
-            <a className="btn btn-quiet" href="#/index">Read it all on one page</a>
-          </p>
+          <nav className="shortcuts" aria-label="Links">
+            <a className="icon-btn primary" href={profile.resume} aria-label="Résumé (PDF)" data-tip="Résumé"><Icon name="resume" /></a>
+            <a className="icon-btn" href={`mailto:${profile.email}`} aria-label="Email" data-tip="Email"><Icon name="email" /></a>
+            <a className="icon-btn" href={profile.github} aria-label="GitHub" data-tip="GitHub"><Icon name="github" /></a>
+            <a className="icon-btn" href="#/index" aria-label="Index: everything on one page" data-tip="Index"><Icon name="index" /></a>
+          </nav>
         </section>
+      </div>
 
-        <section className="shelf-controls" aria-labelledby="shelf-h">
-          <div className="shelf-head">
-            <h2 id="shelf-h">Pick a pack</h2>
-            <div className="shelf-ctrl">
-              <button className="icon-btn" onClick={() => scrollBy(-1)} aria-label="Previous pack">‹</button>
-              <button className="icon-btn" onClick={() => scrollBy(1)} aria-label="Next pack">›</button>
-            </div>
-          </div>
+      <div className="shelf">
+        <div className="pack-bar">
+          <button className="icon-btn" onClick={() => scrollBy(-1)} aria-label="Previous pack"><Icon name="prev" /></button>
           <div className="pack-picker" ref={picker} role="group" aria-label="Choose a pack" onKeyDown={onPickKey}>
             {packs.map((p, i) => (
               <button key={p.id} className="chip" aria-pressed={i === focus} onClick={() => select(i)}>
@@ -181,11 +177,8 @@ export function Home() {
               </button>
             ))}
           </div>
-          <p className="small muted hint">Unlimited free packs. Repeat packs always include at least one mid-rarity card or better. Drag, swipe or use the arrows to browse.</p>
-        </section>
-      </div>
-
-      <div className="shelf">
+          <button className="icon-btn" onClick={() => scrollBy(1)} aria-label="Next pack"><Icon name="next" /></button>
+        </div>
         {use3d ? (
           <PackRing handle={ring} onFail={fail} focus={focus} setFocus={setFocus} />
         ) : (
@@ -195,7 +188,7 @@ export function Home() {
               <a className="medal-tile" href="#/medals">
                 <span className="medal medal-gold big" aria-hidden="true"><span>★</span></span>
                 <strong>Medals</strong>
-                <span className="small muted">Earned by collecting, exploring and grading. Never from packs.</span>
+                <span className="small muted">Earned by collecting and grading.</span>
               </a>
             </li>
           </ul>

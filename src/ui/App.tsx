@@ -11,6 +11,7 @@ import { Collection } from './Collection';
 import { Medals } from './Medals';
 import { IndexPage } from './IndexPage';
 import { CardDetail } from './CardDetail';
+import { Icon } from './Icons';
 import type { PackId } from '../content/manifest';
 
 export function parseRoute(hash: string) {
@@ -144,12 +145,15 @@ export function App() {
           </span>
         </a>
         <nav aria-label="Main" className="quicknav">
-          {NAV.map((n) => (
-            <a key={n.page} href={n.href} className="nav-pill" aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
-              {n.label}
-              {n.page === 'collection' && owned > 0 && <span className="count">{owned}</span>}
-            </a>
-          ))}
+          {NAV.map((n) => {
+            const icon = n.page === 'index'; // shown as an icon; still named for screen readers and in its tooltip
+            return (
+              <a key={n.page} href={n.href} className={icon ? 'nav-pill nav-icon' : 'nav-pill'} aria-label={icon ? 'Index: everything on one page' : undefined} data-tip={icon ? n.label : undefined} aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
+                {icon ? <Icon name="index" /> : n.label}
+                {n.page === 'collection' && owned > 0 && <span className="count">{owned}</span>}
+              </a>
+            );
+          })}
         </nav>
         <div className="controls">
           <button className="icon-btn" onClick={() => act((s) => updateSettings(s, { muted: !s.settings.muted }))} aria-pressed={!s.settings.muted} aria-label={s.settings.muted ? 'Sound off. Turn sound on' : 'Sound on. Turn sound off'}>

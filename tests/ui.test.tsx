@@ -37,6 +37,20 @@ describe('routing', () => {
       expect(screen.getByRole('link', { name: new RegExp(`^${p} pack`) })).toBeTruthy();
   });
 
+  it('the icon-only links keep accessible names and tooltips', () => {
+    nav('#/');
+    render(<App />);
+    const links = screen.getByRole('navigation', { name: 'Links' });
+    const want: [RegExp, string][] = [[/Résumé/, profile.resume], [/^Email$/, `mailto:${profile.email}`], [/^GitHub$/, profile.github], [/^Index/, '#/index']];
+    for (const [name, href] of want) {
+      const a = [...links.querySelectorAll('a')].find((x) => name.test(x.getAttribute('aria-label')!))!;
+      expect(a.getAttribute('href')).toBe(href);
+      expect(a.dataset.tip).toBeTruthy();
+      expect(a.textContent).toBe(''); // icon only
+    }
+    expect(screen.getByRole('navigation', { name: 'Main' }).querySelector('a[href="#/index"]')!.getAttribute('aria-label')).toMatch(/^Index/);
+  });
+
   it('the pack picker lists all six packs and selecting one marks it, from the chip or the keyboard', () => {
     nav('#/');
     render(<App />);
