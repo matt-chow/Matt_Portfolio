@@ -52,10 +52,9 @@ function PackSlot({ pack, i }: { pack: PackDef; i: number }) {
 }
 
 /** WebGL ring with a DOM twin: the canvas is decorative, every action lives in real buttons and links. */
-function PackRing({ handle, onFail }: { handle: React.MutableRefObject<RingHandle | null>; onFail(): void }) {
+function PackRing({ handle, onFail, focus, setFocus }: { handle: React.MutableRefObject<RingHandle | null>; onFail(): void; focus: number; setFocus(i: number): void }) {
   const s = useStore();
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [focus, setFocus] = useState(0);
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let live = true;
@@ -74,16 +73,10 @@ function PackRing({ handle, onFail }: { handle: React.MutableRefObject<RingHandl
       handle.current = null;
       h?.dispose();
     };
-  }, [handle, onFail]);
+  }, [handle, onFail, setFocus]);
   const pack = packs[focus];
-  const onKey = (e: KeyboardEvent) => {
-    const by = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
-    if (!by || (e.target as HTMLElement).closest('.ring-tabs') === null) return;
-    e.preventDefault();
-    handle.current?.step(by);
-  };
   return (
-    <div className={`ring3d ${ready ? 'is-ready' : ''}`} role="region" aria-roledescription="carousel" aria-label="Packs" onKeyDown={onKey}>
+    <div className={`ring3d ${ready ? 'is-ready' : ''}`} role="region" aria-roledescription="carousel" aria-label="Packs">
       <canvas ref={canvas} className="ring-canvas" aria-hidden="true" />
       <div className="ring-meta" aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
@@ -105,13 +98,6 @@ function PackRing({ handle, onFail }: { handle: React.MutableRefObject<RingHandl
           <button className="btn btn-quiet" onClick={() => openAndGo(pack.id, true)}>Quick open</button>
         </p>
       </div>
-      <div className="ring-tabs" role="group" aria-label="Choose a pack">
-        {packs.map((p, i) => (
-          <button key={p.id} className="chip" aria-pressed={i === focus} onClick={() => handle.current?.goTo(i)}>
-            {p.name}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
@@ -120,11 +106,31 @@ export function Home() {
   const s = useStore();
   const list = useRef<HTMLUListElement>(null);
   const ring = useRef<RingHandle | null>(null);
+  const reduce = useReducedMotion();
   const [use3d, setUse3d] = useState(canRing);
+  const [focus, setFocus] = useState(0);
   const fail = useRef(() => setUse3d(false)).current;
-  const scrollBy = (dir: number) => {
-    if (ring.current) return ring.current.step(dir);
-    list.current?.scrollBy({ left: dir * list.current.clientWidth * 0.6, behavior: 'smooth' });
+  const picker = useRef<HTMLDivElement>(null);
+  // Keep the chosen chip in view when the picker is a one-line strip. Scrolls only the strip, never the page.
+  useEffect(() => {
+    const p = picker.current, c = p?.children[focus] as HTMLElement | undefined;
+    if (p && c && p.scrollWidth > p.clientWidth) p.scrollTo({ left: c.offsetLeft - (p.clientWidth - c.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+  }, [focus, reduce]);
+  const slots = () => [...(list.current?.querySelectorAll<HTMLElement>('.slot-link') ?? [])];
+  /** One entry point for the picker, arrows and keys, so the ring (or flat shelf) and the chips never disagree. */
+  const select = (i: number) => {
+    i = (i + packs.length) % packs.length;
+    if (ring.current) return ring.current.goTo(i); // the ring reports back through onFocus as it turns
+    setFocus(i);
+    slots()[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  };
+  const scrollBy = (dir: number) => (ring.current ? ring.current.step(dir) : select(focus + dir));
+  // Flat shelf: whichever pack sits nearest the middle is the selected one, however it got there.
+  const onShelfScroll = () => {
+    const l = list.current!;
+    const mid = l.getBoundingClientRect().left + l.clientWidth / 2;
+    const d = slots().map((el) => Math.abs(el.getBoundingClientRect().left + el.offsetWidth / 2 - mid));
+    setFocus(d.indexOf(Math.min(...d)));
   };
   const onKey = (e: KeyboardEvent) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
@@ -135,41 +141,65 @@ export function Home() {
     next?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     e.preventDefault();
   };
+  // Arrow keys move along the picker from the focused chip (not the ring's current slot), so quick presses queue up.
+  const onPickKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const by = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    const chips = [...e.currentTarget.querySelectorAll<HTMLElement>('.chip')];
+    const at = chips.indexOf(document.activeElement as HTMLElement);
+    if (!by || at < 0) return;
+    e.preventDefault();
+    const i = (at + by + packs.length) % packs.length;
+    chips[i].focus();
+    select(i);
+  };
   return (
     <div className="home">
-      <section className="intro">
-        <h1>{profile.name}</h1>
-        <p className="lede">{profile.tagline}</p>
-        <p className="muted">{profile.sub}</p>
-        <p className="shortcuts">
-          <a className="btn" href={profile.resume}>Résumé (PDF)</a>
-          <a className="btn btn-quiet" href={`mailto:${profile.email}`}>Email</a>
-          <a className="btn btn-quiet" href={profile.github}>GitHub</a>
-          <a className="btn btn-quiet" href="#/index">Read it all on one page</a>
-        </p>
-      </section>
+      <div className="home-side">
+        <section className="intro">
+          <h1>{profile.name}</h1>
+          <p className="lede">{profile.tagline}</p>
+          <p className="muted sub">{profile.sub}</p>
+          <p className="shortcuts">
+            <a className="btn" href={profile.resume}>Résumé (PDF)</a>
+            <a className="btn btn-quiet" href={`mailto:${profile.email}`}>Email</a>
+            <a className="btn btn-quiet" href={profile.github}>GitHub</a>
+            <a className="btn btn-quiet" href="#/index">Read it all on one page</a>
+          </p>
+        </section>
 
-      <section className="shelf" aria-labelledby="shelf-h">
-        <div className="shelf-head">
-          <h2 id="shelf-h">Pick a pack</h2>
-          <div className="shelf-ctrl">
-            <fieldset className="seg" aria-label="Cards per repeat pack">
-              <legend className="small muted">Cards per pack</legend>
-              {PACK_SIZES.map((n) => (
-                <label key={n}>
-                  <input type="radio" name="size" checked={s.settings.packSize === n} onChange={() => act((x) => updateSettings(x, { packSize: n }))} />
-                  <span>{n}</span>
-                </label>
-              ))}
-            </fieldset>
-            <button className="icon-btn" onClick={() => scrollBy(-1)} aria-label="Previous pack">‹</button>
-            <button className="icon-btn" onClick={() => scrollBy(1)} aria-label="Next pack">›</button>
+        <section className="shelf-controls" aria-labelledby="shelf-h">
+          <div className="shelf-head">
+            <h2 id="shelf-h">Pick a pack</h2>
+            <div className="shelf-ctrl">
+              <fieldset className="seg" aria-label="Cards per repeat pack">
+                <legend className="small muted">Cards per pack</legend>
+                {PACK_SIZES.map((n) => (
+                  <label key={n}>
+                    <input type="radio" name="size" checked={s.settings.packSize === n} onChange={() => act((x) => updateSettings(x, { packSize: n }))} />
+                    <span>{n}</span>
+                  </label>
+                ))}
+              </fieldset>
+              <button className="icon-btn" onClick={() => scrollBy(-1)} aria-label="Previous pack">‹</button>
+              <button className="icon-btn" onClick={() => scrollBy(1)} aria-label="Next pack">›</button>
+            </div>
           </div>
-        </div>
+          <div className="pack-picker" ref={picker} role="group" aria-label="Choose a pack" onKeyDown={onPickKey}>
+            {packs.map((p, i) => (
+              <button key={p.id} className="chip" aria-pressed={i === focus} onClick={() => select(i)}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+          <p className="small muted hint">Unlimited free packs. Repeat packs always include at least one mid-rarity card or better. Drag, swipe or use the arrows to browse.</p>
+        </section>
+      </div>
+
+      <div className="shelf">
         {use3d ? (
-          <PackRing handle={ring} onFail={fail} />
+          <PackRing handle={ring} onFail={fail} focus={focus} setFocus={setFocus} />
         ) : (
-          <ul className="carousel" ref={list} onKeyDown={onKey}>
+          <ul className="carousel" ref={list} onKeyDown={onKey} onScroll={onShelfScroll} aria-label="Packs">
             {packs.map((p, i) => <PackSlot key={p.id} pack={p} i={i} />)}
             <li className="slot">
               <a className="medal-tile" href="#/medals">
@@ -180,8 +210,7 @@ export function Home() {
             </li>
           </ul>
         )}
-        <p className="small muted hint">Unlimited free packs. Repeat packs always include at least one mid-rarity card or better. Drag, swipe or use the arrows to browse.</p>
-      </section>
+      </div>
     </div>
   );
 }
