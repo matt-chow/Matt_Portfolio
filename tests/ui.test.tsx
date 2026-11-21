@@ -11,6 +11,8 @@ beforeAll(() => {
   window.matchMedia ??= ((q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} })) as never;
   HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) { this.open = true; };
   HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); };
+  // jsdom hides [popover] but can't show one.
+  HTMLElement.prototype.showPopover ??= function (this: HTMLElement) { this.style.display = 'block'; };
   window.scrollTo = () => {};
   Element.prototype.scrollIntoView ??= () => {};
 });
@@ -203,9 +205,39 @@ describe('collection', () => {
   it('sorts A–Z on request', () => {
     nav('#/collection');
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Sort by' }), { target: { value: 'az' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by: Featured' }));
+    fireEvent.click(screen.getByRole('option', { name: 'A–Z' }));
+    expect(screen.queryByRole('listbox')).toBeNull();
     const names = tiles().map((t) => t.getAttribute('aria-label')!.replace(/(, [^,]*)*\. Open details$/, ''));
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it('the sort menu works from the keyboard and hands focus back to its button', () => {
+    nav('#/collection');
+    render(<App />);
+    const btn = screen.getByRole('button', { name: 'Sort by: Featured' });
+    fireEvent.keyDown(btn, { key: 'ArrowDown' });
+    expect(btn.getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(screen.getByRole('option', { name: 'Featured', selected: true }));
+    const list = screen.getByRole('listbox', { name: 'Sort by' });
+    fireEvent.keyDown(list, { key: 'Escape' });
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(document.activeElement).toBe(btn);
+    fireEvent.keyDown(btn, { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Enter' });
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Sort by: Recently found' }));
+  });
+
+  it('the view capsule tracks the current view', () => {
+    for (const [i, v] of ['grid', 'binder', 'checklist', 'favourites', 'slabs'].entries()) {
+      nav(`#/collection/${v}`);
+      const { unmount } = render(<App />);
+      expect((document.querySelector('.view-switch') as HTMLElement).style.getPropertyValue('--i')).toBe(String(i));
+      expect(screen.getByRole('link', { name: ['Grid', 'Binder', 'Checklist', 'Favourites', 'Slabs'][i] }).getAttribute('aria-current')).toBe('page');
+      unmount();
+    }
   });
 
   it('a card opens its details', () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cardById, cards, type CardContent, type PackId } from '../content/manifest';
 import { unlockedRewards } from '../engine/achievements';
@@ -55,6 +55,84 @@ const SORTS = [
   { id: 'az', label: 'A–Z' },
 ] as const;
 type Sort = (typeof SORTS)[number]['id'];
+
+/** Sort picker. The list opens as a manual popover in the browser's top layer, so no toolbar, tooltip,
+ *  card or scroll panel can cover or clip it; it is placed beside its trigger and kept on screen. */
+function SortMenu({ value, onChange }: { value: Sort; onChange: (v: Sort) => void }) {
+  const [open, setOpen] = useState(false);
+  const btn = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLUListElement>(null);
+  const close = (refocus: boolean) => (setOpen(false), refocus && btn.current?.focus());
+  const pick = (v: Sort) => (onChange(v), close(true));
+
+  useLayoutEffect(() => {
+    const m = menu.current, b = btn.current;
+    if (!open || !m || !b) return;
+    m.showPopover();
+    const r = b.getBoundingClientRect();
+    m.style.minWidth = `${r.width}px`;
+    const below = r.bottom + 6 + m.offsetHeight <= innerHeight - 8;
+    m.style.left = `${Math.max(8, Math.min(r.right - m.offsetWidth, innerWidth - m.offsetWidth - 8))}px`;
+    m.style.top = `${below ? r.bottom + 6 : Math.max(8, r.top - 6 - m.offsetHeight)}px`;
+    m.dataset.side = below ? 'bottom' : 'top';
+    m.querySelector<HTMLElement>('[aria-selected="true"]')?.focus();
+    // Anything that would move the trigger out from under the list closes it instead.
+    const away = (e: Event) => !(e.target instanceof Node && m.contains(e.target)) && close(false);
+    addEventListener('resize', away);
+    addEventListener('scroll', away, true);
+    return () => (removeEventListener('resize', away), removeEventListener('scroll', away, true));
+  }, [open]);
+
+  const keys = (e: KeyboardEvent<HTMLUListElement>) => {
+    const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role="option"]')];
+    const i = items.indexOf(document.activeElement as HTMLElement);
+    const to = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: items.length - 1 }[e.key];
+    if (to !== undefined) items[(to + items.length) % items.length].focus();
+    else if (e.key === 'Enter' || e.key === ' ') pick(SORTS[i].id);
+    else if (e.key === 'Escape') close(true);
+    else return;
+    e.preventDefault();
+  };
+
+  return (
+    <div className="sort">
+      <button
+        ref={btn}
+        type="button"
+        className="sort-btn"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Sort by: ${SORTS.find((x) => x.id === value)!.label}`}
+        onMouseDown={(e) => open && e.preventDefault()} // keep focus in the list, so its blur doesn't close it before this click toggles
+        onClick={() => setOpen(!open)}
+        onKeyDown={(e) => (e.key === 'ArrowDown' || e.key === 'ArrowUp') && (e.preventDefault(), setOpen(true))}
+      >
+        <Icon name="sort" />
+        {/* Every label shares one grid cell, so the button keeps the width of the longest. */}
+        <span className="sort-label">{SORTS.map((x) => <span key={x.id} className={x.id === value ? '' : 'ghost'}>{x.label}</span>)}</span>
+        <Icon name="chevron" />
+      </button>
+      {open && (
+        <ul
+          ref={menu}
+          popover="manual"
+          role="listbox"
+          aria-label="Sort by"
+          className="menu"
+          onKeyDown={keys}
+          onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && e.relatedTarget !== btn.current && close(false)}
+        >
+          {SORTS.map((x) => (
+            <li key={x.id} role="option" tabIndex={-1} aria-selected={x.id === value} onClick={() => pick(x.id)}>
+              {x.label}
+              <Icon name="check" />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 /** First time any finish of each card was found. */
 function foundAt(discovered: Record<string, number>) {
@@ -134,7 +212,9 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
         <h1>Binder</h1>
         <p className="muted small">{at.size}/{cards.length} collected</p>
         {decor.map((d) => <span key={d.id} className={`sticker sticker-${d.id}`} title={d.label} aria-label={d.label} role="img" />)}
-        <nav className="view-switch" aria-label="Collection views">
+        <nav className="view-switch" aria-label="Collection views" style={{ '--i': TABS.findIndex((t) => t.id === tab) } as CSSProperties}>
+          {/* One raised capsule that slides to the current view, rather than five separate backgrounds. */}
+          <span className="view-pill" aria-hidden="true" hidden={!TABS.some((t) => t.id === tab)} />
           {TABS.map((t) => (
             <a key={t.id} href={`#/collection/${t.id}${cat !== 'all' ? `?cat=${cat}` : ''}`} className="chip chip-icon" aria-label={t.label} data-tip={t.label} aria-current={tab === t.id ? 'page' : undefined}>
               <Icon name={t.icon} />
@@ -156,13 +236,7 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
           <span className="sr-only">Search cards</span>
           <input type="search" placeholder="Search" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
         </label>
-        <label className="sort">
-          <Icon name="sort" />
-          <span className="sr-only">Sort by</span>
-          <select value={sort} onChange={(e) => (setSort(e.target.value as Sort), setPage(0))}>
-            {SORTS.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
-          </select>
-        </label>
+        <SortMenu value={sort} onChange={(v) => (setSort(v), setPage(0))} />
       </div>
 
       {/* Only this scrolls; the head and filters above stay put. */}

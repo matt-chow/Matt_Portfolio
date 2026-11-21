@@ -46,13 +46,13 @@ const ICONS = {
       <path d="M12 6.5v13" />
     </>
   ),
-  checklist: <path d="m3.5 6.5 1.5 1.5 3-3M3.5 12.5 5 14l3-3M3.5 18.5 5 20l3-3M11.5 7H20M11.5 13H20M11.5 19H20" />,
+  checklist: <path d="m3.5 6 1.5 1.5 3-3M3.5 12 5 13.5l3-3M3.5 18 5 19.5l3-3M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20" />,
   star: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />,
   slab: (
     <>
-      <rect x="5" y="2.5" width="14" height="19" rx="2" />
-      <path d="M5 7h14" />
-      <rect x="8" y="10" width="8" height="8.5" rx="1" />
+      <rect x="5.5" y="3.5" width="13" height="17" rx="2" />
+      <path d="M5.5 7.5h13" />
+      <rect x="8.5" y="10.5" width="7" height="7" rx="1" />
     </>
   ),
   search: (
@@ -68,6 +68,8 @@ const ICONS = {
       <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
     </>
   ),
+  chevron: <path d="m7 10 5 5 5-5" />,
+  check: <path d="m5.5 12.5 4 4 9-9" />,
   prev: <path d="m14.5 6-6 6 6 6" />,
   next: <path d="m9.5 6 6 6-6 6" />,
 };
