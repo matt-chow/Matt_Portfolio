@@ -147,6 +147,7 @@ main {
     margin: 0;
   }
   .scroll-y {
+    position: relative; /* contains absolutely placed children (e.g. .sr-only) so they can't stretch the page */
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;

@@ -645,6 +645,53 @@
   gap: 1.5rem;
   justify-items: center;
 }
+/* Collection as one screen: head, tabs and filters stay; only the view below them scrolls. */
+@media (min-height: 640px), (min-width: 600px) and (min-height: 540px) {
+  [data-layout='app'] .collection .page-head {
+    margin-bottom: 0.25rem;
+  }
+  [data-layout='app'] .collection > [role='status'] {
+    margin: 0;
+  }
+  [data-layout='app'] .collection-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1rem;
+    padding: 0.5rem 0 0.75rem;
+  }
+  [data-layout='app'] .collection-bar .tabs,
+  [data-layout='app'] .collection-bar .filters {
+    margin: 0;
+  }
+  [data-layout='app'] .collection-bar .filters {
+    flex: 1 1 300px;
+    flex-wrap: nowrap;
+    max-width: 560px;
+  }
+  [data-layout='app'] .collection-bar .filters .field:first-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  [data-layout='app'] .collection-body {
+    container-type: size;
+    /* Room for raised shadows and the stack-count badges that hang off each card. */
+    padding: 14px 14px 1.5rem;
+    margin-inline: -14px;
+    border-top: 1px solid var(--line);
+  }
+  [data-layout='app'] .view-binder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* A whole binder page fits the panel, so paging never needs scrolling. */
+  [data-layout='app'] .binder-page {
+    width: min(100%, clamp(250px, calc((100cqh - 90px) / 1.2), 760px));
+    margin-bottom: 0.75rem;
+  }
+}
 .sticker {
   width: 36px;
   height: 36px;
