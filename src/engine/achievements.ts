@@ -48,7 +48,8 @@ export const achievements: Achievement[] = [
   { id: 'hoarder', name: 'Hoarder', desc: 'Own 100 cards.', medal: 'silver', test: (s) => owned(s) >= 100 },
   { id: 'favourites', name: 'Top Loader', desc: 'Favourite 3 cards.', medal: 'bronze', test: (s) => s.favourites.length >= 3 },
   { id: 'night-shift', name: 'Night Shift', desc: 'Switch the lighting.', medal: 'bronze', test: (s) => !!s.flags.theme },
-  { id: 'backup', name: 'Safe Keeping', desc: 'Export your collection.', medal: 'bronze', test: (s) => !!s.flags.exported },
+  // Was 'Export your collection'; saves are automatic now. Already-earned medals stay earned (s.achievements).
+  { id: 'backup', name: 'Safe Keeping', desc: 'Grade a card you favourited.', medal: 'bronze', test: (s) => s.slabs.some((x) => s.favourites.includes(x.cardId)) },
 ];
 
 export const achievementById = new Map(achievements.map((a) => [a.id, a]));

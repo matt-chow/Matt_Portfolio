@@ -1,138 +1,170 @@
 import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { cardById, cards, type CardContent } from '../content/manifest';
+import { cardById, cards, type CardContent, type PackId } from '../content/manifest';
 import { unlockedRewards } from '../engine/achievements';
 import { packById, packs, parseKey, variantKey } from '../engine/packs';
-import { parseState, setFlag } from '../engine/state';
-import { act, getState, replaceState, useStore } from '../store';
+import { useStore } from '../store';
 import { Card } from './Card';
 import { Slab } from './Slab';
+import { Icon } from './Icons';
 import { useOpenDetail } from './App';
 
 const TABS = [
-  { id: 'grid', label: 'Grid' },
-  { id: 'binder', label: 'Binder' },
-  { id: 'checklist', label: 'Checklist' },
-  { id: 'favourites', label: 'Favourites' },
-  { id: 'slabs', label: 'Slabs' },
-];
+  { id: 'grid', label: 'Grid', icon: 'grid' },
+  { id: 'binder', label: 'Binder', icon: 'binder' },
+  { id: 'checklist', label: 'Checklist', icon: 'checklist' },
+  { id: 'favourites', label: 'Favourites', icon: 'star' },
+  { id: 'slabs', label: 'Slabs', icon: 'slab' },
+] as const;
 const PER_PAGE = 9;
+
+export const CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'research', label: 'Research' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'other', label: 'Other' },
+] as const;
+export type Category = (typeof CATEGORIES)[number]['id'];
+
+/** Portfolio category, independent of the pack a card comes from (Highlights holds both projects and research). */
+export function category(c: CardContent): Category {
+  if (c.pack === 'experience' || c.pack === 'skills') return c.pack;
+  if (c.pack === 'highlights') return c.kicker === 'Publication' || c.kicker === 'Presentation' ? 'research' : 'projects';
+  return c.pack === 'prototype' ? 'projects' : 'other';
+}
+
+/** Default order: featured work first, archive material last. Lower is earlier. */
+export function relevance(c: CardContent) {
+  if (c.subset === 'Featured' || c.pack === 'highlights') return 0;
+  if (c.pack === 'skills') return 1;
+  if (c.subset === 'Supplemental' || c.pack === 'starter') return 2;
+  if (c.pack === 'prototype') return 3;
+  return 4; // Career Foundations, Personal
+}
+
+/** Where to land after opening a pack. Highlights spans two categories, so it shows everything. */
+export const PACK_CATEGORY: Record<PackId, Category> = {
+  starter: 'other', experience: 'experience', highlights: 'all', skills: 'skills', prototype: 'projects', personal: 'other',
+};
+
+const SORTS = [
+  { id: 'featured', label: 'Featured' },
+  { id: 'recent', label: 'Recently found' },
+  { id: 'az', label: 'A–Z' },
+] as const;
+type Sort = (typeof SORTS)[number]['id'];
+
+/** First time any finish of each card was found. */
+function foundAt(discovered: Record<string, number>) {
+  const at = new Map<string, number>();
+  for (const [k, t] of Object.entries(discovered)) {
+    const id = parseKey(k).cardId;
+    at.set(id, Math.min(at.get(id) ?? Infinity, t));
+  }
+  return at;
+}
 
 /** Best owned finish of a card (ungraded stacks only), or undefined. */
 function bestTier(stacks: Record<string, number>, c: CardContent) {
   return [...packById.get(c.pack)!.tiers].reverse().find((t) => stacks[variantKey(c.id, t.id)]);
 }
 
-function CardTile({ c }: { c: CardContent }) {
+/** Every card shows its art and opens its details, found or not; collecting only adds finishes and counts. */
+function CardTile({ c, found }: { c: CardContent; found: boolean }) {
   const s = useStore();
   const openDetail = useOpenDetail();
   const best = bestTier(s.stacks, c);
   const total = packById.get(c.pack)!.tiers.reduce((n, t) => n + (s.stacks[variantKey(c.id, t.id)] ?? 0), 0);
-  const seen = Object.keys(s.discovered).some((k) => parseKey(k).cardId === c.id);
-  if (!seen)
-    return (
-      <button className="card-btn silhouette" onClick={() => openDetail({ cardId: c.id })} aria-label={`${c.title}, not collected yet. Read it anyway`}>
-        <span className="sil-card"><span>{c.title}</span></span>
-      </button>
-    );
+  const fav = s.favourites.includes(c.id);
   return (
-    <button className="card-btn" onClick={() => openDetail({ cardId: c.id, tier: best?.id })} aria-label={`${c.title}${best ? `, best finish ${best.label}` : ''}, ${total} ungraded. Open details`}>
+    <button
+      className="card-btn"
+      onClick={() => openDetail({ cardId: c.id, tier: best?.id })}
+      aria-label={`${c.title}${found ? (total > 1 ? `, ${total} copies` : '') : ', not collected yet'}${fav ? ', favourite' : ''}. Open details`}
+    >
       <Card card={c} tier={best?.id ?? packById.get(c.pack)!.tiers[0].id} back={s.equipped.back} frame={s.equipped.frame} />
-      {total > 1 && <span className="stack-count">×{total}</span>}
-      {s.favourites.includes(c.id) && <span className="fav-pin" aria-hidden="true">★</span>}
+      {!found && <span className="tile-badge unfound" title="Not collected yet" />}
+      {found && total > 1 && <span className="tile-badge">×{total}</span>}
+      {fav && <span className="fav-pin" aria-hidden="true">★</span>}
     </button>
   );
 }
 
-function download() {
-  const blob = new Blob([JSON.stringify(getState(), null, 2)], { type: 'application/json' });
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `collectors-archive-${new Date().toISOString().slice(0, 10)}.json` });
-  a.click();
-  URL.revokeObjectURL(a.href);
-  act((s) => setFlag(s, 'exported'));
-}
-
-export function Collection({ tab = 'grid', pack }: { tab?: string; pack?: string }) {
+export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; cat?: string }) {
   const s = useStore();
   const reduce = useReducedMotion();
   const [q, setQ] = useState('');
-  const [filter, setFilter] = useState(pack ?? 'all');
+  const [cat, setCat] = useState<Category>(CATEGORIES.some((x) => x.id === initialCat) ? (initialCat as Category) : 'all');
+  const [sort, setSort] = useState<Sort>('featured');
   const [page, setPage] = useState(0);
   const [dir, setDir] = useState(1);
-  const [msg, setMsg] = useState('');
   const openDetail = useOpenDetail();
   const decor = unlockedRewards(s, 'decor');
 
-  const list = cards.filter(
-    (c) => (filter === 'all' || c.pack === filter) && (!q || `${c.title} ${c.subtitle ?? ''} ${c.summary} ${c.tags?.join(' ') ?? ''}`.toLowerCase().includes(q.toLowerCase())),
-  );
+  const at = foundAt(s.discovered);
+  const needle = q.trim().toLowerCase();
+  const matches = (c: CardContent) =>
+    (cat === 'all' || category(c) === cat) &&
+    (!needle || `${c.title} ${c.subtitle ?? ''} ${c.kicker ?? ''} ${c.summary} ${c.tags?.join(' ') ?? ''}`.toLowerCase().includes(needle));
+  const order: Record<Sort, (a: CardContent, b: CardContent) => number> = {
+    featured: (a, b) => relevance(a) - relevance(b),
+    recent: (a, b) => (at.get(b.id) ?? -1) - (at.get(a.id) ?? -1) || relevance(a) - relevance(b),
+    az: (a, b) => a.title.localeCompare(b.title),
+  };
+  const list = cards.filter(matches).sort(order[sort]); // filter copies, so sorting never touches the manifest
+
   const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
   const pg = Math.min(page, pages - 1);
   const turn = (d: number) => (setDir(d), setPage(Math.max(0, Math.min(pages - 1, pg + d))));
-  const found = cards.filter((c) => Object.keys(s.discovered).some((k) => parseKey(k).cardId === c.id)).length;
-
-  const importFile = async (file?: File) => {
-    if (!file) return;
-    try {
-      const next = parseState(JSON.parse(await file.text()));
-      if (!confirm('Replace your current collection with this file? This cannot be undone.')) return;
-      replaceState(next);
-      setMsg('Collection imported.');
-    } catch {
-      setMsg('That file is not a save exported from this site. Nothing was changed.');
-    }
-  };
+  const favs = list.filter((c) => s.favourites.includes(c.id));
+  const slabs = [...s.slabs].reverse().filter((x) => matches(cardById.get(x.cardId)!));
+  const noMatch = needle ? `No cards match “${q.trim()}”.` : 'No cards in this category.';
 
   return (
     <div className="page collection">
-      <div className="page-head">
-        <div>
-          <h1>Your binder</h1>
-          <p className="muted">{found} of {cards.length} cards found · {Object.keys(s.discovered).length} finishes · {s.slabs.length} slabs</p>
-        </div>
-        <div className="row">
-          {decor.map((d) => <span key={d.id} className={`sticker sticker-${d.id}`} title={d.label} aria-label={d.label} role="img" />)}
-          <button className="btn btn-quiet" onClick={download}>Export JSON</button>
-          <label className="btn btn-quiet">
-            Import JSON
-            <input type="file" accept="application/json,.json" className="sr-only" onChange={(e) => (importFile(e.target.files?.[0]), (e.target.value = ''))} />
-          </label>
-        </div>
-      </div>
-      <p role="status" className="small">{msg}</p>
-
-      <div className="collection-bar">
-        <nav className="tabs" aria-label="Collection views">
+      <div className="collection-head">
+        <h1>Binder</h1>
+        <p className="muted small">{at.size}/{cards.length} collected</p>
+        {decor.map((d) => <span key={d.id} className={`sticker sticker-${d.id}`} title={d.label} aria-label={d.label} role="img" />)}
+        <nav className="view-switch" aria-label="Collection views">
           {TABS.map((t) => (
-            <a key={t.id} href={`#/collection/${t.id}${filter !== 'all' ? `?pack=${filter}` : ''}`} className="nav-pill" aria-current={tab === t.id ? 'page' : undefined}>
-              {t.label}
+            <a key={t.id} href={`#/collection/${t.id}${cat !== 'all' ? `?cat=${cat}` : ''}`} className="chip chip-icon" aria-label={t.label} data-tip={t.label} aria-current={tab === t.id ? 'page' : undefined}>
+              <Icon name={t.icon} />
             </a>
           ))}
         </nav>
-
-        {(tab === 'grid' || tab === 'binder' || tab === 'checklist') && (
-          <div className="filters">
-            <label className="field">
-              <span className="sr-only">Search cards</span>
-              <input type="search" placeholder="Search cards" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
-            </label>
-            <label className="field">
-              <span className="sr-only">Pack</span>
-              <select value={filter} onChange={(e) => (setFilter(e.target.value), setPage(0))}>
-                <option value="all">All packs</option>
-                {packs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </label>
-          </div>
-        )}
       </div>
 
-      {/* Only this scrolls; the head, tabs and filters above stay put. */}
+      <div className="collection-bar">
+        <div className="pack-picker cat-row" role="group" aria-label="Category">
+          {CATEGORIES.map((x) => (
+            <button key={x.id} className="chip" aria-pressed={cat === x.id} onClick={() => (setCat(x.id), setPage(0))}>
+              {x.label}
+            </button>
+          ))}
+        </div>
+        <label className="search">
+          <Icon name="search" />
+          <span className="sr-only">Search cards</span>
+          <input type="search" placeholder="Search" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
+        </label>
+        <label className="sort">
+          <Icon name="sort" />
+          <span className="sr-only">Sort by</span>
+          <select value={sort} onChange={(e) => (setSort(e.target.value as Sort), setPage(0))}>
+            {SORTS.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+          </select>
+        </label>
+      </div>
+
+      {/* Only this scrolls; the head and filters above stay put. */}
       <div className={`collection-body scroll-y view-${tab}`}>
         {tab === 'grid' && (
           <ul className="card-grid">
-            {list.map((c) => <li key={c.id}><CardTile c={c} /></li>)}
-            {!list.length && <li className="empty">No cards match “{q}”.</li>}
+            {list.map((c) => <li key={c.id}><CardTile c={c} found={at.has(c.id)} /></li>)}
+            {!list.length && <li className="empty">{noMatch}</li>}
           </ul>
         )}
 
@@ -140,7 +172,7 @@ export function Collection({ tab = 'grid', pack }: { tab?: string; pack?: string
           <div className="binder">
             <AnimatePresence mode="wait" custom={dir}>
               <motion.ul
-                key={`${filter}-${pg}`}
+                key={`${cat}-${sort}-${pg}`}
                 className="binder-page"
                 initial={reduce ? false : { rotateY: dir * 70, opacity: 0 }}
                 animate={{ rotateY: 0, opacity: 1 }}
@@ -149,65 +181,70 @@ export function Collection({ tab = 'grid', pack }: { tab?: string; pack?: string
                 aria-label={`Binder page ${pg + 1} of ${pages}`}
               >
                 {Array.from({ length: PER_PAGE }, (_, i) => list[pg * PER_PAGE + i]).map((c, i) => (
-                  <li key={c?.id ?? `empty-${i}`} className="pocket">{c ? <CardTile c={c} /> : <span className="pocket-empty" />}</li>
+                  <li key={c?.id ?? `empty-${i}`} className="pocket">{c ? <CardTile c={c} found={at.has(c.id)} /> : <span className="pocket-empty" />}</li>
                 ))}
               </motion.ul>
             </AnimatePresence>
             <div className="row center">
-              <button className="btn btn-quiet" onClick={() => turn(-1)} disabled={pg === 0}>Previous page</button>
+              <button className="icon-btn icon-sm" onClick={() => turn(-1)} disabled={pg === 0} aria-label="Previous page"><Icon name="prev" /></button>
               <span className="mono small">{pg + 1} / {pages}</span>
-              <button className="btn btn-quiet" onClick={() => turn(1)} disabled={pg >= pages - 1}>Next page</button>
+              <button className="icon-btn icon-sm" onClick={() => turn(1)} disabled={pg >= pages - 1} aria-label="Next page"><Icon name="next" /></button>
             </div>
           </div>
         )}
 
         {tab === 'checklist' && (
           <div className="checklist">
-            {packs.filter((p) => filter === 'all' || p.id === filter).map((p) => (
-              <table key={p.id}>
-                <caption>{p.name}</caption>
-                <thead>
-                  <tr><th scope="col">Card</th>{p.tiers.map((t) => <th key={t.id} scope="col">{t.label}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {list.filter((c) => c.pack === p.id).map((c) => (
-                    <tr key={c.id}>
-                      <th scope="row"><button className="linkish" onClick={() => openDetail({ cardId: c.id })}>{c.title}</button></th>
-                      {p.tiers.map((t) => {
-                        const k = variantKey(c.id, t.id);
-                        const n = s.stacks[k] ?? 0;
-                        const slabbed = s.slabs.filter((x) => x.cardId === c.id && x.tier === t.id).length;
-                        return (
-                          <td key={t.id} className={s.discovered[k] ? 'got' : ''}>
-                            {s.discovered[k] ? <>✓{n > 0 && <span className="muted"> ×{n}</span>}{slabbed > 0 && <span className="muted"> +{slabbed} slab</span>}</> : <span className="sr-only">missing</span>}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ))}
+            {packs.map((p) => {
+              const rows = list.filter((c) => c.pack === p.id);
+              if (!rows.length) return null;
+              return (
+                <table key={p.id}>
+                  <caption>{p.name}</caption>
+                  <thead>
+                    <tr><th scope="col">Card</th>{p.tiers.map((t) => <th key={t.id} scope="col">{t.label}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((c) => (
+                      <tr key={c.id}>
+                        <th scope="row"><button className="linkish" onClick={() => openDetail({ cardId: c.id })}>{c.title}</button></th>
+                        {p.tiers.map((t) => {
+                          const k = variantKey(c.id, t.id);
+                          const n = s.stacks[k] ?? 0;
+                          const slabbed = s.slabs.filter((x) => x.cardId === c.id && x.tier === t.id).length;
+                          return (
+                            <td key={t.id} className={s.discovered[k] ? 'got' : ''}>
+                              {s.discovered[k] ? <>✓{n > 0 && <span className="muted"> ×{n}</span>}{slabbed > 0 && <span className="muted"> +{slabbed} slab</span>}</> : <span className="sr-only">missing</span>}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })}
+            {!list.length && <p className="empty">{noMatch}</p>}
           </div>
         )}
 
         {tab === 'favourites' && (
           <ul className="card-grid">
-            {s.favourites.map((id) => cards.find((c) => c.id === id)).filter((c) => !!c).map((c) => <li key={c.id}><CardTile c={c} /></li>)}
-            {!s.favourites.length && <li className="empty">No favourites yet. Open a card and press Favourite to pin it here.</li>}
+            {favs.map((c) => <li key={c.id}><CardTile c={c} found={at.has(c.id)} /></li>)}
+            {!favs.length && <li className="empty">{s.favourites.length ? noMatch : 'No favourites yet. Open a card and press Favourite to pin it here.'}</li>}
           </ul>
         )}
 
         {tab === 'slabs' && (
           <ul className="slab-shelf">
-            {[...s.slabs].reverse().map((x) => (
+            {slabs.map((x) => (
               <li key={x.id}>
                 <button className="card-btn" onClick={() => openDetail({ cardId: x.cardId, tier: x.tier })} aria-label={`Open ${cardById.get(x.cardId)?.title} details`}>
                   <Slab slab={x} frame={s.equipped.frame} />
                 </button>
               </li>
             ))}
-            {!s.slabs.length && <li className="empty">No slabs yet. Open any card you own and press Grade one.</li>}
+            {!slabs.length && <li className="empty">{s.slabs.length ? noMatch : 'No slabs yet. Open any card you own and press Grade one.'}</li>}
           </ul>
         )}
       </div>

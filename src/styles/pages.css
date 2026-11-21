@@ -552,56 +552,166 @@
 }
 
 /* ---------- Collection ---------- */
-.tabs {
+.collection-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.5rem 0 1.2rem;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
 }
-.filters {
+.collection-head h1 {
+  font-size: clamp(1.5rem, 1vw + 1.1rem, 1.9rem);
+  margin: 0;
+}
+.collection-head p {
+  margin: 0 auto 0 0;
+}
+.collection-head .sticker {
+  width: 26px;
+  height: 26px;
+}
+/* Views: a sunk track of icon chips. No overflow here, so the tooltips below aren't clipped. */
+.view-switch {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--sunk);
+  box-shadow: var(--press);
+}
+.chip-icon {
+  width: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.chip-icon svg,
+.search svg,
+.sort svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.collection-bar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.6rem;
-  margin-bottom: 1.4rem;
+  padding-bottom: 0.75rem;
 }
-.filters .field:first-child {
-  flex: 1 1 220px;
+.cat-row {
+  flex: 0 1 auto;
 }
-.filters input {
+.search,
+.sort {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--ink-2);
+}
+.search {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.search svg,
+.sort svg {
+  position: absolute;
+  left: 13px;
+  pointer-events: none;
+}
+.search input,
+.sort select {
+  font: 500 0.9rem var(--ui);
+  color: var(--ink);
+  background: var(--sunk);
+  border: 0;
+  border-radius: 999px;
+  min-height: 48px; /* matches the 5px-padded chip tracks */
+  padding: 0 1rem 0 2.4rem;
+  box-shadow: var(--press);
+}
+.search input {
   width: 100%;
 }
-.stack-count {
+.sort select {
+  cursor: pointer;
+}
+.search input:focus-visible,
+.sort select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .search input,
+  .sort select {
+    font-size: 16px; /* below 16px, iOS zooms the page on focus */
+  }
+}
+@media (max-width: 720px) {
+  .collection-head .view-switch {
+    margin-left: auto;
+  }
+  .cat-row {
+    flex-basis: 100%;
+  }
+}
+/* Phones: title and views share one row; the count is already on the Binder nav pill. */
+@media (max-width: 480px) {
+  .collection-head p {
+    display: none;
+  }
+  .view-switch {
+    gap: 2px;
+    padding: 4px;
+  }
+  .view-switch .chip-icon {
+    width: 36px;
+    min-height: 36px;
+  }
+}
+/* Collectible status stays small and quiet; the card art and title lead. */
+.tile-badge {
   position: absolute;
   right: -6px;
   bottom: -6px;
   z-index: 10;
-  font: 700 0.8rem var(--mono);
-  background: var(--ink);
-  color: var(--ground);
+  min-width: 12px;
+  min-height: 12px;
+  font: 600 0.7rem/1 var(--mono);
+  color: var(--ink-2);
+  background: var(--surface);
   border-radius: 999px;
-  padding: 0.25rem 0.55rem;
+  padding: 0.22rem 0.42rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+/* Not collected yet: an empty ring hanging off the corner, so it never covers the art. */
+.tile-badge.unfound {
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in oklab, var(--ink-2) 55%, transparent);
 }
 .fav-pin {
   position: absolute;
   left: -6px;
-  top: -6px;
+  top: -8px;
   z-index: 10;
   color: var(--gold);
-  font-size: 1.3rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
-.silhouette .sil-card {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 5 / 7;
-  border-radius: 14px;
-  box-shadow: var(--press);
-  background: var(--sunk);
-  padding: 1rem;
-  text-align: center;
-  color: var(--ink-2);
-  font-family: var(--display);
-  font-size: 0.95rem;
+.icon-btn.icon-sm {
+  width: 38px;
+  height: 38px;
+}
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
 }
 .empty {
   grid-column: 1 / -1;
@@ -671,38 +781,11 @@
   gap: 1.5rem;
   justify-items: center;
 }
-/* Collection as one screen: head, tabs and filters stay; only the view below them scrolls. */
+/* Collection as one screen: head, views and filters stay; only the view below them scrolls. */
 @media (min-height: 640px), (min-width: 600px) and (min-height: 540px) {
-  [data-layout='app'] .collection .page-head {
-    margin-bottom: 0.25rem;
-  }
-  [data-layout='app'] .collection > [role='status'] {
-    margin: 0;
-  }
-  [data-layout='app'] .collection-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem 1rem;
-    padding: 0.5rem 0 0.75rem;
-  }
-  [data-layout='app'] .collection-bar .tabs,
-  [data-layout='app'] .collection-bar .filters {
-    margin: 0;
-  }
-  [data-layout='app'] .collection-bar .filters {
-    flex: 1 1 300px;
-    flex-wrap: nowrap;
-    max-width: 560px;
-  }
-  [data-layout='app'] .collection-bar .filters .field:first-child {
-    flex: 1 1 0;
-    min-width: 0;
-  }
   [data-layout='app'] .collection-body {
     container-type: size;
-    /* Room for raised shadows and the stack-count badges that hang off each card. */
+    /* Room for the raised shadows around each card. */
     padding: 14px 14px 1.5rem;
     margin-inline: -14px;
     border-top: 1px solid var(--line);
@@ -1070,7 +1153,8 @@
   margin-top: 0.7rem !important;
 }
 /* A sunken track; chips lift on hover, sink when pressed and sit raised in indigo when chosen. */
-.pack-picker {
+.pack-picker,
+.cat-row {
   display: flex;
   gap: 4px;
   padding: 5px;
@@ -1082,7 +1166,8 @@
   background: var(--sunk);
   box-shadow: var(--press);
 }
-.pack-picker::-webkit-scrollbar {
+.pack-picker::-webkit-scrollbar,
+.cat-row::-webkit-scrollbar {
   display: none;
 }
 .chip {
@@ -1100,12 +1185,15 @@
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.2s, box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.2s, translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.chip:hover {
-  color: var(--ink);
-  background: color-mix(in oklab, var(--surface) 60%, transparent);
-  box-shadow: 2px 2px 5px var(--lo), -2px -2px 5px var(--hi);
+@media (hover: hover) {
+  .chip:hover {
+    color: var(--ink);
+    background: color-mix(in oklab, var(--surface) 60%, transparent);
+    box-shadow: 2px 2px 5px var(--lo), -2px -2px 5px var(--hi);
+  }
 }
-.chip[aria-pressed='true'] {
+.chip[aria-pressed='true'],
+.chip[aria-current='page'] {
   color: var(--accent);
   background: var(--surface);
   box-shadow: var(--raise-sm);

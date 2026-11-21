@@ -162,3 +162,54 @@ describe('drag to tear (flat fallback, as jsdom has no WebGL)', () => {
     expect(getState().opened.prototype).toBe(1);
   });
 });
+
+describe('collection', () => {
+  const tiles = () => screen.getAllByRole('button', { name: /Open details$/ });
+
+  it('shows every card, found or not, featured work first, with no JSON import/export', () => {
+    nav('#/collection');
+    render(<App />);
+    expect(tiles()).toHaveLength(cards.length);
+    expect(tiles()[0].getAttribute('aria-label')).toMatch(/^Infrastructure Canada/);
+    expect(screen.queryByText(/Export JSON|Import JSON/)).toBeNull();
+    expect(document.querySelector('input[type=file]')).toBeNull();
+  });
+
+  it('views are icon-only links with names, tooltips and a current state', () => {
+    nav('#/collection/binder');
+    render(<App />);
+    const links = [...screen.getByRole('navigation', { name: 'Collection views' }).querySelectorAll('a')];
+    expect(links.map((a) => a.getAttribute('aria-label'))).toEqual(['Grid', 'Binder', 'Checklist', 'Favourites', 'Slabs']);
+    for (const a of links) expect(a.dataset.tip).toBe(a.getAttribute('aria-label'));
+    expect(links[1].getAttribute('aria-current')).toBe('page');
+  });
+
+  it('category chips and search narrow the grid together', () => {
+    nav('#/collection');
+    render(<App />);
+    const chips = [...screen.getByRole('group', { name: 'Category' }).querySelectorAll('button')];
+    expect(chips.map((c) => c.textContent)).toEqual(['All', 'Experience', 'Projects', 'Research', 'Skills', 'Other']);
+    fireEvent.click(chips[3]);
+    expect(chips[3].getAttribute('aria-pressed')).toBe('true');
+    expect(tiles().map((t) => t.getAttribute('aria-label')!.split(',')[0].split('.')[0])).toEqual(['Peaks and primes', 'CASSIS 2024 poster', 'CMSAC 2025 poster']);
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search cards' }), { target: { value: 'volleyball' } });
+    expect(tiles()).toHaveLength(1); // CMSAC; rvolleydata matches too but is a project
+    fireEvent.click(chips[0]);
+    expect(tiles().length).toBeGreaterThan(1);
+  });
+
+  it('sorts A–Z on request', () => {
+    nav('#/collection');
+    render(<App />);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Sort by' }), { target: { value: 'az' } });
+    const names = tiles().map((t) => t.getAttribute('aria-label')!.replace(/(, [^,]*)*\. Open details$/, ''));
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it('a card opens its details', () => {
+    nav('#/collection');
+    render(<App />);
+    fireEvent.click(tiles()[0]);
+    expect(screen.getByRole('heading', { level: 2, name: 'Infrastructure Canada' })).toBeTruthy();
+  });
+});

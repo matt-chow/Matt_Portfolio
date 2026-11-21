@@ -201,7 +201,7 @@ describe('grading', () => {
 });
 
 describe('persistence', () => {
-  it('round-trips state through JSON export/import', () => {
+  it('round-trips state through its saved JSON', () => {
     let s = openPack(initialState(), 'experience', seeded(11)).state;
     s = openPack(s, 'experience', seeded(12)).state;
     expect(parseState(JSON.parse(JSON.stringify(s)))).toEqual(s);
@@ -238,5 +238,26 @@ describe('achievements', () => {
     expect(s.achievements['all-packs']).toBeDefined();
     // Every professional card is discovered after one tour; Personal is a random pool (and every card is on the Index page).
     for (const c of cards.filter((x) => x.pack !== 'personal')) expect(Object.keys(s.discovered).some((k) => k.startsWith(`${c.id}|`))).toBe(true);
+  });
+});
+
+describe('portfolio categories', () => {
+  it('files every card, splitting Highlights into projects and research', async () => {
+    const { category, relevance } = await import('../src/ui/Collection');
+    const of = (id: string) => category(cards.find((c) => c.id === id)!);
+    expect([of('infc'), of('peaks'), of('cmsac'), of('rvolleydata'), of('printdnd'), of('tetra'), of('skill-sql'), of('profile'), of('p-sky')])
+      .toEqual(['experience', 'research', 'research', 'projects', 'projects', 'projects', 'skills', 'other', 'other']);
+    const rank = (id: string) => relevance(cards.find((c) => c.id === id)!);
+    expect(rank('infc')).toBeLessThan(rank('uwaggs'));
+    expect(rank('peaks')).toBeLessThan(rank('softron'));
+    expect(rank('uwaggs')).toBeLessThan(rank('softron'));
+  });
+
+  it('Safe Keeping is earned by grading a favourite, now that saves are automatic', () => {
+    let s = openPack(initialState(), 'skills', seeded(21)).state;
+    const key = Object.keys(s.stacks)[0];
+    s = { ...s, favourites: [key.split('|')[0]] };
+    s = gradeOne(s, key, seeded(22), 'slab-fav').state;
+    expect(s.achievements.backup).toBeDefined();
   });
 });

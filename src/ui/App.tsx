@@ -120,7 +120,7 @@ export function App() {
 
   let page;
   if (route.page === 'open' && route.arg) page = <Opening key={route.arg} packId={route.arg as PackId} quick={route.query.has('quick')} />;
-  else if (route.page === 'collection') page = <Collection tab={route.arg} pack={route.query.get('pack') ?? undefined} />;
+  else if (route.page === 'collection') page = <Collection tab={route.arg} cat={route.query.get('cat') ?? undefined} />;
   else if (route.page === 'medals') page = <Medals />;
   else if (route.page === 'index') page = <IndexPage />;
   else page = <Home />;

@@ -8,6 +8,7 @@ import { sfx } from '../sound';
 import { Card } from './Card';
 import { TearPack } from './TearPack';
 import { go, useOpenDetail } from './App';
+import { PACK_CATEGORY } from './Collection';
 
 // NEW badges for the latest opening, keyed by its timestamp (not persisted; replays show none).
 let freshFlags: { at: number; isNew: boolean[] } | undefined;
@@ -109,7 +110,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         }),
       ).finally(() => document.documentElement.classList.remove('is-filing'));
     }
-    go(`/collection/binder?pack=${packId}`);
+    go(`/collection/binder?cat=${PACK_CATEGORY[packId]}`);
   };
 
   return (

@@ -29,6 +29,39 @@ const ICONS = {
       <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
     </>
   ),
+  // Collection views and filters
+  grid: (
+    <>
+      <rect x="3" y="4" width="5" height="7" rx="1.2" />
+      <rect x="9.5" y="4" width="5" height="7" rx="1.2" />
+      <rect x="16" y="4" width="5" height="7" rx="1.2" />
+      <rect x="3" y="13" width="5" height="7" rx="1.2" />
+      <rect x="9.5" y="13" width="5" height="7" rx="1.2" />
+      <rect x="16" y="13" width="5" height="7" rx="1.2" />
+    </>
+  ),
+  binder: (
+    <>
+      <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Z" />
+      <path d="M12 6.5v13" />
+    </>
+  ),
+  checklist: <path d="m3.5 6.5 1.5 1.5 3-3M3.5 12.5 5 14l3-3M3.5 18.5 5 20l3-3M11.5 7H20M11.5 13H20M11.5 19H20" />,
+  star: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />,
+  slab: (
+    <>
+      <rect x="5" y="2.5" width="14" height="19" rx="2" />
+      <path d="M5 7h14" />
+      <rect x="8" y="10" width="8" height="8.5" rx="1" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </>
+  ),
+  sort: <path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3" />,
   prev: <path d="m14.5 6-6 6 6 6" />,
   next: <path d="m9.5 6 6 6-6 6" />,
 };

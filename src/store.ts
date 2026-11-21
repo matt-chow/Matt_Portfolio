@@ -27,9 +27,6 @@ export function actWith<R>(fn: (s: State) => { state: State } & R): R {
   return out;
 }
 
-export function replaceState(next: State) {
-  act(() => next);
-}
 
 const subscribe = (l: () => void) => (listeners.add(l), () => void listeners.delete(l));
 export const useStore = () => useSyncExternalStore(subscribe, getState);

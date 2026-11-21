@@ -374,18 +374,6 @@ a {
   opacity: 0.5;
 }
 
-.field input,
-.field select {
-  font: inherit;
-  color: var(--ink);
-  background: var(--sunk);
-  border: 0;
-  border-radius: 999px;
-  padding: 0.7rem 1.1rem;
-  min-height: 44px;
-  box-shadow: var(--press);
-}
-
 /* --- Shell --- */
 .topbar {
   position: sticky;
