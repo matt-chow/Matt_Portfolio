@@ -47,7 +47,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
     setFlipped(false);
     setStage('tearing');
     sfx.tear();
-    later(() => setStage('reveal'), 1500);
+    later(() => setStage((x) => (x === 'tearing' ? 'reveal' : x)), 1550);
   };
   const tear = () => play(openAndGo(packId).pulls);
   const quickOpen = () => {
@@ -133,18 +133,22 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
       )}
 
       {stage === 'tearing' && (
-        <div className="stage tearing" aria-hidden="true">
-          <div className="tear-wrap">
-            <motion.div className="tear-layer" initial={{ y: 0 }} animate={{ y: '120%', opacity: 0 }} transition={{ delay: 0.95, duration: 0.5, ease: 'easeIn' }}>
+        // Squash, peel the strip from its corner, flash along the tear, pull the stack out and fan it. Tap anywhere to skip.
+        <div className="stage tearing" aria-hidden="true" onClick={() => setStage('reveal')}>
+          <motion.div className="tear-wrap" animate={{ scale: [1, 0.95, 1.03, 1], rotate: [0, -2.5, 1, 0] }} transition={{ duration: 0.5, times: [0, 0.35, 0.7, 1] }}>
+            <motion.div className="tear-layer" animate={{ y: ['0%', '0%', '3%', '3%', '118%'], opacity: [1, 1, 1, 1, 0] }} transition={{ duration: 1.55, times: [0, 0.3, 0.4, 0.66, 1], ease: [0.5, 0, 0.75, 0] }}>
               <PackArt pack={pack} clip={TEAR_BODY} />
             </motion.div>
-            <motion.div className="stack-rise" initial={{ y: '30%' }} animate={{ y: '-8%' }} transition={{ delay: 0.45, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}>
-              <div className="mini-back" /><div className="mini-back" /><div className="mini-back" />
+            <motion.div className="stack-rise" animate={{ y: ['6%', '6%', '-30%', '-16%'] }} transition={{ duration: 1.3, times: [0, 0.4, 0.82, 1], ease: 'easeOut' }}>
+              {[-1, 0, 1].map((k) => (
+                <motion.div key={k} className="mini-back" animate={{ rotate: [0, 0, k * 9], x: [0, 0, k * 28] }} transition={{ duration: 1.55, times: [0, 0.72, 1], ease: [0.2, 0.8, 0.2, 1] }} />
+              ))}
             </motion.div>
-            <motion.div className="tear-layer top" initial={{ x: 0, y: 0, rotate: 0 }} animate={{ x: 90, y: -160, rotate: 24, opacity: 0 }} transition={{ duration: 0.7, ease: [0.3, 0.6, 0.3, 1] }}>
+            <motion.div className="tear-layer top" style={{ transformOrigin: '3% 14%' }} animate={{ rotate: [0, 0, -7, -32], x: [0, 0, 4, 170], y: [0, 0, -16, -210], opacity: [1, 1, 1, 0] }} transition={{ duration: 1.05, times: [0, 0.38, 0.6, 1], ease: 'easeIn' }}>
               <PackArt pack={pack} clip={TEAR_TOP} />
             </motion.div>
-          </div>
+            <motion.div className="tear-flash" initial={{ opacity: 0, scaleX: 0 }} animate={{ opacity: [0, 1, 0], scaleX: [0, 1, 1] }} transition={{ delay: 0.36, duration: 0.55 }} />
+          </motion.div>
         </div>
       )}
 
@@ -152,19 +156,37 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         <div className="stage reveal">
           <div className={`reveal-zone ${charging ? 'charging' : ''}`} style={{ '--rank': rank } as React.CSSProperties}>
             <div className="stack-behind" aria-hidden="true">
-              {pulls.slice(idx + 1, idx + 4).map((_, i) => <div key={i} className="mini-back" style={{ transform: `translate(${(i + 1) * 6}px, ${(i + 1) * -6}px)` }} />)}
+              {/* Keyed by absolute position so the waiting cards glide forward as the top one leaves. */}
+              {pulls.slice(idx + 1, idx + 4).map((_, i) => (
+                <motion.div
+                  key={idx + 1 + i}
+                  className="mini-back"
+                  initial={false}
+                  animate={{ x: (i + 1) * 6, y: (i + 1) * -6, scale: 1 - (i + 1) * 0.015 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 26, delay: 0.05 + i * 0.04 }}
+                />
+              ))}
             </div>
+            {flipped && rank >= pack.guaranteeFrom && !reduce && (
+              <motion.div key={`burst-${idx}`} className="reveal-burst" aria-hidden="true" initial={{ opacity: 0.95, scale: 0.55 }} animate={{ opacity: 0, scale: 1.5 + rank * 0.12 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+            )}
             <AnimatePresence mode="popLayout">
+              {/* Next card: the old one winds up and flies off on top while the new one slides out from the stack beneath. */}
               <motion.button
                 key={idx}
                 className="reveal-card"
                 onClick={advance}
                 autoFocus
                 aria-label={flipped ? (idx + 1 < pulls.length ? 'Next card' : 'See all cards') : `Reveal card ${idx + 1} of ${pulls.length}`}
-                initial={reduce ? false : { y: 40, scale: 0.92, opacity: 0 }}
-                animate={{ y: 0, scale: 1, opacity: 1 }}
-                exit={reduce ? undefined : { x: -260, y: 120, scale: 0.4, opacity: 0, rotate: -12 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                style={{ zIndex: 2 }}
+                initial={reduce ? false : { x: 6, y: -6, scale: 0.97 }}
+                animate={flipped && !reduce ? { x: 0, y: [0, -18, 0], scale: [1, 1.07, 1] } : { x: 0, y: 0, scale: 1 }}
+                exit={
+                  reduce
+                    ? undefined
+                    : { x: [0, 14, -440], y: [0, -12, 70], rotate: [0, 3, -16], scale: [1, 1.03, 0.85], opacity: 0, zIndex: 3, transition: { duration: 0.5, times: [0, 0.2, 1], ease: [0.45, 0, 0.2, 1], opacity: { delay: 0.3, duration: 0.2 } } }
+                }
+                transition={flipped ? { duration: 0.6, times: [0, 0.45, 1], ease: [0.2, 0.8, 0.2, 1] } : { type: 'spring', stiffness: 340, damping: 24, delay: 0.08 }}
               >
                 <Card card={cardById.get(current.cardId)!} tier={current.tier} back={s.equipped.back} faceDown={!flipped} className="card-lg" />
                 {flipped && isNew(idx) && <span className="badge-new">New</span>}

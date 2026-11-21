@@ -1,5 +1,5 @@
 import { act as rtlAct, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { cards, profile } from '../src/content/manifest';
 import { App, parseRoute } from '../src/ui/App';
 import { getState } from '../src/store';
@@ -50,5 +50,23 @@ describe('routing', () => {
     expect(screen.getAllByRole('button', { name: /Open details/ }).length).toBeGreaterThanOrEqual(8);
     expect(getState().opened.starter).toBe(1);
     expect(JSON.parse(localStorage.getItem('collectors-archive:v1')!).opened.starter).toBe(1);
+  });
+
+  it('tear animation is skippable, and cards step reveal → next → summary', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    nav('#/open/skills');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Tear open' }));
+    const pulls = getState().lastOpening!.pulls.length; // saved before any animation
+    expect(getState().opened.skills).toBe(1);
+    fireEvent.click(document.querySelector('.stage.tearing')!); // tap to skip the tear
+    fireEvent.click(screen.getByRole('button', { name: `Reveal card 1 of ${pulls}` }));
+    // A high-rarity pull pauses for suspense first; flush it.
+    rtlAct(() => void vi.advanceTimersByTime(1000));
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }));
+    expect(screen.getByRole('button', { name: `Reveal card 2 of ${pulls}` })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Skip to all cards' }));
+    expect(screen.getAllByRole('button', { name: /Open details/ })).toHaveLength(pulls);
+    vi.useRealTimers();
   });
 });

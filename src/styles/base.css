@@ -421,6 +421,22 @@ a {
 .toast small {
   color: var(--ink-2);
 }
+/* Phones: compact chips at the top, so they never cover the card being revealed. */
+@media (max-width: 640px) {
+  .toasts {
+    top: 12px;
+    bottom: auto;
+    left: 16px;
+    gap: 0.4rem;
+  }
+  .toast {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  .toast small {
+    display: none;
+  }
+}
 
 /* --- Dialog --- */
 .detail {
