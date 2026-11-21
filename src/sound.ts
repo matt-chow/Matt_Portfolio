@@ -73,10 +73,10 @@ function puff(dur: number, freq: number, q: number, gain: number, { at = 0, atta
 }
 
 /** Sparse random ticks: the fine crackle of a laminate seam letting go, about `rate` per second at normal speed. */
-function crackleBuffer(a: AudioContext, dur: number, rate: number) {
+function crackleBuffer(a: AudioContext, dur: number, rate: number, len = 0.0005) {
   const buf = a.createBuffer(1, Math.ceil(a.sampleRate * dur), a.sampleRate);
   const d = buf.getChannelData(0);
-  const tick = Math.ceil(a.sampleRate * 0.0005);
+  const tick = Math.ceil(a.sampleRate * len);
   for (let n = 0; n < dur * rate; n++) {
     const at = Math.floor(Math.random() * (d.length - tick));
     const amp = (0.25 + Math.random() * 0.75) * (Math.random() < 0.5 ? -1 : 1);
@@ -85,7 +85,13 @@ function crackleBuffer(a: AudioContext, dur: number, rate: number) {
   return buf;
 }
 
-type Voice = { a: AudioContext; out: GainNode; band: BiquadFilterNode; crackle: AudioBufferSourceNode; hiss: AudioBufferSourceNode; idle?: number };
+/**
+ * Tear tuning. `volume`: overall level. `body`: the mid-range crinkle under the crisp zip (0 = thinnest film, 1 = medium
+ * laminate; nothing goes below 900 Hz either way). `brightness`: scales the zip's pitch (1 = as tuned).
+ */
+export const TEAR = { volume: 0.12, body: 0.7, brightness: 1 };
+
+type Voice = { a: AudioContext; out: GainNode; band: BiquadFilterNode; crackle: AudioBufferSourceNode; hiss: AudioBufferSourceNode; grit: AudioBufferSourceNode; body: GainNode; idle?: number };
 let voice: Voice | undefined;
 
 function startVoice(a: AudioContext): Voice {
@@ -109,9 +115,24 @@ function startVoice(a: AudioContext): Voice {
   hiss.connect(hissGain).connect(hi);
   crackle.connect(hi);
   hi.connect(band).connect(out).connect(a.destination);
+  // Body: coarser, sparser creases of the film itself, kept in the mids (highpass 900) so it adds substance but no bass.
+  const grit = a.createBufferSource();
+  grit.buffer = crackleBuffer(a, 1.7, 320, 0.0012);
+  grit.loop = true;
+  const cut = a.createBiquadFilter();
+  cut.type = 'highpass';
+  cut.frequency.value = 900;
+  const mid = a.createBiquadFilter();
+  mid.type = 'bandpass';
+  mid.Q.value = 0.8;
+  mid.frequency.value = 1900;
+  const body = a.createGain();
+  body.gain.value = 0;
+  grit.connect(cut).connect(mid).connect(body).connect(out);
   hiss.start(0, Math.random() * 3);
   crackle.start(0, Math.random() * 2.3);
-  return { a, out, band, crackle, hiss };
+  grit.start(0, Math.random() * 1.7);
+  return { a, out, band, crackle, hiss, grit, body };
 }
 
 /**
@@ -127,9 +148,11 @@ function tearing(force: number) {
   }
   const v = voice;
   const t = v.a.currentTime;
-  v.out.gain.setTargetAtTime(0.12 * force ** 0.5, t, force ? 0.025 : 0.06); // sqrt keeps a slow pull audible
+  v.out.gain.setTargetAtTime(TEAR.volume * force ** 0.5, t, force ? 0.025 : 0.06); // sqrt keeps a slow pull audible
   v.crackle.playbackRate.setTargetAtTime(0.45 + force * 1.6, t, 0.04);
-  v.band.frequency.setTargetAtTime(4200 + force * 3800, t, 0.05);
+  v.grit.playbackRate.setTargetAtTime(0.6 + force * 1.1, t, 0.04);
+  v.body.gain.setTargetAtTime(TEAR.body * 2.4 * (0.7 + 0.3 * force), t, 0.05);
+  v.band.frequency.setTargetAtTime((4200 + force * 3800) * TEAR.brightness, t, 0.05);
   if (force) {
     clearTimeout(v.idle);
     v.idle = undefined;
@@ -137,6 +160,7 @@ function tearing(force: number) {
     v.idle ??= window.setTimeout(() => {
       v.hiss.stop();
       v.crackle.stop();
+      v.grit.stop();
       v.out.disconnect();
       if (voice === v) voice = undefined;
     }, 500);
@@ -147,8 +171,12 @@ export const sfx = {
   crinkle: () =>
     [0, 1, 2].forEach((k) => Math.random() < 0.8 && puff(0.012 + Math.random() * 0.012, 6500 + Math.random() * 3000, 1.2, 0.012 + Math.random() * 0.01, { at: k * (0.012 + Math.random() * 0.03), attack: 0.001 })),
   tearing,
-  // The last of the seam lets go: a short, light plastic snap with no thump under it.
-  snap: () => (puff(0.05, 4200, 0.8, 0.08, { attack: 0.0015 }), puff(0.018, 9500, 1, 0.045, { attack: 0.0005 })),
+  // The last of the seam lets go: a short plastic snap, a touch of mid body (scaled by TEAR.body) and no thump under it.
+  snap: () => (
+    puff(0.05, 4200, 0.8, 0.08, { attack: 0.0015 }),
+    puff(0.018, 9500, 1, 0.045, { attack: 0.0005 }),
+    puff(0.035, 2000, 1, 0.07 * TEAR.body, { attack: 0.001, hp: 900 })
+  ),
   // The loose strip and wrapper flutter: an airy swell, high and quiet.
   rustle: () => (puff(0.42, 7000, 0.6, 0.022, { attack: 0.12 }), puff(0.3, 5200, 0.7, 0.014, { at: 0.14, attack: 0.07 })),
   // The card stack sliding out: soft, dry card stock, lower and smoother than the film.
