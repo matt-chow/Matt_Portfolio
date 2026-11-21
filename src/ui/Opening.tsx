@@ -96,6 +96,8 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
     const target = document.querySelector('[data-binder-target]')?.getBoundingClientRect();
     const els = [...document.querySelectorAll<HTMLElement>('.summary-grid .pull')];
     if (target && !reduce) {
+      // Scroll panels would clip cards flying up to the nav, so let them overflow for the flight (rects are read after this).
+      document.documentElement.classList.add('is-filing');
       await Promise.all(
         els.map((el, i) => {
           const r = el.getBoundingClientRect();
@@ -105,7 +107,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
             { duration: 0.55, delay: i * 0.05, ease: [0.5, 0, 0.75, 0] },
           );
         }),
-      );
+      ).finally(() => document.documentElement.classList.remove('is-filing'));
     }
     go(`/collection/binder?pack=${packId}`);
   };
@@ -189,7 +191,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
 
       {stage === 'summary' && (
         <div className="summary">
-          <ul className="summary-grid">
+          <ul className="summary-grid scroll-y">
             {pulls.map((p, i) => {
               const c = cardById.get(p.cardId)!;
               const tier = pack.tiers.find((t) => t.id === p.tier)!;

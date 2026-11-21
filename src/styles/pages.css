@@ -493,6 +493,46 @@
 .summary {
   padding: 1.5rem 0;
 }
+/* App mode: the pack and the revealed card size to the stage's height so the buttons and notes below always fit.
+   Below the floors the stage overflows and main scrolls instead. */
+@media (min-height: 640px), (min-width: 600px) and (min-height: 540px) {
+  [data-layout='app'] .opening {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0.5rem;
+  }
+  [data-layout='app'] .opening .stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1rem 0;
+    gap: 1rem;
+    align-content: safe center;
+    container-type: size;
+  }
+  [data-layout='app'] .tear-wrap {
+    width: min(280px, 64vw, max(150px, calc((100cqh - 13rem) * 0.61)));
+  }
+  [data-layout='app'] .reveal-zone,
+  [data-layout='app'] .reveal-zone .card-lg {
+    width: min(360px, 78vw, max(170px, calc((100cqh - 6rem) * 0.714)));
+  }
+  [data-layout='app'] .opening .summary {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0 0;
+  }
+  [data-layout='app'] .summary-grid {
+    padding: 14px;
+    margin: 0 -14px 0.75rem;
+    border-top: 1px solid var(--line);
+  }
+  /* Cards filed into the binder fly up to the nav, so the panels must not clip them mid-flight. */
+  .is-filing[data-layout='app'] main,
+  .is-filing .scroll-y {
+    overflow: visible;
+  }
+}
 .summary-grid,
 .card-grid {
   list-style: none;
