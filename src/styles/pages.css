@@ -65,7 +65,6 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding: 2.5rem max(clamp(16px, 4vw, 56px), calc((100vw - 1280px) / 2 + 56px)) 2rem;
-  scrollbar-width: thin;
   overscroll-behavior-x: contain;
 }
 .slot {

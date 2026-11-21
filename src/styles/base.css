@@ -27,10 +27,9 @@
   --mono: 'Geist Mono', ui-monospace, monospace;
   --hand: 'Caveat', 'Segoe Print', cursive;
   --athletic: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  /* Scrollbars: neutral track, quiet indigo thumb (resolves against each theme's --accent). */
-  --track: color-mix(in oklab, var(--ink) 5%, transparent);
-  --thumb: color-mix(in oklab, var(--accent) 30%, transparent);
-  --thumb-hover: color-mix(in oklab, var(--accent) 65%, transparent);
+  /* Scrollbars: a slate (light) or lavender-grey (dark) capsule that warms to indigo when engaged. */
+  --thumb: color-mix(in oklab, var(--ink-2) 42%, transparent);
+  --thumb-hover: color-mix(in oklab, var(--accent) 72%, transparent);
   color-scheme: light;
 }
 :root[data-theme='dark'] {
@@ -61,7 +60,6 @@
 html {
   background: var(--ground);
   -webkit-text-size-adjust: 100%;
-  scrollbar-color: var(--thumb) var(--track); /* inherited by every scroller */
 }
 /* Nothing behind an open dialog scrolls. */
 html:has(dialog[open]) {
@@ -89,32 +87,54 @@ main {
   outline: none;
 }
 
-/* --- Scrollbars --- */
-* {
-  scrollbar-width: thin;
-}
-.scroll-y:hover,
-.scroll-y:focus-visible,
-.scroll-y:focus-within {
-  scrollbar-color: var(--thumb-hover) var(--track);
-}
-/* Older Safari: no scrollbar-color, so style the WebKit parts instead. */
-@supports not (scrollbar-color: auto) {
+/* --- Scrollbars ---
+   Chromium and Safari: a 4px capsule floating in a clear 12px gutter (transparent border,
+   padding-box background) that widens to 7px under the pointer or while dragged. The gutter is
+   real layout, so it never covers content. Scrollbar parts can't transition, so that change is
+   instant. Touch screens keep their native overlay bars. */
+@media (pointer: fine) {
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
   ::-webkit-scrollbar-track {
-    background: var(--track);
-    border-radius: 999px;
+    margin: 6px; /* float clear of the panel's ends and rounded corners */
   }
   ::-webkit-scrollbar-thumb {
     background: var(--thumb) padding-box;
-    border: 3px solid transparent;
+    border: 4px solid transparent;
     border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover {
+  .scroll-y:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklab, var(--thumb), var(--thumb-hover) 35%);
+  }
+  ::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:active,
+  .scroll-y:focus-visible::-webkit-scrollbar-thumb {
+    border-width: 2.5px;
     background-color: var(--thumb-hover);
+  }
+}
+/* Firefox has no scrollbar parts; its thin bar is already a floating overlay on most systems. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumb) transparent;
+  }
+  .scroll-y:hover,
+  .scroll-y:focus-visible {
+    scrollbar-color: var(--thumb-hover) transparent;
+  }
+}
+/* High-contrast modes get system colours; a set scrollbar-color also turns off the parts above. */
+@media (forced-colors: active) {
+  * {
+    scrollbar-color: CanvasText Canvas;
   }
 }
 
