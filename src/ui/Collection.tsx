@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { cardById, cards, type CardContent, type PackId } from '../content/manifest';
 import { unlockedRewards } from '../engine/achievements';
 import { packById, packs, parseKey, variantKey } from '../engine/packs';
@@ -176,14 +176,112 @@ function CardTile({ c, found }: { c: CardContent; found: boolean }) {
   );
 }
 
+const SPREAD = '(min-width: 900px)';
+const subscribe = (cb: () => void) => {
+  const m = matchMedia(SPREAD);
+  m.addEventListener('change', cb);
+  return () => m.removeEventListener('change', cb);
+};
+
+/** A ring binder of double-sided sleeve sheets. Side i is page i + 1: even sides are sheet fronts, odd sides their backs.
+    Wide screens open to a spread (one sheet's back beside the next sheet's front); narrow screens show one side at a time. */
+function Binder({ list, at, empty }: { list: CardContent[]; at: Map<string, number>; empty?: string }) {
+  const reduce = useReducedMotion();
+  const spread = useSyncExternalStore(subscribe, () => matchMedia(SPREAD).matches);
+  const n = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  const [side, setSide] = useState(0);
+  const [flip, setFlip] = useState<{ id: number; dir: 1 | -1 }>();
+  const x0 = useRef<number>(undefined);
+  const swiped = useRef(false);
+
+  const cur = Math.min(side, n - 1);
+  const step = spread ? 2 : 1;
+  const pos = spread ? Math.ceil(cur / 2) : cur;
+  const last = spread ? Math.ceil((n - 1) / 2) : n - 1;
+  const right = spread ? 2 * pos : cur;
+  const go = (d: 1 | -1) => {
+    if (pos + d < 0 || pos + d > last) return;
+    setSide(right + d * step);
+    if (!reduce) setFlip({ id: performance.now(), dir: d });
+  };
+
+  // While a leaf turns, the pages beneath show what it uncovers; the side it lands on stays put until it lands.
+  const fwd = flip?.dir === 1;
+  const back = flip?.dir === -1;
+  const leaf = fwd ? right - step : right;
+  const shown = spread ? [right - 1 - (fwd ? 2 : 0), right + (back ? 2 : 0)] : [right + (back ? 1 : 0)];
+  const pageLabel = (i: number) => `Page ${i + 1} of ${n}, sheet ${(i >> 1) + 1} ${i % 2 ? 'back' : 'front'}`;
+
+  const sheet = (i: number) =>
+    i < 0 || i >= n + (n % 2) ? (
+      <div className="board" aria-hidden="true"><span>MC</span></div>
+    ) : (
+      <ul className="sheet" aria-label={pageLabel(i)}>
+        {Array.from({ length: PER_PAGE }, (_, k) => list[i * PER_PAGE + k]).map((c, k) => (
+          <li key={c?.id ?? `empty-${k}`} className="pocket">{c ? <CardTile c={c} found={at.has(c.id)} /> : <span className="pocket-empty" />}</li>
+        ))}
+        <li className="folio" aria-hidden="true">{i + 1}</li>
+      </ul>
+    );
+
+  const visible = spread ? [right - 1, right].filter((i) => i >= 0 && i < n) : [cur];
+  return (
+    <section
+      className="binder"
+      aria-label="Binder"
+      onKeyDown={(e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        go(e.key === 'ArrowRight' ? 1 : -1);
+      }}
+    >
+      {empty && <p className="empty">{empty}</p>}
+      <div
+        className={`book ${spread ? 'is-spread' : 'is-single'}`}
+        onPointerDown={(e) => ((x0.current = e.clientX), (swiped.current = false))}
+        onPointerUp={(e) => {
+          const dx = e.clientX - (x0.current ?? e.clientX);
+          if (Math.abs(dx) > 40) (swiped.current = true), go(dx < 0 ? 1 : -1);
+        }}
+        // A swipe that ends on a card turns the page instead of opening it.
+        onClickCapture={(e) => swiped.current && (e.stopPropagation(), (swiped.current = false))}
+      >
+        {spread && <div className="page-l">{sheet(shown[0])}</div>}
+        <div className="spine" aria-hidden="true"><i /><i /><i /></div>
+        <div className="page-r">{sheet(shown.at(-1)!)}</div>
+        {flip && (
+          <motion.div
+            key={flip.id}
+            className="leaf"
+            aria-hidden="true"
+            inert
+            initial={{ rotateY: fwd ? 0 : -180 }}
+            animate={{ rotateY: fwd ? -180 : 0 }}
+            transition={{ duration: 0.62, ease: [0.645, 0.045, 0.355, 1] }}
+            onAnimationComplete={() => setFlip(undefined)}
+          >
+            <div className="face">{sheet(leaf)}</div>
+            {spread && <div className="face face-back">{sheet(leaf + 1)}</div>}
+          </motion.div>
+        )}
+      </div>
+      <div className="binder-nav">
+        <button className="icon-btn icon-sm" onClick={() => go(-1)} disabled={pos === 0} aria-label="Previous page"><Icon name="prev" /></button>
+        <p className="binder-where" aria-live="polite">
+          <span className="mono">{visible.map((i) => i + 1).join('–')}</span> <span className="muted">of {n}</span>
+          <span className="sr-only">. {visible.map(pageLabel).join('; ')}</span>
+        </p>
+        <button className="icon-btn icon-sm" onClick={() => go(1)} disabled={pos >= last} aria-label="Next page"><Icon name="next" /></button>
+      </div>
+    </section>
+  );
+}
+
 export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; cat?: string }) {
   const s = useStore();
-  const reduce = useReducedMotion();
   const [q, setQ] = useState('');
   const [cat, setCat] = useState<Category>(CATEGORIES.some((x) => x.id === initialCat) ? (initialCat as Category) : 'all');
   const [sort, setSort] = useState<Sort>('featured');
-  const [page, setPage] = useState(0);
-  const [dir, setDir] = useState(1);
   const openDetail = useOpenDetail();
   const decor = unlockedRewards(s, 'decor');
 
@@ -199,9 +297,6 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
   };
   const list = cards.filter(matches).sort(order[sort]); // filter copies, so sorting never touches the manifest
 
-  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
-  const pg = Math.min(page, pages - 1);
-  const turn = (d: number) => (setDir(d), setPage(Math.max(0, Math.min(pages - 1, pg + d))));
   const favs = list.filter((c) => s.favourites.includes(c.id));
   const slabs = [...s.slabs].reverse().filter((x) => matches(cardById.get(x.cardId)!));
   const noMatch = needle ? `No cards match “${q.trim()}”.` : 'No cards in this category.';
@@ -226,7 +321,7 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
       <div className="collection-bar">
         <div className="pack-picker cat-row" role="group" aria-label="Category">
           {CATEGORIES.map((x) => (
-            <button key={x.id} className="chip" aria-pressed={cat === x.id} onClick={() => (setCat(x.id), setPage(0))}>
+            <button key={x.id} className="chip" aria-pressed={cat === x.id} onClick={() => setCat(x.id)}>
               {x.label}
             </button>
           ))}
@@ -234,9 +329,9 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
         <label className="search">
           <Icon name="search" />
           <span className="sr-only">Search cards</span>
-          <input type="search" placeholder="Search" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
+          <input type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />
         </label>
-        <SortMenu value={sort} onChange={(v) => (setSort(v), setPage(0))} />
+        <SortMenu value={sort} onChange={setSort} />
       </div>
 
       {/* Only this scrolls; the head and filters above stay put. */}
@@ -249,28 +344,8 @@ export function Collection({ tab = 'grid', cat: initialCat }: { tab?: string; ca
         )}
 
         {tab === 'binder' && (
-          <div className="binder">
-            <AnimatePresence mode="wait" custom={dir}>
-              <motion.ul
-                key={`${cat}-${sort}-${pg}`}
-                className="binder-page"
-                initial={reduce ? false : { rotateY: dir * 70, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                exit={reduce ? undefined : { rotateY: dir * -70, opacity: 0 }}
-                transition={{ duration: 0.35, ease: [0.3, 0.6, 0.3, 1] }}
-                aria-label={`Binder page ${pg + 1} of ${pages}`}
-              >
-                {Array.from({ length: PER_PAGE }, (_, i) => list[pg * PER_PAGE + i]).map((c, i) => (
-                  <li key={c?.id ?? `empty-${i}`} className="pocket">{c ? <CardTile c={c} found={at.has(c.id)} /> : <span className="pocket-empty" />}</li>
-                ))}
-              </motion.ul>
-            </AnimatePresence>
-            <div className="row center">
-              <button className="icon-btn icon-sm" onClick={() => turn(-1)} disabled={pg === 0} aria-label="Previous page"><Icon name="prev" /></button>
-              <span className="mono small">{pg + 1} / {pages}</span>
-              <button className="icon-btn icon-sm" onClick={() => turn(1)} disabled={pg >= pages - 1} aria-label="Next page"><Icon name="next" /></button>
-            </div>
-          </div>
+          // Remounts on a new filter or order, so the binder reopens at its first page.
+          <Binder key={`${cat}-${sort}-${needle}`} list={list} at={at} empty={list.length ? undefined : noMatch} />
         )}
 
         {tab === 'checklist' && (

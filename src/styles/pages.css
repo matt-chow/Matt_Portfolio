@@ -911,30 +911,174 @@
   color: var(--ink-2);
   padding: 2rem 0;
 }
+/* ---------- Binder: a ring binder of double-sided sleeve sheets ---------- */
 .binder {
-  perspective: 1600px;
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
 }
-.binder-page {
+.book {
+  --spine: 26px;
+  --pad: 10px;
+  --cols: 1;
+  --pw: min(380px, calc((100vw - 48px - 2 * var(--pad) - var(--spine)) / var(--cols)));
+  /* Cover board: the page ground with a breath of indigo, so sheets read as paper laid on it. */
+  --cover: color-mix(in oklab, var(--sunk), var(--accent) 7%);
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--spine) var(--pw);
+  padding: var(--pad);
+  border-radius: 22px;
+  background: var(--cover);
+  box-shadow: var(--raise);
+  perspective: 2400px;
+  touch-action: pan-y;
+  user-select: none;
+}
+:root[data-theme='dark'] .book {
+  --cover: color-mix(in oklab, var(--ground), var(--accent) 16%);
+  --gloss: rgba(255, 255, 255, 0.05);
+}
+.book.is-spread {
+  --cols: 2;
+  grid-template-columns: var(--pw) var(--spine) var(--pw);
+}
+.page-l,
+.page-r,
+.leaf {
+  grid-row: 1;
+  min-width: 0;
+}
+.page-l {
+  grid-column: 1;
+}
+.page-r,
+.leaf {
+  grid-column: -2;
+}
+/* The turning leaf hinges on the middle of the spine and lands exactly on the facing page. */
+.leaf {
+  position: relative;
+  z-index: 2;
+  transform-style: preserve-3d;
+  transform-origin: calc(var(--spine) / -2) 50%;
+}
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.face-back {
+  transform: rotateY(180deg);
+}
+.leaf .sheet {
+  box-shadow: inset 0 1px 0 var(--sheen), 0 10px 24px -10px var(--lo);
+}
+.spine {
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--lo), transparent 40%) 50%, transparent);
+}
+.is-spread .spine {
+  grid-column: 2;
+}
+.is-single .spine i {
+  width: calc(var(--spine) + 12px);
+}
+/* Rings cross the gutter onto both page edges. */
+.spine i {
+  width: calc(var(--spine) + 16px);
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--surface), var(--sunk));
+  box-shadow: 0 2px 4px var(--lo), inset 0 1px 0 var(--sheen), inset 0 0 0 1px var(--edge);
+}
+.sheet,
+.board {
+  height: 100%;
+  border-radius: 14px;
+}
+.sheet {
   list-style: none;
-  margin: 0 auto 1.2rem;
-  padding: clamp(0.8rem, 2vw, 1.4rem);
+  margin: 0;
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: clamp(0.6rem, 1.6vw, 1.2rem);
-  max-width: 760px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--raise);
-  transform-origin: left center;
+  align-content: start;
+  gap: clamp(6px, 1.1vw, 11px);
+  padding: 14px 14px 22px;
+  /* A soft fall-off into the gutter, like paper curving toward the rings. */
+  background: linear-gradient(90deg, color-mix(in oklab, var(--lo), transparent 30%), transparent 18px), var(--surface);
+  box-shadow: inset 0 1px 0 var(--sheen), 0 1px 2px var(--lo);
 }
+.page-l .sheet,
+.face-back .sheet {
+  background: linear-gradient(270deg, color-mix(in oklab, var(--lo), transparent 30%), transparent 18px), var(--surface);
+}
+/* The rest of the stack peeks out along the outer edge. */
+.page-r .sheet {
+  box-shadow: inset 0 1px 0 var(--sheen), 0 1px 2px var(--lo), 2px 1px 0 -1px var(--surface), 2px 1px 0 0 var(--line), 4px 2px 0 -2px var(--surface), 4px 2px 0 -1px var(--line);
+}
+.page-l .sheet {
+  box-shadow: inset 0 1px 0 var(--sheen), 0 1px 2px var(--lo), -2px 1px 0 -1px var(--surface), -2px 1px 0 0 var(--line), -4px 2px 0 -2px var(--surface), -4px 2px 0 -1px var(--line);
+}
+/* A clear sleeve: recessed pocket, an open lip along the top and a faint diagonal gloss over the card. */
 .pocket {
-  border-radius: 10px;
-  padding: 4px;
+  position: relative;
+  border-radius: 8px;
+  padding: 3px;
   box-shadow: var(--press);
+}
+.pocket::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, var(--gloss, rgba(255, 255, 255, 0.14)) 44%, transparent 56%);
+  box-shadow: inset 0 1px 0 var(--sheen);
 }
 .pocket-empty {
   display: block;
   aspect-ratio: 5 / 7;
+}
+.folio {
+  position: absolute;
+  inset: auto 0 5px;
+  text-align: center;
+  font: 500 0.65rem/1 var(--mono);
+  color: var(--ink-2);
+  opacity: 0.75;
+}
+/* Inside of the cover, with an embossed monogram. */
+.board {
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--cover), var(--surface) 35%);
+  box-shadow: var(--press);
+}
+.board span {
+  font: 700 1.8rem var(--display);
+  letter-spacing: 0.1em;
+  color: color-mix(in oklab, var(--cover), var(--surface) 35%);
+  text-shadow: -1px -1px 1px var(--lo), 1px 1px 1px var(--hi);
+}
+.binder-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.binder-where {
+  margin: 0;
+  min-width: 7ch;
+  text-align: center;
+  font-size: 0.85rem;
 }
 .checklist {
   display: grid;
@@ -988,10 +1132,9 @@
     flex-direction: column;
     justify-content: center;
   }
-  /* A whole binder page fits the panel, so paging never needs scrolling. */
-  [data-layout='app'] .binder-page {
-    width: min(100%, clamp(250px, calc((100cqh - 90px) / 1.2), 760px));
-    margin-bottom: 0.75rem;
+  /* A whole spread fits the panel, so turning pages never needs scrolling. */
+  [data-layout='app'] .book {
+    --pw: min(380px, calc((100cqw - 2 * var(--pad) - var(--spine)) / var(--cols)), calc((100cqh - 2 * var(--pad) - 76px) / 1.36));
   }
 }
 .sticker {
@@ -1295,9 +1438,8 @@
   .stage {
     min-height: 0;
   }
-  .binder-page {
-    gap: 6px;
-    padding: 8px;
+  .sheet {
+    padding: 8px 8px 18px;
   }
 }
 

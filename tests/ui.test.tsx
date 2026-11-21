@@ -248,6 +248,45 @@ describe('collection', () => {
   });
 });
 
+describe('binder', () => {
+  it('turns through double-sided sheets, keeps empty pockets, and opens locked cards', () => {
+    act(() => initialState());
+    nav('#/collection/binder');
+    render(<App />);
+    const n = Math.ceil(cards.length / 9);
+    const where = () => document.querySelector('.binder-where')!.textContent;
+    const prev = screen.getByRole('button', { name: 'Previous page' }) as HTMLButtonElement;
+    expect(where()).toContain(`Page 1 of ${n}, sheet 1 front`);
+    expect(prev.disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(where()).toContain(`Page 2 of ${n}, sheet 1 back`);
+    expect(screen.getByRole('list', { name: `Page 2 of ${n}, sheet 1 back` })).toBeTruthy();
+    fireEvent.keyDown(document.querySelector('.book')!, { key: 'ArrowLeft' });
+    expect(where()).toContain('Page 1 of');
+
+    // the last page keeps its unused pockets as blanks
+    for (let i = 1; i < n; i++) fireEvent.keyDown(document.querySelector('.book')!, { key: 'ArrowRight' });
+    expect(where()).toContain(`Page ${n} of ${n}`);
+    expect((screen.getByRole('button', { name: 'Next page' }) as HTMLButtonElement).disabled).toBe(true);
+    const pockets = document.querySelectorAll('.page-r .pocket');
+    expect(pockets).toHaveLength(9);
+    expect(document.querySelectorAll('.page-r .pocket-empty')).toHaveLength(9 * n - cards.length);
+
+    // an uncollected card in a pocket still opens its details
+    fireEvent.click(document.querySelector('.page-r .card-btn')!);
+    expect(document.querySelector('dialog.detail[open]')).toBeTruthy();
+  });
+
+  it('a new search reopens the binder at its first page', () => {
+    nav('#/collection/binder');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'a' } }); // still several pages
+    expect(document.querySelector('.binder-where')!.textContent).toMatch(/^1 of [2-9]/);
+  });
+});
+
 describe('locked cards and finish previews', () => {
   const finishes = () => screen.getAllByRole('radio');
 
