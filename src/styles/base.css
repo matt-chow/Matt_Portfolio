@@ -1,23 +1,25 @@
-/* Environment tokens: porcelain (light) and graphite (dark) neumorphism with indigo accents.
+/* Environment tokens: soft porcelain (light) and indigo-slate (dark) neumorphism with indigo accents.
+   Depth is shallow on purpose: short shadows, a 1px rim and a top sheen carry the shape.
    Card and pack artwork use fixed palettes in cards.css and never read these. */
 :root {
-  --ground: #edeff4;
-  --surface: #f6f7fa;
+  --ground: #eceef3;
+  --surface: #f4f5f9;
   --sunk: #e4e7ee;
   --ink: #14151b;
-  --ink-2: #585c6b;
+  --ink-2: #565a6a;
   --accent: #4f46e5;
   --accent-ink: #ffffff;
   --violet: #7c3aed;
-  --grad: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --grad: linear-gradient(135deg, #5850ec, #7a4ff0);
   --gold: #b8912a;
-  --hi: rgba(255, 255, 255, 0.95);
-  --lo: rgba(136, 145, 176, 0.32);
-  --edge: rgba(255, 255, 255, 0.7);
-  --line: rgba(20, 21, 27, 0.1);
-  --raise: 10px 10px 24px var(--lo), -10px -10px 24px var(--hi), inset 0 0 0 1px var(--edge);
-  --raise-sm: 4px 4px 10px var(--lo), -4px -4px 10px var(--hi), inset 0 0 0 1px var(--edge);
-  --press: inset 3px 3px 8px var(--lo), inset -3px -3px 8px var(--hi);
+  --hi: rgba(255, 255, 255, 0.9);
+  --lo: rgba(138, 148, 178, 0.26);
+  --edge: rgba(255, 255, 255, 0.75);
+  --sheen: rgba(255, 255, 255, 0.85);
+  --line: rgba(20, 21, 27, 0.09);
+  --raise: 6px 6px 16px var(--lo), -6px -6px 16px var(--hi), inset 0 0 0 1px var(--edge);
+  --raise-sm: 3px 3px 8px var(--lo), -3px -3px 8px var(--hi), inset 0 0 0 1px var(--edge), inset 0 1px 0 var(--sheen);
+  --press: inset 2px 2px 5px var(--lo), inset -2px -2px 5px var(--hi);
   --r-lg: 24px;
   --r-md: 16px;
   --display: 'Geist', system-ui, sans-serif;
@@ -32,20 +34,22 @@
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --ground: #0e0f13;
-  --surface: #16181e;
-  --sunk: #0a0b0e;
-  --ink: #e9eaf0;
-  --ink-2: #9a9dab;
-  --accent: #8b87ff;
-  --accent-ink: #0e0f13;
+  /* Controls sit a step lighter than the ground and carry a visible rim, so they read as controls. */
+  --ground: #1e2131;
+  --surface: #282c40;
+  --sunk: #181a28;
+  --ink: #eaebf3;
+  --ink-2: #a6aac0;
+  --accent: #9a96ff;
+  --accent-ink: #14162a;
   --violet: #a78bfa;
-  --grad: linear-gradient(135deg, #5b52f0, #8b5cf6);
+  --grad: linear-gradient(135deg, #5b52f0, #7c5cf4);
   --gold: #d8b55a;
-  --hi: rgba(255, 255, 255, 0.045);
-  --lo: rgba(0, 0, 0, 0.62);
-  --edge: rgba(255, 255, 255, 0.05);
-  --line: rgba(233, 234, 240, 0.1);
+  --hi: rgba(140, 150, 220, 0.07);
+  --lo: rgba(6, 7, 18, 0.5);
+  --edge: rgba(255, 255, 255, 0.07);
+  --sheen: rgba(255, 255, 255, 0.09);
+  --line: rgba(234, 235, 243, 0.1);
   color-scheme: dark;
 }
 
@@ -258,7 +262,7 @@ a {
   min-height: 44px;
   background: var(--grad);
   color: #fff;
-  box-shadow: var(--raise-sm), 0 8px 20px -8px color-mix(in oklab, var(--accent) 75%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  box-shadow: 3px 3px 8px var(--lo), -3px -3px 8px var(--hi), 0 4px 12px -4px color-mix(in oklab, var(--accent) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .btn-quiet {
   background: var(--surface);
@@ -549,7 +553,7 @@ a {
   border-radius: var(--r-lg);
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 60px -12px rgba(10, 12, 30, 0.35), inset 0 0 0 1px var(--edge);
 }
 .detail::backdrop {
   background: rgba(10, 10, 20, 0.5);
