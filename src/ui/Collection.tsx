@@ -101,111 +101,116 @@ export function Collection({ tab = 'grid', pack }: { tab?: string; pack?: string
       </div>
       <p role="status" className="small">{msg}</p>
 
-      <nav className="tabs" aria-label="Collection views">
-        {TABS.map((t) => (
-          <a key={t.id} href={`#/collection/${t.id}${filter !== 'all' ? `?pack=${filter}` : ''}`} className="nav-pill" aria-current={tab === t.id ? 'page' : undefined}>
-            {t.label}
-          </a>
-        ))}
-      </nav>
+      <div className="collection-bar">
+        <nav className="tabs" aria-label="Collection views">
+          {TABS.map((t) => (
+            <a key={t.id} href={`#/collection/${t.id}${filter !== 'all' ? `?pack=${filter}` : ''}`} className="nav-pill" aria-current={tab === t.id ? 'page' : undefined}>
+              {t.label}
+            </a>
+          ))}
+        </nav>
 
-      {(tab === 'grid' || tab === 'binder' || tab === 'checklist') && (
-        <div className="filters">
-          <label className="field">
-            <span className="sr-only">Search cards</span>
-            <input type="search" placeholder="Search cards" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
-          </label>
-          <label className="field">
-            <span className="sr-only">Pack</span>
-            <select value={filter} onChange={(e) => (setFilter(e.target.value), setPage(0))}>
-              <option value="all">All packs</option>
-              {packs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </label>
-        </div>
-      )}
-
-      {tab === 'grid' && (
-        <ul className="card-grid">
-          {list.map((c) => <li key={c.id}><CardTile c={c} /></li>)}
-          {!list.length && <li className="empty">No cards match “{q}”.</li>}
-        </ul>
-      )}
-
-      {tab === 'binder' && (
-        <div className="binder">
-          <AnimatePresence mode="wait" custom={dir}>
-            <motion.ul
-              key={`${filter}-${pg}`}
-              className="binder-page"
-              initial={reduce ? false : { rotateY: dir * 70, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={reduce ? undefined : { rotateY: dir * -70, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.3, 0.6, 0.3, 1] }}
-              aria-label={`Binder page ${pg + 1} of ${pages}`}
-            >
-              {Array.from({ length: PER_PAGE }, (_, i) => list[pg * PER_PAGE + i]).map((c, i) => (
-                <li key={c?.id ?? `empty-${i}`} className="pocket">{c ? <CardTile c={c} /> : <span className="pocket-empty" />}</li>
-              ))}
-            </motion.ul>
-          </AnimatePresence>
-          <div className="row center">
-            <button className="btn btn-quiet" onClick={() => turn(-1)} disabled={pg === 0}>Previous page</button>
-            <span className="mono small">{pg + 1} / {pages}</span>
-            <button className="btn btn-quiet" onClick={() => turn(1)} disabled={pg >= pages - 1}>Next page</button>
+        {(tab === 'grid' || tab === 'binder' || tab === 'checklist') && (
+          <div className="filters">
+            <label className="field">
+              <span className="sr-only">Search cards</span>
+              <input type="search" placeholder="Search cards" value={q} onChange={(e) => (setQ(e.target.value), setPage(0))} />
+            </label>
+            <label className="field">
+              <span className="sr-only">Pack</span>
+              <select value={filter} onChange={(e) => (setFilter(e.target.value), setPage(0))}>
+                <option value="all">All packs</option>
+                {packs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </label>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {tab === 'checklist' && (
-        <div className="checklist">
-          {packs.filter((p) => filter === 'all' || p.id === filter).map((p) => (
-            <table key={p.id}>
-              <caption>{p.name}</caption>
-              <thead>
-                <tr><th scope="col">Card</th>{p.tiers.map((t) => <th key={t.id} scope="col">{t.label}</th>)}</tr>
-              </thead>
-              <tbody>
-                {list.filter((c) => c.pack === p.id).map((c) => (
-                  <tr key={c.id}>
-                    <th scope="row"><button className="linkish" onClick={() => openDetail({ cardId: c.id })}>{c.title}</button></th>
-                    {p.tiers.map((t) => {
-                      const k = variantKey(c.id, t.id);
-                      const n = s.stacks[k] ?? 0;
-                      const slabbed = s.slabs.filter((x) => x.cardId === c.id && x.tier === t.id).length;
-                      return (
-                        <td key={t.id} className={s.discovered[k] ? 'got' : ''}>
-                          {s.discovered[k] ? <>✓{n > 0 && <span className="muted"> ×{n}</span>}{slabbed > 0 && <span className="muted"> +{slabbed} slab</span>}</> : <span className="sr-only">missing</span>}
-                        </td>
-                      );
-                    })}
-                  </tr>
+      {/* Only this scrolls; the head, tabs and filters above stay put. */}
+      <div className={`collection-body scroll-y view-${tab}`}>
+        {tab === 'grid' && (
+          <ul className="card-grid">
+            {list.map((c) => <li key={c.id}><CardTile c={c} /></li>)}
+            {!list.length && <li className="empty">No cards match “{q}”.</li>}
+          </ul>
+        )}
+
+        {tab === 'binder' && (
+          <div className="binder">
+            <AnimatePresence mode="wait" custom={dir}>
+              <motion.ul
+                key={`${filter}-${pg}`}
+                className="binder-page"
+                initial={reduce ? false : { rotateY: dir * 70, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={reduce ? undefined : { rotateY: dir * -70, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.3, 0.6, 0.3, 1] }}
+                aria-label={`Binder page ${pg + 1} of ${pages}`}
+              >
+                {Array.from({ length: PER_PAGE }, (_, i) => list[pg * PER_PAGE + i]).map((c, i) => (
+                  <li key={c?.id ?? `empty-${i}`} className="pocket">{c ? <CardTile c={c} /> : <span className="pocket-empty" />}</li>
                 ))}
-              </tbody>
-            </table>
-          ))}
-        </div>
-      )}
+              </motion.ul>
+            </AnimatePresence>
+            <div className="row center">
+              <button className="btn btn-quiet" onClick={() => turn(-1)} disabled={pg === 0}>Previous page</button>
+              <span className="mono small">{pg + 1} / {pages}</span>
+              <button className="btn btn-quiet" onClick={() => turn(1)} disabled={pg >= pages - 1}>Next page</button>
+            </div>
+          </div>
+        )}
 
-      {tab === 'favourites' && (
-        <ul className="card-grid">
-          {s.favourites.map((id) => cards.find((c) => c.id === id)).filter((c) => !!c).map((c) => <li key={c.id}><CardTile c={c} /></li>)}
-          {!s.favourites.length && <li className="empty">No favourites yet. Open a card and press Favourite to pin it here.</li>}
-        </ul>
-      )}
+        {tab === 'checklist' && (
+          <div className="checklist">
+            {packs.filter((p) => filter === 'all' || p.id === filter).map((p) => (
+              <table key={p.id}>
+                <caption>{p.name}</caption>
+                <thead>
+                  <tr><th scope="col">Card</th>{p.tiers.map((t) => <th key={t.id} scope="col">{t.label}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {list.filter((c) => c.pack === p.id).map((c) => (
+                    <tr key={c.id}>
+                      <th scope="row"><button className="linkish" onClick={() => openDetail({ cardId: c.id })}>{c.title}</button></th>
+                      {p.tiers.map((t) => {
+                        const k = variantKey(c.id, t.id);
+                        const n = s.stacks[k] ?? 0;
+                        const slabbed = s.slabs.filter((x) => x.cardId === c.id && x.tier === t.id).length;
+                        return (
+                          <td key={t.id} className={s.discovered[k] ? 'got' : ''}>
+                            {s.discovered[k] ? <>✓{n > 0 && <span className="muted"> ×{n}</span>}{slabbed > 0 && <span className="muted"> +{slabbed} slab</span>}</> : <span className="sr-only">missing</span>}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
+          </div>
+        )}
 
-      {tab === 'slabs' && (
-        <ul className="slab-shelf">
-          {[...s.slabs].reverse().map((x) => (
-            <li key={x.id}>
-              <button className="card-btn" onClick={() => openDetail({ cardId: x.cardId, tier: x.tier })} aria-label={`Open ${cardById.get(x.cardId)?.title} details`}>
-                <Slab slab={x} frame={s.equipped.frame} />
-              </button>
-            </li>
-          ))}
-          {!s.slabs.length && <li className="empty">No slabs yet. Open any card you own and press Grade one.</li>}
-        </ul>
-      )}
+        {tab === 'favourites' && (
+          <ul className="card-grid">
+            {s.favourites.map((id) => cards.find((c) => c.id === id)).filter((c) => !!c).map((c) => <li key={c.id}><CardTile c={c} /></li>)}
+            {!s.favourites.length && <li className="empty">No favourites yet. Open a card and press Favourite to pin it here.</li>}
+          </ul>
+        )}
+
+        {tab === 'slabs' && (
+          <ul className="slab-shelf">
+            {[...s.slabs].reverse().map((x) => (
+              <li key={x.id}>
+                <button className="card-btn" onClick={() => openDetail({ cardId: x.cardId, tier: x.tier })} aria-label={`Open ${cardById.get(x.cardId)?.title} details`}>
+                  <Slab slab={x} frame={s.equipped.frame} />
+                </button>
+              </li>
+            ))}
+            {!s.slabs.length && <li className="empty">No slabs yet. Open any card you own and press Grade one.</li>}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

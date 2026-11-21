@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cards } from '../src/content/manifest';
-import { cardsInPack, illustration, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
+import { cardsInPack, illustration, PACK_SIZE, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
 import { GRADE_ODDS, gradeOne, initialState, loadState, openPack, parseState, saveState, STORAGE_KEY, type State } from '../src/engine/state';
 
 // mulberry32: deterministic rng for statistical tests
@@ -104,7 +104,7 @@ describe('opening packs', () => {
     for (let seed = 0; seed < 50; seed++) {
       const { pulls, first } = openPack(initialState(), 'personal', seeded(seed));
       expect(first).toBe(true);
-      expect(pulls).toHaveLength(initialState().settings.packSize);
+      expect(pulls).toHaveLength(PACK_SIZE);
       expect(pulls.some((x) => tierIndex(p, x.tier) >= p.guaranteeFrom)).toBe(true);
       rolls.add(JSON.stringify(pulls));
     }
@@ -124,19 +124,17 @@ describe('opening packs', () => {
     expect(Math.abs(counts.sir / n - 0.03)).toBeLessThan(0.01);
   });
 
-  it('repeat openings honour pack size and always include a middle-tier-or-better card', () => {
+  it('every repeat opening has exactly seven cards and a middle-tier-or-better card', () => {
+    expect(PACK_SIZE).toBe(7);
     const rng = seeded(3);
     for (const p of packs) {
-      for (const size of [3, 5, 7, 10]) {
-        let s: State = { ...initialState(), settings: { muted: false, packSize: size } };
-        s = openPack(s, p.id, rng).state;
-        for (let i = 0; i < 300; i++) {
-          const r = openPack(s, p.id, rng);
-          expect(r.first).toBe(false);
-          expect(r.pulls).toHaveLength(size);
-          expect(r.pulls.some((x) => tierIndex(p, x.tier) >= p.guaranteeFrom)).toBe(true);
-          s = r.state;
-        }
+      let s: State = openPack(initialState(), p.id, rng).state;
+      for (let i = 0; i < 300; i++) {
+        const r = openPack(s, p.id, rng);
+        expect(r.first).toBe(false);
+        expect(r.pulls).toHaveLength(7);
+        expect(r.pulls.some((x) => tierIndex(p, x.tier) >= p.guaranteeFrom)).toBe(true);
+        s = r.state;
       }
     }
   });
@@ -219,7 +217,7 @@ describe('persistence', () => {
     });
     expect(cleaned.stacks).toEqual({ 'github|ink': 2 });
     expect(cleaned.slabs).toEqual([]);
-    expect(cleaned.settings.packSize).toBe(5);
+    expect(cleaned.settings).not.toHaveProperty('packSize'); // retired setting from older saves
     expect(cleaned.settings.theme).toBeUndefined();
   });
 

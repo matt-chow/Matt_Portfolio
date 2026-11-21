@@ -1,23 +1,25 @@
-/* Environment tokens: porcelain (light) and graphite (dark) neumorphism with indigo accents.
+/* Environment tokens: soft porcelain (light) and indigo-slate (dark) neumorphism with indigo accents.
+   Depth is shallow on purpose: short shadows, a 1px rim and a top sheen carry the shape.
    Card and pack artwork use fixed palettes in cards.css and never read these. */
 :root {
-  --ground: #edeff4;
-  --surface: #f6f7fa;
+  --ground: #eceef3;
+  --surface: #f4f5f9;
   --sunk: #e4e7ee;
   --ink: #14151b;
-  --ink-2: #585c6b;
+  --ink-2: #565a6a;
   --accent: #4f46e5;
   --accent-ink: #ffffff;
   --violet: #7c3aed;
-  --grad: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --grad: linear-gradient(135deg, #5850ec, #7a4ff0);
   --gold: #b8912a;
-  --hi: rgba(255, 255, 255, 0.95);
-  --lo: rgba(136, 145, 176, 0.32);
-  --edge: rgba(255, 255, 255, 0.7);
-  --line: rgba(20, 21, 27, 0.1);
-  --raise: 10px 10px 24px var(--lo), -10px -10px 24px var(--hi), inset 0 0 0 1px var(--edge);
-  --raise-sm: 4px 4px 10px var(--lo), -4px -4px 10px var(--hi), inset 0 0 0 1px var(--edge);
-  --press: inset 3px 3px 8px var(--lo), inset -3px -3px 8px var(--hi);
+  --hi: rgba(255, 255, 255, 0.9);
+  --lo: rgba(138, 148, 178, 0.26);
+  --edge: rgba(255, 255, 255, 0.75);
+  --sheen: rgba(255, 255, 255, 0.85);
+  --line: rgba(20, 21, 27, 0.09);
+  --raise: 6px 6px 16px var(--lo), -6px -6px 16px var(--hi), inset 0 0 0 1px var(--edge);
+  --raise-sm: 3px 3px 8px var(--lo), -3px -3px 8px var(--hi), inset 0 0 0 1px var(--edge), inset 0 1px 0 var(--sheen);
+  --press: inset 2px 2px 5px var(--lo), inset -2px -2px 5px var(--hi);
   --r-lg: 24px;
   --r-md: 16px;
   --display: 'Geist', system-ui, sans-serif;
@@ -25,23 +27,29 @@
   --mono: 'Geist Mono', ui-monospace, monospace;
   --hand: 'Caveat', 'Segoe Print', cursive;
   --athletic: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  /* Scrollbars: neutral track, quiet indigo thumb (resolves against each theme's --accent). */
+  --track: color-mix(in oklab, var(--ink) 5%, transparent);
+  --thumb: color-mix(in oklab, var(--accent) 30%, transparent);
+  --thumb-hover: color-mix(in oklab, var(--accent) 65%, transparent);
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --ground: #0e0f13;
-  --surface: #16181e;
-  --sunk: #0a0b0e;
-  --ink: #e9eaf0;
-  --ink-2: #9a9dab;
-  --accent: #8b87ff;
-  --accent-ink: #0e0f13;
+  /* Controls sit a step lighter than the ground and carry a visible rim, so they read as controls. */
+  --ground: #1e2131;
+  --surface: #282c40;
+  --sunk: #181a28;
+  --ink: #eaebf3;
+  --ink-2: #a6aac0;
+  --accent: #9a96ff;
+  --accent-ink: #14162a;
   --violet: #a78bfa;
-  --grad: linear-gradient(135deg, #5b52f0, #8b5cf6);
+  --grad: linear-gradient(135deg, #5b52f0, #7c5cf4);
   --gold: #d8b55a;
-  --hi: rgba(255, 255, 255, 0.045);
-  --lo: rgba(0, 0, 0, 0.62);
-  --edge: rgba(255, 255, 255, 0.05);
-  --line: rgba(233, 234, 240, 0.1);
+  --hi: rgba(140, 150, 220, 0.07);
+  --lo: rgba(6, 7, 18, 0.5);
+  --edge: rgba(255, 255, 255, 0.07);
+  --sheen: rgba(255, 255, 255, 0.09);
+  --line: rgba(234, 235, 243, 0.1);
   color-scheme: dark;
 }
 
@@ -53,6 +61,11 @@
 html {
   background: var(--ground);
   -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--thumb) var(--track); /* inherited by every scroller */
+}
+/* Nothing behind an open dialog scrolls. */
+html:has(dialog[open]) {
+  overflow: hidden;
 }
 body {
   margin: 0;
@@ -69,10 +82,84 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 main {
   flex: 1;
   outline: none;
+}
+
+/* --- Scrollbars --- */
+* {
+  scrollbar-width: thin;
+}
+.scroll-y:hover,
+.scroll-y:focus-visible,
+.scroll-y:focus-within {
+  scrollbar-color: var(--thumb-hover) var(--track);
+}
+/* Older Safari: no scrollbar-color, so style the WebKit parts instead. */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--track);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--thumb) padding-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--thumb-hover);
+  }
+}
+
+/* App routes fill exactly one viewport and scroll inside their own panels (.scroll-y).
+   Index (data-layout=doc), short screens, phone landscape and heavy zoom keep ordinary
+   page scrolling instead, so no control is ever clipped. */
+@media (min-height: 640px), (min-width: 600px) and (min-height: 540px) {
+  [data-layout='app'] #root {
+    height: 100dvh;
+    min-height: 0;
+  }
+  [data-layout='app'] main {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* last resort only: pages are sized to fit */
+  }
+  [data-layout='app'] main > * {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  [data-layout='app'] .foot {
+    display: none;
+  }
+  [data-layout='app'] .page {
+    display: flex;
+    flex-direction: column;
+    padding-top: clamp(0.75rem, 3vh, 2.5rem);
+    padding-bottom: 0;
+  }
+  [data-layout='app'] .page-head h1 {
+    font-size: clamp(1.9rem, 1.5vw + 1.2rem, 2.8rem);
+    margin-bottom: 0.2em;
+  }
+  [data-layout='app'] .page-head p {
+    margin: 0;
+  }
+  .scroll-y {
+    position: relative; /* contains absolutely placed children (e.g. .sr-only) so they can't stretch the page */
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -175,7 +262,7 @@ a {
   min-height: 44px;
   background: var(--grad);
   color: #fff;
-  box-shadow: var(--raise-sm), 0 8px 20px -8px color-mix(in oklab, var(--accent) 75%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  box-shadow: 3px 3px 8px var(--lo), -3px -3px 8px var(--hi), 0 4px 12px -4px color-mix(in oklab, var(--accent) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .btn-quiet {
   background: var(--surface);
@@ -307,7 +394,7 @@ a {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem clamp(16px, 3vw, 40px);
+  padding: calc(0.75rem + env(safe-area-inset-top)) clamp(16px, 3vw, 40px) 0.75rem;
   background: color-mix(in oklab, var(--ground) 82%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -360,6 +447,21 @@ a {
 }
 .nav-pill[aria-current='page'] {
   color: var(--accent);
+}
+.nav-pill.nav-icon {
+  flex: none;
+  width: 44px;
+  padding: 0;
+  justify-content: center;
+}
+.nav-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .count {
   font: 600 0.72rem var(--mono);
@@ -424,7 +526,7 @@ a {
 /* Phones: compact chips at the top, so they never cover the card being revealed. */
 @media (max-width: 640px) {
   .toasts {
-    top: 12px;
+    top: calc(12px + env(safe-area-inset-top));
     bottom: auto;
     left: 16px;
     gap: 0.4rem;
@@ -441,19 +543,24 @@ a {
 /* --- Dialog --- */
 .detail {
   border: 0;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: 0;
   width: min(1040px, calc(100vw - 24px));
-  max-height: calc(100dvh - 24px);
+  max-width: none;
+  height: min(720px, calc(100dvh - 24px));
+  max-height: none;
+  overflow: hidden;
+  overscroll-behavior: contain;
   border-radius: var(--r-lg);
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 60px -12px rgba(10, 12, 30, 0.35), inset 0 0 0 1px var(--edge);
 }
 .detail::backdrop {
   background: rgba(10, 10, 20, 0.5);
   backdrop-filter: blur(4px);
 }
 .detail[open] {
+  display: flex;
   animation: pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 @keyframes pop {
@@ -468,19 +575,34 @@ a {
   top: 14px;
   z-index: 2;
 }
+/* The card stays put in its own pane; only the text beside (or below) it scrolls. */
 .detail-grid {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(240px, 380px) 1fr;
-  gap: clamp(1rem, 3vw, 2.5rem);
-  align-items: start;
+  grid-template-columns: auto minmax(0, 1fr);
 }
 .detail-visual {
-  position: sticky;
-  top: 0;
   perspective: 1200px;
   display: grid;
   place-items: center;
-  min-height: 420px;
+  padding: clamp(1rem, 3vw, 2rem) 0 clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem);
+  min-height: 0;
+}
+.detail .card-lg {
+  width: min(360px, 38vw, calc((100dvh - 110px) * 0.714));
+}
+.detail .slab {
+  width: min(300px, 34vw, calc((100dvh - 110px) * 0.6));
+}
+.detail-text {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2.5rem);
+  outline-offset: -3px;
 }
 .detail-text h2 {
   font-size: clamp(1.6rem, 2vw + 1rem, 2.4rem);
@@ -542,12 +664,37 @@ a {
     justify-content: center;
     padding: 0.6rem 0.4rem;
   }
+}
+
+/* Phones: a full-screen sheet with a compact card on top and the text scrolling beneath. */
+@media (max-width: 560px) {
+  .detail {
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .close {
+    top: calc(10px + env(safe-area-inset-top));
+    right: calc(10px + env(safe-area-inset-right));
+  }
   .detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
   .detail-visual {
-    position: static;
-    min-height: 0;
+    padding: 1rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail .card-lg {
+    width: min(190px, 44vw, calc(30dvh * 0.714));
+  }
+  .detail .slab {
+    width: min(170px, 40vw, calc(30dvh * 0.6));
+  }
+  .detail-text {
+    padding: 1rem 1rem 1.5rem;
   }
 }
 

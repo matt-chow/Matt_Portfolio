@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cardById, type PackId } from '../content/manifest';
-import { cardsInPack, packById, tierIndex, type Pull } from '../engine/packs';
+import { cardsInPack, PACK_SIZE, packById, tierIndex, type Pull } from '../engine/packs';
 import { openPack } from '../engine/state';
 import { actWith, useStore } from '../store';
 import { sfx } from '../sound';
@@ -96,6 +96,8 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
     const target = document.querySelector('[data-binder-target]')?.getBoundingClientRect();
     const els = [...document.querySelectorAll<HTMLElement>('.summary-grid .pull')];
     if (target && !reduce) {
+      // Scroll panels would clip cards flying up to the nav, so let them overflow for the flight (rects are read after this).
+      document.documentElement.classList.add('is-filing');
       await Promise.all(
         els.map((el, i) => {
           const r = el.getBoundingClientRect();
@@ -105,7 +107,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
             { duration: 0.55, delay: i * 0.05, ease: [0.5, 0, 0.75, 0] },
           );
         }),
-      );
+      ).finally(() => document.documentElement.classList.remove('is-filing'));
     }
     go(`/collection/binder?pack=${packId}`);
   };
@@ -130,7 +132,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
           <p className="stage-note">
             {stage === 'tearing'
               ? 'Tap to skip'
-              : <>Drag across the top strip to tear it open.<br />{first && pack.core ? `First opening: all ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label}-or-better pulls.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}</>}
+              : <>Drag the top strip to tear.<br />{first && pack.core ? `All ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label} or better.` : `${PACK_SIZE} cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}</>}
           </p>
           <div className="row" style={{ visibility: stage === 'sealed' && !auto ? 'visible' : 'hidden' }}>
             <button className="btn" onClick={tear}>Tear open</button>
@@ -189,7 +191,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
 
       {stage === 'summary' && (
         <div className="summary">
-          <ul className="summary-grid">
+          <ul className="summary-grid scroll-y">
             {pulls.map((p, i) => {
               const c = cardById.get(p.cardId)!;
               const tier = pack.tiers.find((t) => t.id === p.tier)!;

@@ -1,5 +1,5 @@
 import { cardById, type PackId } from '../content/manifest';
-import { firstOpenPulls, packById, parseKey, pickWeighted, rollPack, variantKey, type Pull, type Rng } from './packs';
+import { firstOpenPulls, PACK_SIZE, packById, parseKey, pickWeighted, rollPack, variantKey, type Pull, type Rng } from './packs';
 import { evaluateAchievements } from './achievements';
 
 export type Grade = 8 | 9 | 10 | 'misprint';
@@ -31,7 +31,7 @@ export interface State {
   flags: Record<string, boolean>;
   achievements: Record<string, number>;
   equipped: { back: string; frame: string };
-  settings: { theme?: 'light' | 'dark'; muted: boolean; packSize: number };
+  settings: { theme?: 'light' | 'dark'; muted: boolean };
   lastOpening?: Opening;
 }
 
@@ -47,7 +47,7 @@ export const initialState = (): State => ({
   flags: {},
   achievements: {},
   equipped: { back: 'classic', frame: 'none' },
-  settings: { muted: false, packSize: 5 },
+  settings: { muted: false },
 });
 
 export const GRADE_ODDS: { grade: Grade; weight: number }[] = [
@@ -62,7 +62,7 @@ const stamp = (s: State, now = Date.now()): State => evaluateAchievements({ ...s
 export function openPack(s: State, packId: PackId, rng: Rng, now = Date.now()) {
   const pack = packById.get(packId)!;
   const first = !s.opened[packId];
-  const pulls = first ? firstOpenPulls(pack, s.settings.packSize, rng) : rollPack(pack, s.settings.packSize, rng);
+  const pulls = first ? firstOpenPulls(pack, PACK_SIZE, rng) : rollPack(pack, PACK_SIZE, rng);
   const stacks = { ...s.stacks };
   const discovered = { ...s.discovered };
   const isNew = pulls.map(({ cardId, tier }) => {
@@ -138,7 +138,6 @@ export function parseState(raw: unknown): State {
     settings: {
       theme: settings.theme === 'dark' || settings.theme === 'light' ? settings.theme : undefined,
       muted: settings.muted === true,
-      packSize: [3, 5, 7, 10].includes(settings.packSize as number) ? (settings.packSize as number) : 5,
     },
     lastOpening: isObj(lo) && packById.has(lo.packId as PackId) && Array.isArray(lo.pulls) && lo.pulls.every((p) => isObj(p) && validKey(variantKey(String(p.cardId), String(p.tier))))
       ? (lo as unknown as Opening) : undefined,

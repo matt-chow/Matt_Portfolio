@@ -10,6 +10,7 @@ beforeAll(() => {
   HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) { this.open = true; };
   HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); };
   window.scrollTo = () => {};
+  Element.prototype.scrollIntoView ??= () => {};
 });
 afterEach(cleanup);
 
@@ -34,6 +35,46 @@ describe('routing', () => {
     expect(screen.getAllByRole('link', { name: /Résumé/ })[0].getAttribute('href')).toBe(profile.resume);
     for (const p of ['Starter', 'Experience', 'Highlights', 'Skills', 'Prototype', 'Personal'])
       expect(screen.getByRole('link', { name: new RegExp(`^${p} pack`) })).toBeTruthy();
+  });
+
+  it('the icon-only links keep accessible names and tooltips', () => {
+    nav('#/');
+    render(<App />);
+    const links = screen.getByRole('navigation', { name: 'Links' });
+    const want: [RegExp, string][] = [[/Résumé/, profile.resume], [/^Email$/, `mailto:${profile.email}`], [/^GitHub$/, profile.github], [/^Index/, '#/index']];
+    for (const [name, href] of want) {
+      const a = [...links.querySelectorAll('a')].find((x) => name.test(x.getAttribute('aria-label')!))!;
+      expect(a.getAttribute('href')).toBe(href);
+      expect(a.dataset.tip).toBeTruthy();
+      expect(a.textContent).toBe(''); // icon only
+    }
+    expect(screen.getByRole('navigation', { name: 'Main' }).querySelector('a[href="#/index"]')!.getAttribute('aria-label')).toMatch(/^Index/);
+  });
+
+  it('the pack picker lists all six packs and selecting one marks it, from the chip or the keyboard', () => {
+    nav('#/');
+    render(<App />);
+    const chips = [...screen.getByRole('group', { name: 'Choose a pack' }).querySelectorAll('button')];
+    expect(chips.map((c) => c.textContent)).toEqual(['Starter', 'Experience', 'Highlights', 'Skills', 'Prototype', 'Personal']);
+    fireEvent.click(chips[3]);
+    expect(chips[3].getAttribute('aria-pressed')).toBe('true');
+    expect(chips[0].getAttribute('aria-pressed')).toBe('false');
+    chips[5].focus();
+    fireEvent.keyDown(chips[5], { key: 'ArrowRight' }); // wraps to the first pack
+    expect(document.activeElement).toBe(chips[0]);
+    expect(chips[0].getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Previous pack' }));
+    expect(chips[5].getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('index scrolls as a document; every other route is a fixed-viewport app', () => {
+    nav('#/index');
+    render(<App />);
+    expect(document.documentElement.dataset.layout).toBe('doc');
+    for (const hash of ['#/', '#/collection', '#/medals', '#/open/starter']) {
+      nav(hash);
+      expect(document.documentElement.dataset.layout).toBe('app');
+    }
   });
 
   it('index shows every card with an empty collection (nothing gated)', () => {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type MouseEvent } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useState, type MouseEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { achievementById } from '../engine/achievements';
@@ -11,6 +11,7 @@ import { Collection } from './Collection';
 import { Medals } from './Medals';
 import { IndexPage } from './IndexPage';
 import { CardDetail } from './CardDetail';
+import { Icon } from './Icons';
 import type { PackId } from '../content/manifest';
 
 export function parseRoute(hash: string) {
@@ -29,6 +30,8 @@ function useRoute() {
     const on = () => {
       setHash(location.hash);
       window.scrollTo({ top: 0 });
+      const main = document.getElementById('main');
+      if (main) main.scrollTop = 0;
     };
     addEventListener('hashchange', on);
     return () => removeEventListener('hashchange', on);
@@ -122,6 +125,12 @@ export function App() {
   else if (route.page === 'index') page = <IndexPage />;
   else page = <Home />;
 
+  // Index reads as a document; every other route is a fixed-viewport app (see .css `data-layout`).
+  const layout = route.page === 'index' ? 'doc' : 'app';
+  useLayoutEffect(() => {
+    document.documentElement.dataset.layout = layout;
+  }, [layout]);
+
   return (
     <DetailCtx.Provider value={setDetail}>
       <a className="skip" href="#main" onClick={(e) => (e.preventDefault(), document.getElementById('main')?.focus())}>
@@ -136,12 +145,15 @@ export function App() {
           </span>
         </a>
         <nav aria-label="Main" className="quicknav">
-          {NAV.map((n) => (
-            <a key={n.page} href={n.href} className="nav-pill" aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
-              {n.label}
-              {n.page === 'collection' && owned > 0 && <span className="count">{owned}</span>}
-            </a>
-          ))}
+          {NAV.map((n) => {
+            const icon = n.page === 'index'; // shown as an icon; still named for screen readers and in its tooltip
+            return (
+              <a key={n.page} href={n.href} className={icon ? 'nav-pill nav-icon' : 'nav-pill'} aria-label={icon ? 'Index: everything on one page' : undefined} data-tip={icon ? n.label : undefined} aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
+                {icon ? <Icon name="index" /> : n.label}
+                {n.page === 'collection' && owned > 0 && <span className="count">{owned}</span>}
+              </a>
+            );
+          })}
         </nav>
         <div className="controls">
           <button className="icon-btn" onClick={() => act((s) => updateSettings(s, { muted: !s.settings.muted }))} aria-pressed={!s.settings.muted} aria-label={s.settings.muted ? 'Sound off. Turn sound on' : 'Sound on. Turn sound off'}>
