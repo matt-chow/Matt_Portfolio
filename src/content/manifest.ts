@@ -1,7 +1,7 @@
 // Single source of truth for every fact on the site.
 // Sources: CV = cv.tex in github.com/matt-chow/resume (Jun 2026), R = Resume_F26.pdf (Fall 2026, newer; wins on conflicts),
 // S = previous portfolio site (Matthew's own copy), G = public GitHub README/API,
-// A = planning/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07), O = owner instruction (2026-11-20).
+// A = docs/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07), O = owner instruction (2026-11-20).
 // Never add a claim without a source; put unknowns in contentTodos instead.
 
 export type PackId = 'starter' | 'experience' | 'highlights' | 'skills' | 'prototype' | 'personal';
@@ -375,7 +375,7 @@ export const cardById = new Map(cards.map((c) => [c.id, c]));
 
 // Unverified or missing information. Shown on the Index page, never presented as fact.
 export const contentTodos = [
-  'planning/cv.tex is empty (0 bytes). Used cv.tex from github.com/matt-chow/resume (Jun 2026) plus the newer Resume_F26.pdf. Supply the current cv.tex to re-check.',
+  'The current cv.tex has not been supplied. Used cv.tex from github.com/matt-chow/resume (Jun 2026) plus the newer Resume_F26.pdf. Supply the current cv.tex to re-check.',
   'Toronto Parking Authority record count: cv.tex says 40 million+, Resume_F26.pdf says 5 million+. Showing 5 million+.',
   'LinkedIn (HTTP 999) and Devpost (HTTP 403) block automated reading, so neither was cross-checked.',
   'Waterloo 2025 title: résumé says "Data Engineer", the old site said "Data Scientist". Using the résumé.',
