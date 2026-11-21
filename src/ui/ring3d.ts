@@ -5,7 +5,7 @@ import type { PackDef } from '../engine/packs';
 import { goTo, nudge, offset, release, ring, ringStep, settled, slotOf, type Ring } from './ringPhysics';
 
 // Wrapper palettes mirror the .pack-* rules in cards.css.
-const PALETTE: Record<string, [string, string, string]> = {
+export const PALETTE: Record<string, [string, string, string]> = {
   starter: ['#f1f1ec', '#c9cbc3', '#161b1d'],
   experience: ['#3f8f6e', '#1e4f43', '#f0f4dd'],
   highlights: ['#efe6d2', '#d8c7a2', '#8c1f22'],
@@ -13,8 +13,8 @@ const PALETTE: Record<string, [string, string, string]> = {
   prototype: ['#2a5cb2', '#163a77', '#ffffff'],
   personal: ['#d3b689', '#a88457', '#3b2a12'],
 };
-const W = 1;
-const H = 1.64;
+export const W = 1;
+export const H = 1.64;
 const D = 0.045;
 
 function loadImage(src: string) {
@@ -27,7 +27,7 @@ function loadImage(src: string) {
 }
 
 /** Paints the wrapper front: key art (or the plain Starter face), crimps, and the pack name. */
-async function paintFront(pack: PackDef, keyArt: boolean) {
+export async function paintFront(pack: PackDef, keyArt: boolean) {
   const [a, b, ink] = PALETTE[pack.id];
   const c = document.createElement('canvas');
   c.width = 500;

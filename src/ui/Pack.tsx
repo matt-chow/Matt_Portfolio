@@ -6,10 +6,20 @@ const emblem: Record<string, string> = {
   starter: 'document', experience: 'pipeline', highlights: 'trophy', skills: 'token', prototype: 'blocks', personal: 'stars',
 };
 
-// Zigzag tear line at 15% height; top and body clips share it so they fit together.
-const zig = Array.from({ length: 13 }, (_, i) => [(i / 12) * 100, i % 2 ? 13 : 16.5]);
-export const TEAR_TOP = `polygon(0 0,100% 0,${zig.slice().reverse().map(([x, y]) => `${x}% ${y}%`).join(',')})`;
-export const TEAR_BODY = `polygon(${zig.map(([x, y]) => `${x}% ${y}%`).join(',')},100% 100%,0 100%)`;
+/** Clip paths for the flat fallback, cut along the same jagged seam the 3D pack tears on, so top and body fit together. */
+export function seamClips(points: number[]) {
+  const pts = points.map((v, i) => `${(i / (points.length - 1)) * 100}% ${((1 - v) * 100).toFixed(2)}%`);
+  return { top: `polygon(0 0,100% 0,${pts.slice().reverse().join(',')})`, body: `polygon(${pts.join(',')},100% 100%,0 100%)` };
+}
+
+/** WebGL2 runs the foil packs and the ring; without it the flat CSS packs stand in. */
+export function canGL() {
+  try {
+    return !!document.createElement('canvas').getContext('webgl2');
+  } catch {
+    return false;
+  }
+}
 
 export function PackArt({ pack, clip, style }: { pack: PackDef; clip?: string; style?: CSSProperties }) {
   const keyArt = pack.id !== 'starter'; // Starter stays the plain, minimal wrapper

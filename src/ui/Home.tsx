@@ -6,7 +6,7 @@ import { openAndGo } from './Opening';
 import { updateSettings, type State } from '../engine/state';
 import { act, useStore } from '../store';
 import { useTilt } from './Card';
-import { PackArt } from './Pack';
+import { canGL, PackArt } from './Pack';
 import type { RingHandle } from './ring3d';
 
 function packStatus(s: State, pack: PackDef) {
@@ -17,14 +17,7 @@ function packStatus(s: State, pack: PackDef) {
 }
 
 /** The 3D ring needs WebGL2 and motion; everything else gets the flat scroller. */
-const canRing = () => {
-  if (typeof matchMedia === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  try {
-    return !!document.createElement('canvas').getContext('webgl2');
-  } catch {
-    return false;
-  }
-};
+const canRing = () => typeof matchMedia !== 'undefined' && !matchMedia('(prefers-reduced-motion: reduce)').matches && canGL();
 
 function PackSlot({ pack, i }: { pack: PackDef; i: number }) {
   const s = useStore();

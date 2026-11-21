@@ -44,7 +44,10 @@ function noise(dur: number, from: number, to: number, gain = 0.12) {
 }
 
 export const sfx = {
-  tear: () => noise(0.45, 900, 4000, 0.2),
+  crinkle: () => noise(0.12, 5200, 2600, 0.04),
+  // One grain of tearing foil; `force` (0..1) is how hard the strip is being pulled.
+  rip: (force: number) => noise(0.04 + force * 0.04, 2000 + Math.random() * 2200, 1100, 0.04 + force * 0.12),
+  separate: () => (noise(0.32, 3600, 700, 0.15), tone(85, 0, 0.18, 'sine', 0.1)),
   flip: () => noise(0.08, 2400, 1200, 0.1),
   tick: () => tone(1400, 0, 0.04, 'square', 0.02),
   reveal: (rank: number) => [523, 659, 784, 1047, 1319].slice(0, 2 + rank).forEach((f, i) => tone(f, i * 0.07, 0.35, 'triangle', 0.05)),

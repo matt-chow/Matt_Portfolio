@@ -70,3 +70,54 @@ describe('routing', () => {
     vi.useRealTimers();
   });
 });
+
+describe('drag to tear (flat fallback, as jsdom has no WebGL)', () => {
+  const frames = (ms: number) => rtlAct(() => new Promise((r) => setTimeout(r, ms)));
+  const slider = () => {
+    const el = screen.getByRole('slider');
+    el.getBoundingClientRect = () => ({ left: 100, top: 100, width: 200, height: 328, right: 300, bottom: 428, x: 100, y: 100, toJSON() {} });
+    el.setPointerCapture = () => {};
+    return el;
+  };
+  const drag = (el: HTMLElement, path: [number, number][]) => {
+    fireEvent.pointerDown(el, { pointerId: 1, clientX: path[0][0], clientY: path[0][1], button: 0 });
+    for (const [x, y] of path.slice(1)) fireEvent.pointerMove(el, { pointerId: 1, clientX: x, clientY: y });
+    fireEvent.pointerUp(el, { pointerId: 1, clientX: path.at(-1)![0], clientY: path.at(-1)![1] });
+  };
+
+  it('ignores taps, body drags and vertical swipes; a partial tear keeps its progress without opening', async () => {
+    nav('#/open/experience');
+    render(<App />);
+    const el = slider();
+    fireEvent.click(el);
+    drag(el, [[200, 300], [320, 302]]); // across the body, not the strip
+    drag(el, [[200, 115], [204, 180], [206, 260]]); // scrolling past the strip
+    await frames(80);
+    expect(el.getAttribute('aria-valuenow')).toBe('0');
+    drag(el, [[110, 115], [150, 116], [190, 117]]); // ~45% of the seam, then let go
+    await frames(200);
+    expect(Number(el.getAttribute('aria-valuenow'))).toBeGreaterThanOrEqual(40);
+    expect(getState().opened.experience).toBeUndefined();
+  });
+
+  it('tearing right to left past the threshold rolls the pack, then hands over to the reveal', async () => {
+    nav('#/open/highlights');
+    render(<App />);
+    const el = slider();
+    drag(el, [[290, 110], [250, 112], [200, 114], [150, 113], [120, 115]]);
+    await frames(300);
+    expect(getState().opened.highlights).toBe(1);
+    expect(document.querySelector('.stage.tearing')).toBeTruthy();
+    await frames(1900);
+    expect(screen.getByRole('button', { name: /Reveal card 1 of/ })).toBeTruthy();
+  });
+
+  it('arrow keys tear it open too', async () => {
+    nav('#/open/prototype');
+    render(<App />);
+    const el = slider();
+    for (let i = 0; i < 6; i++) fireEvent.keyDown(el, { key: 'ArrowLeft' });
+    await frames(150);
+    expect(getState().opened.prototype).toBe(1);
+  });
+});
