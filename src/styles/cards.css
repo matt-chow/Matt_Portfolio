@@ -1001,3 +1001,86 @@
 .pack-experience .pack-foil {
   --pk-hi: rgba(255, 240, 200, 0.5);
 }
+
+/* ================= Illustrated tiers (generated art, see README) ================= */
+/* Two depth planes: the illustration drifts against the pointer, the logo or motif with it. */
+.art-illo {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  object-fit: cover;
+  transform: translate(calc((var(--px) - 50%) * -0.05), calc((var(--py) - 50%) * -0.05));
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.is-active .art-illo {
+  transition: transform 0.08s linear;
+}
+.has-illo .art-img,
+.has-illo .art-motif {
+  transform: translate(calc((var(--px) - 50%) * 0.04), calc((var(--py) - 50%) * 0.04));
+  filter: drop-shadow(0 1.2cqw 2cqw rgba(0, 0, 0, 0.45));
+}
+.has-illo .art-motif {
+  stroke: #fff;
+}
+/* Experience IR/SIR: the painting fills the card; the logo becomes a corner badge. */
+.tpl-experience .has-illo .art-img,
+.tpl-experience .has-illo .art-motif {
+  inset: 3cqw 3cqw auto auto;
+  width: 15cqw;
+  height: 15cqw;
+  padding: 2cqw;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  stroke: #1d1d28;
+}
+.tpl-experience.fin-ir .ex-head,
+.tpl-experience.fin-sir .ex-head {
+  color: #fff;
+  text-shadow: 0 0.4cqw 1.6cqw rgba(0, 0, 0, 0.55);
+}
+.tpl-experience.fin-sir .name {
+  color: #fff6d8;
+}
+/* Personal: the painting goes inside the polaroid. */
+.tpl-personal .art-illo {
+  inset: 3.4cqw 3.4cqw 9cqw;
+  width: calc(100% - 6.8cqw);
+  height: calc(100% - 12.4cqw);
+}
+.tpl-personal .has-illo .art-motif,
+.tpl-personal .has-illo .art-img {
+  display: none;
+}
+
+/* Highlights: modern ballpark name plate. */
+.tpl-highlights .name {
+  font: italic 800 9.4cqw/0.92 var(--athletic);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* ================= Pack key art ================= */
+.pack-key {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.14);
+}
+.pack.has-key .pack-face {
+  inset: 7cqw 0;
+  justify-content: flex-end;
+  gap: 1.4cqw;
+  padding: 0 6cqw 8cqw;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  background: linear-gradient(transparent 45%, rgba(8, 8, 16, 0.72));
+  text-shadow: 0 0.4cqw 2cqw rgba(0, 0, 0, 0.5);
+}
+.pack.has-key .pack-emblem {
+  display: none;
+}

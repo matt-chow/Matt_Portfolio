@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cards } from '../src/content/manifest';
-import { cardsInPack, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
+import { cardsInPack, illustration, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
 import { GRADE_ODDS, gradeOne, initialState, loadState, openPack, parseState, saveState, STORAGE_KEY, type State } from '../src/engine/state';
 
 // mulberry32: deterministic rng for statistical tests
@@ -22,6 +22,21 @@ describe('content manifest', () => {
     for (const p of packs) expect(cardsInPack(p.id).length).toBeGreaterThan(0);
     expect(cardsInPack('starter').map((c) => c.id)).toEqual(['profile', 'uwaterloo', 'github', 'linkedin', 'email', 'resume', 'devpost']);
     for (const c of cards) expect(c.source.length).toBeGreaterThan(0);
+  });
+
+  const shipped = new Set(Object.keys(import.meta.glob('../public/art/*.webp')).map((k) => k.replace('../public/', '')));
+  const existsSync = (path: string) => shipped.has(path.replace('public/', ''));
+
+  it('every illustrated tier has its artwork shipped, and packs with key art have a wrapper image', () => {
+    for (const c of cards) {
+      const p = packById.get(c.pack)!;
+      for (const t of p.tiers) {
+        const src = illustration(p, c.id, t.id);
+        if (src) expect(existsSync(`public/${src}`), src).toBe(true);
+      }
+    }
+    expect(shipped.size).toBeGreaterThan(30);
+    for (const p of packs.filter((x) => x.id !== 'starter')) expect(existsSync(`public/art/pack-${p.id}.webp`)).toBe(true);
   });
 
   it('pack odds sum to 100%', () => {

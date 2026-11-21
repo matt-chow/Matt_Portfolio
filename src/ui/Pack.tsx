@@ -12,8 +12,10 @@ export const TEAR_TOP = `polygon(0 0,100% 0,${zig.slice().reverse().map(([x, y])
 export const TEAR_BODY = `polygon(${zig.map(([x, y]) => `${x}% ${y}%`).join(',')},100% 100%,0 100%)`;
 
 export function PackArt({ pack, clip, style }: { pack: PackDef; clip?: string; style?: CSSProperties }) {
+  const keyArt = pack.id !== 'starter'; // Starter stays the plain, minimal wrapper
   return (
-    <div className={`pack pack-${pack.id}`} style={{ clipPath: clip, ...style }} aria-hidden="true">
+    <div className={`pack pack-${pack.id}${keyArt ? ' has-key' : ''}`} style={{ clipPath: clip, ...style }} aria-hidden="true">
+      {keyArt && <img className="pack-key" src={`art/pack-${pack.id}.webp`} alt="" decoding="async" />}
       <div className="pack-crimp" />
       <div className="pack-face">
         <span className="pack-series">{pack.series}</span>

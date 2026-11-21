@@ -17,6 +17,7 @@ export interface PackDef {
   guaranteeFrom: number; // every repeat pack has at least one pull at this tier index or higher
   core: boolean; // fixed core set: the first opening reveals every card
   premiumFrom: number; // first-open bonus pulls come from this tier index or higher
+  artFrom?: number; // tiers at this index or higher show the illustration in public/art/<card id>.webp
 }
 
 export interface Pull {
@@ -34,12 +35,12 @@ export const packs: PackDef[] = [
   {
     id: 'experience', name: 'Experience', series: 'Series 1', tagline: 'Roles, teams and what got built.',
     tiers: [t('common', 'Common', 50), t('uncommon', 'Uncommon', 26), t('rare', 'Rare', 14), t('ir', 'Illustration Rare', 7), t('sir', 'Special Illustration Rare', 3)],
-    guaranteeFrom: 2, core: true, premiumFrom: 3,
+    guaranteeFrom: 2, core: true, premiumFrom: 3, artFrom: 3,
   },
   {
     id: 'highlights', name: 'Highlights', series: 'Series 2', tagline: 'Packages, papers, posters and podiums.',
     tiers: [t('bronze', 'Bronze', 45), t('silver', 'Silver', 28), t('gold', 'Gold', 16), t('diamond', 'Diamond', 8), t('black', 'Black Diamond', 3)],
-    guaranteeFrom: 2, core: true, premiumFrom: 3,
+    guaranteeFrom: 2, core: true, premiumFrom: 3, artFrom: 3,
   },
   {
     id: 'skills', name: 'Skills', series: 'Tokens', tagline: 'Enamel tokens for every tool, each with receipts.',
@@ -51,7 +52,7 @@ export const packs: PackDef[] = [
   },
   {
     id: 'personal', name: 'Personal', series: 'Scrapbook', tagline: 'Interests and fun facts.',
-    tiers: [t('standard', 'Standard', 55), t('illustrated', 'Illustrated', 30), t('holo', 'Holo', 12), t('secret', 'Secret', 3)], guaranteeFrom: 1, core: false, premiumFrom: 2,
+    tiers: [t('standard', 'Standard', 55), t('illustrated', 'Illustrated', 30), t('holo', 'Holo', 12), t('secret', 'Secret', 3)], guaranteeFrom: 1, core: false, premiumFrom: 2, artFrom: 1,
   },
 ];
 
@@ -63,6 +64,9 @@ export const parseKey = (key: string) => {
   return { cardId, tier };
 };
 export const tierIndex = (pack: PackDef, tier: string) => pack.tiers.findIndex((x) => x.id === tier);
+/** Illustration for this card at this tier, if its pack has premium art and the tier reaches it. */
+export const illustration = (pack: PackDef, cardId: string, tier: string) =>
+  pack.artFrom !== undefined && tierIndex(pack, tier) >= pack.artFrom ? `art/${cardId}.webp` : undefined;
 export const PACK_SIZES = [3, 5, 7, 10];
 
 export function pickWeighted<T extends { weight: number }>(items: T[], rng: Rng): T {

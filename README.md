@@ -47,8 +47,10 @@ npm run build    # production build into dist/
 - [simeydotme/pokemon-cards-css](https://github.com/simeydotme/pokemon-cards-css) and pokemon-cards-151 are GPL-3.0. None of their code, images or masks are used.
 - The tilt, holo, glare and glitter layers are an independent implementation: pointer position is written to CSS variables, and the layers are gradients with blend modes. This keeps the site free of GPL obligations.
 - The Experience and Highlights layouts borrow genre conventions only (creature-card and vintage baseball-card), with no third-party names, logos or art.
-- All artwork is SVG or CSS drawn in this repo. The exceptions are the project and employer logos in `public/images`, carried over from the previous site. They belong to their owners and are used only to identify those organisations.
-- No image-generation tool was available, so there are no illustrated portraits. That gap is listed in `contentTodos`.
+- Base-tier artwork is SVG or CSS drawn in this repo.
+- The paintings in `public/art` (premium tiers and pack wrappers) were generated for this site with OpenAI image generation, run through the Codex CLI. They are original scenes with no people, text, logos or third-party characters. One image, `p-games`, was regenerated because the first draft looked too much like a commercial console. Prompts are written to stay generic. Exports are 640px WebP, about 106 KB each and 3.5 MB in total, and they load lazily.
+- The project and employer logos in `public/images` were carried over from the previous site. They belong to their owners and are used only to identify those organisations.
+- There is no portrait yet: the Starter profile card shows a placeholder until a real photo is supplied.
 
 ## Deploy (free: GitHub Pages)
 
