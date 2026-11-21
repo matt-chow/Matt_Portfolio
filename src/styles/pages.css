@@ -822,6 +822,90 @@
 .equip-opt:has(input:focus-visible) {
   outline: 3px solid var(--accent);
 }
+/* Medals as one screen: a compact grid of all medals, with display options beside it on wide screens. */
+@media (min-height: 640px), (min-width: 600px) and (min-height: 540px) {
+  [data-layout='app'] .medals .page-head {
+    margin-bottom: 0.5rem;
+  }
+  [data-layout='app'] .medals-body {
+    padding: 10px 12px 1rem; /* room for raised shadows */
+    margin-inline: -12px;
+  }
+  [data-layout='app'] .medal-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(205px, 100%), 1fr));
+    gap: 0.6rem;
+    margin: 0;
+  }
+  [data-layout='app'] .medal-card {
+    gap: 0.7rem;
+    padding: 0.65rem 0.8rem;
+    align-items: center;
+  }
+  [data-layout='app'] .medal-card .medal {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+  }
+  [data-layout='app'] .medal-card h2 {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  [data-layout='app'] .medal-card p {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    margin: 0.1rem 0 0;
+  }
+  [data-layout='app'] .medal-card .medal-status {
+    font-size: 0.75rem;
+  }
+  [data-layout='app'] .equip {
+    margin-top: 1.5rem;
+  }
+  [data-layout='app'] .equip h2 {
+    font-size: 1.2rem;
+  }
+  [data-layout='app'] .equip legend {
+    font-size: 0.95rem;
+  }
+  [data-layout='app'] .equip fieldset {
+    margin-bottom: 0.75rem;
+  }
+  [data-layout='app'] .equip-row {
+    gap: 0.4rem;
+  }
+  [data-layout='app'] .equip-opt {
+    width: 104px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+  [data-layout='app'] .equip .card-sm {
+    width: 76px;
+  }
+}
+/* Wide: medals and options sit side by side, each scrolling on its own only if it must. */
+@media (min-width: 960px) and (min-height: 540px) {
+  [data-layout='app'] .medals-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 248px;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 1.25rem;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  [data-layout='app'] .medal-grid,
+  [data-layout='app'] .equip {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 2px 4px 1rem;
+    align-content: start;
+  }
+  [data-layout='app'] .equip {
+    margin: 0;
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--line);
+  }
+}
 
 /* ---------- Grading ceremony ---------- */
 .ceremony {
