@@ -55,7 +55,6 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
     let last = performance.now();
     const start = last;
     let sep = -1;
-    let grain = 0;
     let fired = false;
     let done = false;
     let tenth = 0;
@@ -68,13 +67,10 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
       if (cb.current.auto && !t.torn) t = drag(t, t.p, (t.dir || 1) * (dt / 0.6), 1, dt); // the button tears it for you in 0.6s
       t = tearStep(t, dt);
       st.current = t;
-      if (t.p - grain > 0.03) {
-        sfx.rip(Math.min(1, t.speed / 2.5));
-        grain = t.p;
-      }
+      sfx.tearing(t.torn ? 0 : Math.min(1, t.speed / 2));
       if (t.torn && !fired) {
         fired = true;
-        sfx.separate();
+        sfx.snap();
         navigator.vibrate?.(12);
         setTorn(true);
         cb.current.onTorn();
@@ -83,8 +79,13 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
           return cb.current.onDone();
         }
       }
-      if (sep >= 0) sep += dt;
-      else if (t.torn && t.p > 0.97) sep = 0;
+      if (sep >= 0) {
+        if (sep < 0.25 && sep + dt >= 0.25) sfx.slide(); // as the card stack starts to rise
+        sep += dt;
+      } else if (t.torn && t.p > 0.97) {
+        sep = 0;
+        sfx.rustle();
+      }
       const ease = 1 - Math.exp(-dt * 8);
       view.tiltX += (aim.current.x - view.tiltX) * ease;
       view.tiltY += (aim.current.y - view.tiltY) * ease;
@@ -101,7 +102,10 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      sfx.tearing(0);
+    };
   }, [reduce]);
 
   /** Flat fallback: the strip hinges at the untorn end, then flies off the same way as the 3D one. */

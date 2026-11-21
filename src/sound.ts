@@ -43,11 +43,116 @@ function noise(dur: number, from: number, to: number, gain = 0.12) {
   src.start();
 }
 
+/**
+ * One shaped puff of fresh noise. The highpass strips the body (thin laminated film has none), the bandpass sets its sheen,
+ * and the envelope rises from and decays to silence so nothing clicks.
+ */
+function puff(dur: number, freq: number, q: number, gain: number, { at = 0, attack = 0.002, hp = 1800 } = {}) {
+  const a = audio();
+  if (!a) return;
+  const buf = a.createBuffer(1, Math.ceil(a.sampleRate * dur), a.sampleRate);
+  buf.getChannelData(0).forEach((_, i, d) => (d[i] = Math.random() * 2 - 1));
+  const src = a.createBufferSource();
+  const hi = a.createBiquadFilter();
+  const band = a.createBiquadFilter();
+  const g = a.createGain();
+  const t = a.currentTime + at;
+  src.buffer = buf;
+  src.playbackRate.value = 0.94 + Math.random() * 0.12; // no two identical
+  hi.type = 'highpass';
+  hi.frequency.value = hp;
+  band.type = 'bandpass';
+  band.frequency.value = freq;
+  band.Q.value = q;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(gain, t + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(hi).connect(band).connect(g).connect(a.destination);
+  src.start(t);
+  src.stop(t + dur + 0.02);
+}
+
+/** Sparse random ticks: the fine crackle of a laminate seam letting go, about `rate` per second at normal speed. */
+function crackleBuffer(a: AudioContext, dur: number, rate: number) {
+  const buf = a.createBuffer(1, Math.ceil(a.sampleRate * dur), a.sampleRate);
+  const d = buf.getChannelData(0);
+  const tick = Math.ceil(a.sampleRate * 0.0005);
+  for (let n = 0; n < dur * rate; n++) {
+    const at = Math.floor(Math.random() * (d.length - tick));
+    const amp = (0.25 + Math.random() * 0.75) * (Math.random() < 0.5 ? -1 : 1);
+    for (let i = 0; i < tick; i++) d[at + i] += amp * (Math.random() * 2 - 1) * (1 - i / tick);
+  }
+  return buf;
+}
+
+type Voice = { a: AudioContext; out: GainNode; band: BiquadFilterNode; crackle: AudioBufferSourceNode; hiss: AudioBufferSourceNode; idle?: number };
+let voice: Voice | undefined;
+
+function startVoice(a: AudioContext): Voice {
+  const hiss = a.createBufferSource();
+  hiss.buffer = a.createBuffer(1, a.sampleRate * 3, a.sampleRate);
+  hiss.buffer.getChannelData(0).forEach((_, i, d) => (d[i] = Math.random() * 2 - 1));
+  const crackle = a.createBufferSource();
+  crackle.buffer = crackleBuffer(a, 2.3, 420); // loop lengths differ, so the mix never repeats on a short cycle
+  hiss.loop = crackle.loop = true;
+  const hissGain = a.createGain();
+  hissGain.gain.value = 0.22;
+  const hi = a.createBiquadFilter();
+  hi.type = 'highpass';
+  hi.frequency.value = 2500;
+  const band = a.createBiquadFilter();
+  band.type = 'bandpass';
+  band.Q.value = 0.6;
+  band.frequency.value = 5000;
+  const out = a.createGain();
+  out.gain.value = 0;
+  hiss.connect(hissGain).connect(hi);
+  crackle.connect(hi);
+  hi.connect(band).connect(out).connect(a.destination);
+  hiss.start(0, Math.random() * 3);
+  crackle.start(0, Math.random() * 2.3);
+  return { a, out, band, crackle, hiss };
+}
+
+/**
+ * The tear itself, one continuous voice: `force` (0..1, from tear speed) sets its loudness, brightness and how fast the
+ * crackle runs, so a slow pull ticks and a fast one zips. Call every frame; 0 glides it out and frees it shortly after.
+ */
+function tearing(force: number) {
+  if (getState().settings.muted || force < 0.02) force = 0;
+  if (!voice) {
+    const a = force ? audio() : undefined;
+    if (!a) return;
+    voice = startVoice(a);
+  }
+  const v = voice;
+  const t = v.a.currentTime;
+  v.out.gain.setTargetAtTime(0.12 * force ** 0.5, t, force ? 0.025 : 0.06); // sqrt keeps a slow pull audible
+  v.crackle.playbackRate.setTargetAtTime(0.45 + force * 1.6, t, 0.04);
+  v.band.frequency.setTargetAtTime(4200 + force * 3800, t, 0.05);
+  if (force) {
+    clearTimeout(v.idle);
+    v.idle = undefined;
+  } else
+    v.idle ??= window.setTimeout(() => {
+      v.hiss.stop();
+      v.crackle.stop();
+      v.out.disconnect();
+      if (voice === v) voice = undefined;
+    }, 500);
+}
+
 export const sfx = {
-  crinkle: () => noise(0.12, 5200, 2600, 0.04),
-  // One grain of tearing foil; `force` (0..1) is how hard the strip is being pulled.
-  rip: (force: number) => noise(0.04 + force * 0.04, 2000 + Math.random() * 2200, 1100, 0.04 + force * 0.12),
-  separate: () => (noise(0.32, 3600, 700, 0.15), tone(85, 0, 0.18, 'sine', 0.1)),
+  // Fingertip on the wrapper: two or three barely-there ticks of film.
+  crinkle: () =>
+    [0, 1, 2].forEach((k) => Math.random() < 0.8 && puff(0.012 + Math.random() * 0.012, 6500 + Math.random() * 3000, 1.2, 0.012 + Math.random() * 0.01, { at: k * (0.012 + Math.random() * 0.03), attack: 0.001 })),
+  tearing,
+  // The last of the seam lets go: a short, light plastic snap with no thump under it.
+  snap: () => (puff(0.05, 4200, 0.8, 0.08, { attack: 0.0015 }), puff(0.018, 9500, 1, 0.045, { attack: 0.0005 })),
+  // The loose strip and wrapper flutter: an airy swell, high and quiet.
+  rustle: () => (puff(0.42, 7000, 0.6, 0.022, { attack: 0.12 }), puff(0.3, 5200, 0.7, 0.014, { at: 0.14, attack: 0.07 })),
+  // The card stack sliding out: soft, dry card stock, lower and smoother than the film.
+  slide: () => puff(0.3, 1700, 0.7, 0.035, { attack: 0.09, hp: 500 }),
   flip: () => noise(0.08, 2400, 1200, 0.1),
   tick: () => tone(1400, 0, 0.04, 'square', 0.02),
   reveal: (rank: number) => [523, 659, 784, 1047, 1319].slice(0, 2 + rank).forEach((f, i) => tone(f, i * 0.07, 0.35, 'triangle', 0.05)),
