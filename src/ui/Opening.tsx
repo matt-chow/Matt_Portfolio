@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cardById, type PackId } from '../content/manifest';
-import { cardsInPack, PACK_SIZE, packById, tierIndex, type Pull } from '../engine/packs';
+import { cardsInPack, PACK_SIZE, packById, revealLevel, tierIndex, type Pull } from '../engine/packs';
 import { openPack } from '../engine/state';
 import { actWith, useStore } from '../store';
 import { sfx } from '../sound';
@@ -71,6 +71,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
 
   const current = pulls[idx];
   const rank = current ? tierIndex(pack, current.tier) : 0;
+  const level = revealLevel(pack, rank);
   const advance = () => {
     if (charging || !current) return;
     if (flipped) {
@@ -82,7 +83,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
       setCharging(false);
       setFlipped(true);
       sfx.flip();
-      sfx.reveal(rank);
+      sfx.unveil(level);
       const c = cardById.get(current.cardId)!;
       setAnnounce(`${c.title}, ${pack.tiers[rank].label}${isNew(idx) ? ', new' : ''}. Card ${idx + 1} of ${pulls.length}.`);
     };
@@ -145,7 +146,8 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
 
       {stage === 'reveal' && current && (
         <div className="stage reveal">
-          <div className={`reveal-zone ${charging ? 'charging' : ''}`} style={{ '--rank': rank } as React.CSSProperties}>
+          {/* No rank on the zone: the charge looks the same for every premium tier, so the flip is what tells. */}
+          <div className={`reveal-zone ${charging ? 'charging' : ''}`}>
             <div className="stack-behind" aria-hidden="true">
               {/* Keyed by absolute position so the waiting cards glide forward as the top one leaves. */}
               {pulls.slice(idx + 1, idx + 4).map((_, i) => (
@@ -158,14 +160,13 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
                 />
               ))}
             </div>
-            {flipped && rank >= pack.guaranteeFrom && !reduce && (
-              <motion.div key={`burst-${idx}`} className="reveal-burst" aria-hidden="true" initial={{ opacity: 0.95, scale: 0.55 }} animate={{ opacity: 0, scale: 1.5 + rank * 0.12 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
-            )}
+            {/* Light from behind the card, keyed per card so it plays once as the face turns up. */}
+            {flipped && level >= 2 && <div key={`light-${idx}`} className={`reveal-light lv-${level}`} aria-hidden="true" />}
             <AnimatePresence mode="popLayout">
               {/* Next card: the old one winds up and flies off on top while the new one slides out from the stack beneath. */}
               <motion.button
                 key={idx}
-                className="reveal-card"
+                className={`reveal-card ${flipped && level ? `lit lv-${level}` : ''}`}
                 onClick={advance}
                 autoFocus
                 aria-label={flipped ? (idx + 1 < pulls.length ? 'Next card' : 'See all cards') : `Reveal card ${idx + 1} of ${pulls.length}`}

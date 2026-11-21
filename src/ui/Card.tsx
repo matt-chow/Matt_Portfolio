@@ -152,7 +152,7 @@ export function Card({ card, tier, back = 'classic', frame = 'none', faceDown, m
       ref={ref}
       className={`card tpl-${card.pack} fin-${tier} frame-${frame} ${misprint ? 'misprint' : ''} ${faceDown ? 'face-down' : ''} ${className}`}
       style={{ '--hue': card.hue, ...style } as CSSProperties}
-      data-tier={tierLabel}
+      data-tier={faceDown ? undefined : tierLabel}
     >
       <div className="card-rot">
         <div className="face front">

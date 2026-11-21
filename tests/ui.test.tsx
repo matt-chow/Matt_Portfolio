@@ -105,6 +105,9 @@ describe('routing', () => {
     const pulls = getState().lastOpening!.pulls.length; // saved before any animation
     expect(getState().opened.skills).toBe(1);
     fireEvent.click(document.querySelector('.stage.tearing')!); // tap to skip the tear
+    // Face down, nothing in the markup gives the finish away: no tier label, no rank-scaled charge.
+    expect(document.querySelector('.reveal-card .card')!.hasAttribute('data-tier')).toBe(false);
+    expect((document.querySelector('.reveal-zone') as HTMLElement).style.getPropertyValue('--rank')).toBe('');
     fireEvent.click(screen.getByRole('button', { name: `Reveal card 1 of ${pulls}` }));
     // A high-rarity pull pauses for suspense first; flush it.
     rtlAct(() => void vi.advanceTimersByTime(1000));

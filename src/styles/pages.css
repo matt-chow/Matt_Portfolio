@@ -408,8 +408,8 @@
   cursor: pointer;
   border-radius: 16px;
 }
-/* Rarity suspense: the card trembles and glows in proportion to its rank. */
-/* On the inner card, so it never fights motion's inline transform on the button. Higher ranks shake harder and swell. */
+/* Rarity suspense: the card trembles and glows the same for every premium tier, so only the flip tells which one. */
+/* On the inner card, so it never fights motion's inline transform on the button. */
 .charging .reveal-card > .card {
   animation: tremble 0.11s linear infinite, swell 0.9s ease-in forwards;
 }
@@ -419,17 +419,17 @@
   inset: -10%;
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in oklab, var(--gold) 70%, transparent), transparent 65%);
-  opacity: calc(0.25 + var(--rank) * 0.15);
+  opacity: 0.55;
   animation: pulse 0.45s ease-in-out infinite alternate;
 }
 @keyframes tremble {
   25% {
-    translate: calc(var(--rank) * 0.5px) calc(var(--rank) * -0.5px);
-    rotate: calc(var(--rank) * -0.25deg);
+    translate: 1px -1px;
+    rotate: -0.5deg;
   }
   75% {
-    translate: calc(var(--rank) * -0.5px) calc(var(--rank) * 0.5px);
-    rotate: calc(var(--rank) * 0.25deg);
+    translate: -1px 1px;
+    rotate: 0.5deg;
   }
 }
 @keyframes swell {
@@ -440,15 +440,126 @@
 .tearing {
   cursor: pointer;
 }
-.reveal-burst {
-  position: relative;
+/* Reveal light, timed to the card's 0.6s flip: the face turns up about 100 ms in, so the light behind the card (rare and
+   up) and the sweep across its face (mid and up) peak there and are gone before the card settles. Plays once per card. */
+.reveal-light {
+  position: absolute; /* out of flow: it is larger than the card and must not size the zone's grid row */
   z-index: 0;
-  align-self: center;
-  aspect-ratio: 1;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 125%; /* card-shaped, so the light spills evenly past every edge of the card in front of it */
+  aspect-ratio: 5 / 7;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, #fff 0 8%, color-mix(in oklab, var(--gold) 80%, transparent) 22%, color-mix(in oklab, var(--violet) 35%, transparent) 45%, transparent 68%);
-  mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95) 62%, color-mix(in oklab, var(--accent) 45%, transparent) 80%, transparent);
+  animation: bloom 0.7s 0.05s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.reveal-light.lv-3,
+.reveal-light.lv-4 {
+  width: 150%;
+  animation-duration: 1.1s;
+}
+.reveal-light.lv-4 {
+  background: radial-gradient(closest-side, #fff 58%, color-mix(in oklab, var(--gold) 50%, transparent) 70%, color-mix(in oklab, var(--violet) 40%, transparent) 84%, transparent);
+}
+/* Premium: soft rays turning slowly behind the bloom. */
+.reveal-light.lv-3::before,
+.reveal-light.lv-4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-conic-gradient(rgb(255 255 255 / 0.45) 0 3deg, transparent 3deg 20deg);
+  mask: radial-gradient(closest-side, #000 50%, transparent);
+  animation: rays 1.1s linear both;
+}
+/* Top tier flourish: a single ring of light breaking outward from behind the card. */
+.reveal-light.lv-4::after {
+  content: '';
+  position: absolute;
+  inset: 16%; /* starts at the card's own outline */
+  border-radius: inherit;
+  border: 2px solid color-mix(in oklab, var(--gold) 60%, #fff);
+  box-shadow: 0 0 18px color-mix(in oklab, var(--accent) 60%, transparent), inset 0 0 12px color-mix(in oklab, var(--violet) 40%, transparent);
+  animation: ring 0.8s 0.15s ease-out both;
+}
+/* The caption under the card stays above the light, so the tier name is never washed out. */
+.stage.reveal .stage-note {
+  position: relative;
+  z-index: 1;
+}
+/* Sweep across the face: soft-light so it lifts the artwork without washing it out. */
+.reveal-card.lit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 0.7) 50%, transparent 60%) no-repeat;
+  background-size: 250% 100%;
+  mix-blend-mode: soft-light;
+  animation: sweep 0.5s 0.15s ease-out both;
+}
+.reveal-card.lv-2::after {
+  background-image: linear-gradient(115deg, transparent 36%, color-mix(in oklab, var(--accent) 35%, #fff) 50%, transparent 64%);
+}
+.reveal-card.lv-3::after,
+.reveal-card.lv-4::after {
+  background-image: linear-gradient(115deg, transparent 30%, #a5b4fc 40%, #fff 48%, #fde68a 54%, #f0abfc 60%, transparent 70%);
+  mix-blend-mode: overlay;
+  opacity: 0.75;
+  animation-duration: 0.75s;
+}
+@keyframes bloom {
+  0% {
+    opacity: 0;
+    scale: 0.55;
+  }
+  20% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.15;
+  }
+}
+@keyframes rays {
+  to {
+    rotate: 40deg;
+  }
+}
+@keyframes ring {
+  from {
+    opacity: 0.9;
+    scale: 0.95;
+  }
+  to {
+    opacity: 0;
+    scale: 1.45;
+  }
+}
+@keyframes sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+/* Reduced motion: no flash, sweep or rays; rare and up get a steady soft halo for as long as the card is face up. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-light {
+    animation: none;
+    opacity: 0.35;
+  }
+  .reveal-light::before,
+  .reveal-light::after,
+  .reveal-card.lit::after {
+    display: none;
+  }
 }
 @keyframes pulse {
   to {

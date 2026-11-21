@@ -166,6 +166,9 @@ function tearing(force: number) {
     }, 500);
 }
 
+/** Shimmer: a soft, airy swell of high noise, the sound of the foil catching light. */
+const shimmer = (at: number, dur: number, gain: number) => puff(dur, 8200, 0.5, gain, { at, attack: dur * 0.3, hp: 5000 });
+
 export const sfx = {
   // Fingertip on the wrapper: two or three barely-there ticks of film.
   crinkle: () =>
@@ -181,9 +184,24 @@ export const sfx = {
   rustle: () => (puff(0.42, 7000, 0.6, 0.022, { attack: 0.12 }), puff(0.3, 5200, 0.7, 0.014, { at: 0.14, attack: 0.07 })),
   // The card stack sliding out: soft, dry card stock, lower and smoother than the film.
   slide: () => puff(0.3, 1700, 0.7, 0.035, { attack: 0.09, hp: 500 }),
-  flip: () => noise(0.08, 2400, 1200, 0.1),
+  flip: () => noise(0.08, 2400, 1200, 0.075),
   tick: () => tone(1400, 0, 0.04, 'square', 0.02),
   reveal: (rank: number) => [523, 659, 784, 1047, 1319].slice(0, 2 + rank).forEach((f, i) => tone(f, i * 0.07, 0.35, 'triangle', 0.05)),
+  /**
+   * Card reveal by level (see revealLevel): 0 keeps the plain two-note chime, 1 a short glint, 2 a rising arpeggio with a
+   * shimmer, 3 a fuller arpeggio over a soft pad, 4 that plus a falling sparkle flourish. Offset 80 ms so the first
+   * note lands as the card turns edge-on and its face appears. Every level stays below the tear and snap.
+   */
+  unveil: (level: number) => {
+    const at = 0.08;
+    if (level === 0) return sfx.reveal(0);
+    if (level === 1) return [1568, 2093].forEach((f, i) => tone(f, at + i * 0.06, 0.22, 'sine', 0.03));
+    const notes = level === 2 ? [784, 988, 1175, 1568] : [659, 784, 988, 1319, 1568, 1976];
+    notes.forEach((f, i) => tone(f, at + i * 0.055, 0.4, 'triangle', 0.04));
+    shimmer(at, 0.5 + level * 0.1, 0.012 + level * 0.003);
+    if (level >= 3) [392, 587].forEach((f) => tone(f, at, 0.8, 'sine', 0.025));
+    if (level === 4) [2637, 2349, 1976, 2637].forEach((f, i) => tone(f, at + 0.42 + i * 0.07, 0.3, 'sine', 0.022));
+  },
   slab: () => (tone(110, 0, 0.25, 'sine', 0.2), noise(0.12, 600, 300, 0.1)),
   medal: () => [784, 988, 1175].forEach((f, i) => tone(f, i * 0.09, 0.5, 'sine', 0.05)),
 };
