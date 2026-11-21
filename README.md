@@ -21,9 +21,11 @@ npm run build    # production build into dist/
 | `src/engine/achievements.ts` | Medals and the cosmetic rewards they unlock. |
 | `src/store.ts` | Applies a transition and saves it in a single `localStorage.setItem`. |
 | `src/ui/` | React views. Card templates live in `Card.tsx`; finishes are CSS in `src/styles/cards.css`. |
+| `src/ui/ring3d.ts`, `ringPhysics.ts` | The homepage pack ring: a lazily loaded Three.js scene and the pure spring that drives it (unit-tested). |
 
 - **Refresh safety.** Pack results and grades are saved before any animation plays. A ceremony only reveals what is already stored, so a refresh never rerolls.
 - **Sync-ready.** The save is one versioned JSON document (`collectors-archive:v1`), identical to the export file. A future cloud sync can store it as-is.
+- **3D and fallbacks.** The pack ring loads Three.js (about 123 KB gzipped) only when WebGL2 is available and reduced motion is off. Otherwise the homepage shows the flat scroller. The canvas is decorative: every action is also a real link or button beside it (chips, "Open", "Quick open", arrow keys), so screen readers and keyboards skip the WebGL. Everything else, including the tear, card stepping, holo and slabs, is DOM and CSS, and under reduced motion it becomes instant.
 - **Adding a card.** Add an entry to the manifest with a `source`. Its pack's template, finishes and odds apply automatically.
 
 ## Odds
