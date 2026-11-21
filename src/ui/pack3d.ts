@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { PackDef } from '../engine/packs';
-import { foilMaterial, paintBack } from './foil3d';
+import { foilMaterial, paintBack, pillowZ } from './foil3d';
 import { H, paintFront, W } from './ring3d';
 import { hash, seam, separation, type Tear } from './tear';
 
@@ -21,7 +21,6 @@ export interface PackHandle {
 }
 
 const NX = 48; // columns, one per seam tooth
-const T = 0.05; // how far the sealed wrapper puffs out between its crimps
 const smooth = (a: number, b: number, x: number) => {
   const k = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return k * k * (3 - 2 * k);
@@ -112,9 +111,7 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
       const u = x / W + 0.5;
       const vv = y / H + 0.5;
       const sv = seamV[k % (NX + 1)];
-      // Pressurised pillow: full in the middle, flat into the crimps and side seals.
-      const env = smooth(0.03, 0.16, vv) * smooth(0.03, 0.16, 1 - vv);
-      let z = s.side * (T * Math.sqrt(Math.sin(Math.PI * u)) * env + 0.0012);
+      let z = s.side * pillowZ(u, vv);
       const d = t.p - (dir > 0 ? u : 1 - u); // > 0 behind the tear front
       const w = Math.max(d > 0 ? smooth(0, 0.2, d) : 0, free);
       // Tension: the foil ripples and stretches just around the moving tear front.

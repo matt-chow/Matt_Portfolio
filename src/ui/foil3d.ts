@@ -1,7 +1,24 @@
 // Shared laminated-foil material for every 3D pack: crinkle normals, metallic print, silver inside.
 import * as THREE from 'three';
 import type { PackDef } from '../engine/packs';
-import { PALETTE } from './ring3d';
+import { H, PALETTE, W } from './ring3d';
+
+const smooth = (a: number, b: number, x: number) => {
+  const k = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return k * k * (3 - 2 * k);
+};
+
+/** Pressurised pillow height at (u, v): full in the middle, flat into the crimps and side seals. */
+export const pillowZ = (u: number, v: number) => 0.05 * Math.sqrt(Math.max(0, Math.sin(Math.PI * u))) * smooth(0.03, 0.16, v) * smooth(0.03, 0.16, 1 - v) + 0.0012;
+
+/** A sealed wrapper as two static pillowed faces (front, and back turned to face away), for packs that never tear. */
+export function pillowGeometry() {
+  const front = new THREE.PlaneGeometry(W, H, 24, 40);
+  const pos = front.attributes.position;
+  for (let k = 0; k < pos.count; k++) pos.setZ(k, pillowZ(pos.getX(k) / W + 0.5, pos.getY(k) / H + 0.5));
+  front.computeVertexNormals();
+  return { front, back: front.clone().rotateY(Math.PI) };
+}
 
 let crinkleTex: THREE.DataTexture | undefined;
 

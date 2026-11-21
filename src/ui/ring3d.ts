@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { PackDef } from '../engine/packs';
+import { foilMaterial, paintBack, pillowGeometry } from './foil3d';
 import { goTo, nudge, offset, release, ring, ringStep, settled, slotOf, type Ring } from './ringPhysics';
 
 // Wrapper palettes mirror the .pack-* rules in cards.css.
@@ -15,7 +16,6 @@ export const PALETTE: Record<string, [string, string, string]> = {
 };
 export const W = 1;
 export const H = 1.64;
-const D = 0.045;
 
 function loadImage(src: string) {
   return new Promise<HTMLImageElement | null>((res) => {
@@ -125,24 +125,25 @@ export async function mountRing(
 
   const n = packs.length;
   const R = 1.9;
-  const box = new THREE.BoxGeometry(W, H, D);
+  const pillow = pillowGeometry();
   const plane = new THREE.PlaneGeometry(W, H);
   const fade = fadeMap();
-  const disposables: { dispose(): void }[] = [box, plane, fade, pmrem];
+  const disposables: { dispose(): void }[] = [pillow.front, pillow.back, plane, fade, pmrem];
   const items = await Promise.all(
     packs.map(async (pack) => {
       const map = await paintFront(pack, pack.id !== 'starter');
-      const [, b] = PALETTE[pack.id];
-      const edge = new THREE.MeshStandardMaterial({ color: b, roughness: 0.5, metalness: 0.2 });
-      const front = new THREE.MeshPhysicalMaterial({ map, roughness: 0.32, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.18 });
+      const backMap = paintBack(pack);
+      const front = foilMaterial(map);
+      const back = foilMaterial(backMap);
+      front.transparent = back.transparent = false; // sealed packs never fade, so skip transparent sorting
       const mirror = new THREE.MeshBasicMaterial({ map, alphaMap: fade, transparent: true, opacity: 0.32, depthWrite: false, fog: true });
       const group = new THREE.Group();
-      const mesh = new THREE.Mesh(box, [edge, edge, edge, edge, front, edge]);
+      const mesh = new THREE.Group().add(new THREE.Mesh(pillow.front, front), new THREE.Mesh(pillow.back, back));
       const reflection = new THREE.Mesh(plane, mirror);
       reflection.scale.y = -1;
       group.add(mesh, reflection);
       scene.add(group);
-      disposables.push(map, edge, front, mirror);
+      disposables.push(map, backMap, front, back, mirror);
       return { group, mesh, reflection };
     }),
   );
@@ -234,7 +235,7 @@ export async function mountRing(
     else {
       ray.setFromCamera(toNdc(e), camera);
       const hit = ray.intersectObjects(items.map((x) => x.mesh))[0];
-      const i = items.findIndex((x) => x.mesh === hit?.object);
+      const i = items.findIndex((x) => x.mesh === hit?.object.parent);
       if (i === focus && settled(state)) opts.onOpen(i);
       else if (i >= 0) state = goTo(state, i, n);
     }
