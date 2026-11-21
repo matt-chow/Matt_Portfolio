@@ -32,7 +32,6 @@ export function CardDetail({ cardId, tier, onClose }: { cardId: string; tier?: s
 
   const grade = () => {
     // Result is decided and saved before the ceremony plays; refreshing mid-ceremony loses nothing.
-    dialog.current?.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
     const { slab } = actWith((x) => gradeOne(x, variantKey(cardId, sel), Math.random, crypto.randomUUID()));
     if (reduce) return setCeremony({ slab, step: 'slab' });
     setCeremony({ slab, step: 'scan' });
@@ -77,7 +76,7 @@ export function CardDetail({ cardId, tier, onClose }: { cardId: string; tier?: s
           </p>
         </div>
 
-        <div className="detail-text">
+        <div className="detail-text scroll-y" tabIndex={0} role="region" aria-labelledby="detail-title">
           <p className="muted small">{pack.name}{card.subset ? ` · ${card.subset}` : ''}</p>
           <h2 id="detail-title">{card.title}</h2>
           {card.subtitle && <p className="lede">{card.subtitle}</p>}

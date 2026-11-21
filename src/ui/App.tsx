@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type MouseEvent } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useState, type MouseEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { achievementById } from '../engine/achievements';
@@ -29,6 +29,8 @@ function useRoute() {
     const on = () => {
       setHash(location.hash);
       window.scrollTo({ top: 0 });
+      const main = document.getElementById('main');
+      if (main) main.scrollTop = 0;
     };
     addEventListener('hashchange', on);
     return () => removeEventListener('hashchange', on);
@@ -121,6 +123,12 @@ export function App() {
   else if (route.page === 'medals') page = <Medals />;
   else if (route.page === 'index') page = <IndexPage />;
   else page = <Home />;
+
+  // Index reads as a document; every other route is a fixed-viewport app (see .css `data-layout`).
+  const layout = route.page === 'index' ? 'doc' : 'app';
+  useLayoutEffect(() => {
+    document.documentElement.dataset.layout = layout;
+  }, [layout]);
 
   return (
     <DetailCtx.Provider value={setDetail}>
