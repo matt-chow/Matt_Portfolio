@@ -62,7 +62,7 @@ const stamp = (s: State, now = Date.now()): State => evaluateAchievements({ ...s
 export function openPack(s: State, packId: PackId, rng: Rng, now = Date.now()) {
   const pack = packById.get(packId)!;
   const first = !s.opened[packId];
-  const pulls = first ? firstOpenPulls(pack) : rollPack(pack, s.settings.packSize, rng);
+  const pulls = first ? firstOpenPulls(pack, s.settings.packSize, rng) : rollPack(pack, s.settings.packSize, rng);
   const stacks = { ...s.stacks };
   const discovered = { ...s.discovered };
   const isNew = pulls.map(({ cardId, tier }) => {

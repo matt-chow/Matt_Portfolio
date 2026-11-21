@@ -38,7 +38,8 @@ npm run build    # production build into dist/
 | Personal | Standard 55 · Illustrated 30 · Holo 12 · Secret 3 | Illustrated or better |
 | Grading | 8: 25 · 9: 45 · 10: 29.9 · Misprint: 0.1 | — |
 
-- The first opening of each pack reveals every card in it at the base tier.
+- The first opening of a pack with a fixed core set (all but Personal) reveals every card at the base tier, then adds 1–2 premium pulls (50/50) of different cards from the same set: Full Accent, Illustration Rare or better, Diamond or better, Mastery, or Blueprint. These come last.
+- Personal has no fixed core, so even its first opening is a normal random pack.
 - In later packs, every slot rolls independently. If no slot reaches the guarantee tier, the last slot is redrawn from the tiers at or above it.
 
 ## Licensing

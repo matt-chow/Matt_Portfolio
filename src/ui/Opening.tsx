@@ -122,7 +122,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
             <PackArt pack={pack} />
           </motion.button>
           <p className="stage-note">
-            {first ? `First opening: all ${cardsInPack(packId).length} cards, one by one, straight into your binder.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}
+            {first && pack.core ? `First opening: all ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label}-or-better pulls.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}
           </p>
           <div className="row">
             <button className="btn" onClick={tear}>Tear open</button>
