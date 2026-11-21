@@ -371,3 +371,6 @@ export const contentTodos = [
   'Portrait: none used. Supply one if you want a character card illustration.',
   'Infrastructure Canada: confirm you are comfortable naming LayoutLMv3 and Mistral publicly.',
 ];
+
+const SOURCES: Record<string, string> = { R: 'résumé', S: 'previous portfolio site', G: 'public GitHub', A: 'content audit' };
+export const sourceLabel = (src: string) => src.split(/,\s*/).map((k) => SOURCES[k] ?? k).join(', ');
