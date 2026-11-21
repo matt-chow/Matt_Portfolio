@@ -20,7 +20,7 @@ describe('content manifest', () => {
   it('has unique ids, every pack populated, the six required starter cards', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
     for (const p of packs) expect(cardsInPack(p.id).length).toBeGreaterThan(0);
-    expect(cardsInPack('starter').map((c) => c.id)).toEqual(['uwaterloo', 'github', 'linkedin', 'email', 'resume', 'devpost']);
+    expect(cardsInPack('starter').map((c) => c.id)).toEqual(['profile', 'uwaterloo', 'github', 'linkedin', 'email', 'resume', 'devpost']);
     for (const c of cards) expect(c.source.length).toBeGreaterThan(0);
   });
 

@@ -1,6 +1,7 @@
 // Single source of truth for every fact on the site.
-// Sources: R = Resume_F26.pdf, S = previous portfolio site (Matthew's own copy),
-// G = public GitHub README/API, A = planning/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07).
+// Sources: CV = cv.tex in github.com/matt-chow/resume (Jun 2026), R = Resume_F26.pdf (Fall 2026, newer; wins on conflicts),
+// S = previous portfolio site (Matthew's own copy), G = public GitHub README/API,
+// A = planning/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07), O = owner instruction (2026-11-20).
 // Never add a claim without a source; put unknowns in contentTodos instead.
 
 export type PackId = 'starter' | 'experience' | 'highlights' | 'skills' | 'prototype' | 'personal';
@@ -39,6 +40,10 @@ export const profile = {
 };
 
 const starter: CardContent[] = [
+  {
+    id: 'profile', pack: 'starter', title: 'Matthew Chow', subtitle: 'Data science · Applied AI · Economics', kicker: 'Profile',
+    summary: profile.tagline, details: ['Portrait coming soon.'], motif: 'portrait', hue: 245, source: 'R, CV',
+  },
   {
     id: 'uwaterloo', pack: 'starter', title: 'University of Waterloo', subtitle: "Candidate, Bachelor's of Honours Economics",
     kicker: '2022 – 2027', summary: 'Honours Economics at the University of Waterloo in Waterloo, Ontario.',
@@ -81,24 +86,26 @@ const experience: CardContent[] = [
   },
   {
     id: 'energy', pack: 'experience', subset: 'Featured', title: 'Ministry of Energy', subtitle: 'Data Scientist',
-    kicker: 'May – Aug 2026 · Toronto', motif: 'bolt', hue: 48, source: 'R',
+    kicker: 'May – Aug 2026 · Toronto', motif: 'bolt', hue: 48, source: 'R, CV',
     summary: 'A natural-language data assistant and smart-meter ETL.',
     details: [
       'Supported development of an internal Databricks Genie-based AI assistant through prompt engineering and UI development, enabling natural-language access to organizational datasets for analysts and policy teams.',
       'Built PySpark, SQL and Delta Lake ETL pipelines to ingest and transform high-volume hourly smart meter data.',
+      'Sped up a slow Power BI Shape Map dashboard by fixing its TopoJSON with GeoPandas polygon simplification.',
     ],
-    tags: ['Databricks', 'PySpark', 'SQL', 'Delta Lake', 'Prompt engineering'],
+    tags: ['Databricks', 'PySpark', 'SQL', 'Delta Lake', 'Prompt engineering', 'GeoPandas'],
   },
   {
     id: 'tpa', pack: 'experience', subset: 'Featured', title: 'Toronto Parking Authority', subtitle: 'Data Analyst',
-    kicker: 'Jan – Apr 2026 · Toronto', motif: 'ledger', hue: 140, source: 'R, S',
+    kicker: 'Jan – Apr 2026 · Toronto', motif: 'ledger', hue: 140, source: 'R, CV, S',
     summary: 'Reconciling millions of financial records across databases.',
     details: [
       'Analyzed and reconciled 5 million+ transactional and financial records across multiple Azure-hosted databases, using CTE-based transformations, joins and window functions to validate cross-system consistency.',
       'Improved data quality by finding and resolving multiple upstream errors in the data warehouse through SQL-based auditing of financial and operational datasets (the organization reports $1.3B+ in annual revenue).',
       'Designed and maintained reusable SQL validation workflows that automate recurring data checks for reporting and monthly close.',
+      'Contributed to the planned migration of the enterprise data warehouse from Azure SQL to Microsoft Fabric: validation strategy and semantic models.',
     ],
-    tags: ['SQL', 'MSSQL', 'Azure SQL', 'Power BI', 'DAX'],
+    tags: ['SQL', 'MSSQL', 'Azure SQL', 'Microsoft Fabric', 'Power BI'],
   },
   {
     id: 'uw-math', pack: 'experience', subset: 'Featured', title: 'University of Waterloo', subtitle: 'Data Engineer · Faculty of Math',
@@ -113,7 +120,7 @@ const experience: CardContent[] = [
   },
   {
     id: 'uw-analyst', pack: 'experience', subset: 'Supplemental', title: 'University of Waterloo', subtitle: 'Data Analyst',
-    kicker: 'Sept – Dec 2024', motif: 'chart', hue: 300, source: 'S',
+    kicker: 'Sept – Dec 2024 · Campus Housing', motif: 'chart', hue: 300, source: 'CV, S',
     summary: 'Survey analysis behind a campus housing report.',
     details: [
       'Analyzed housing trends from 5,000+ survey respondents with t-tests, ANOVA, chi-square and z-tests to inform building renovation decisions.',
@@ -122,11 +129,18 @@ const experience: CardContent[] = [
     tags: ['R', 'Statistics', 'Excel'],
   },
   {
-    id: 'uwaggs', pack: 'experience', subset: 'Supplemental', title: 'UWAGGS', subtitle: 'President',
-    kicker: 'Est. May 2026', motif: 'trophy', hue: 30, source: 'R, A',
+    id: 'uwaggs', pack: 'experience', subset: 'Supplemental', title: 'UWAGGS', subtitle: 'President · Founding member',
+    kicker: 'Since Oct 2023 · President from May 2026', motif: 'trophy', hue: 30, source: 'CV, R, A',
     summary: 'University of Waterloo Analytics Group for Games and Sports.',
-    details: ['President of the University of Waterloo Analytics Group for Games and Sports, established May 2026.'],
-    links: [{ label: 'UWAGGS on GitHub', href: 'https://github.com/uwaggs' }], tags: ['Leadership', 'Sports analytics'],
+    details: ['Founding member of the University of Waterloo Analytics Group for Games and Sports (Oct 2023).', 'President since May 2026.'],
+    links: [{ label: 'uwaggs.ca', href: 'https://www.uwaggs.ca' }, { label: 'UWAGGS on GitHub', href: 'https://github.com/uwaggs' }], tags: ['Leadership', 'Sports analytics'],
+  },
+  {
+    id: 'commissioned', pack: 'experience', subset: 'Supplemental', title: 'Commissioned', subtitle: 'Growth',
+    kicker: 'Jan 2026 – Present', motif: 'spark', hue: 255, image: 'images/commissionedlogo.png', source: 'S, O',
+    summary: 'One of the first growth hires at a startup that lets anyone with data fine-tune models in minutes.',
+    details: ['Driving growth through user-generated content, community building and data-driven market strategy.'],
+    tags: ['Growth', 'Community'],
   },
   {
     id: 'softron', pack: 'experience', subset: 'Career Foundations', title: 'Softron Tax', subtitle: 'Junior Tax Accountant',
@@ -193,10 +207,13 @@ const highlights: CardContent[] = [
   },
   {
     id: 'peaks', pack: 'highlights', title: 'Peaks and primes', subtitle: 'Significance 21(3), 6–9 · 2024',
-    kicker: 'Publication', motif: 'peaks', hue: 210, image: 'images/peaksandprimes.jpeg', source: 'A (Crossref)',
+    kicker: 'Publication', motif: 'peaks', hue: 210, image: 'images/peaksandprimes.jpeg', source: 'A (Crossref), CV, O',
     summary: '"Do athletes get one shot at glory?" — a peer-reviewed magazine article.',
-    details: ['Awosoga, D. & Chow, M. Peaks and primes: Do athletes get one shot at glory? Significance, 21(3), 6–9 (2024).'],
-    tags: ['Sports science', 'Statistics'],
+    details: [
+      'David Awosoga (first author) and Matthew Chow (second author). Peaks and primes: Do athletes get one shot at glory? Significance, 21(3), 6–9 (2024).',
+      'Analyzed 12,000+ Olympic athlete careers with survival analysis and regression, finding peak performance around age 27 and quantifying the effects of training age, country, sex and Olympic participation.',
+    ],
+    tags: ['Survival analysis', 'Regression', 'Sports science'],
     links: [{ label: 'doi:10.1093/jrssig/qmae038', href: 'https://doi.org/10.1093/jrssig/qmae038' }],
   },
   {
@@ -222,13 +239,14 @@ const highlights: CardContent[] = [
   },
   {
     id: 'unifai', pack: 'highlights', title: 'unif.ai', subtitle: 'LA Hacks 2026 · 2nd Place, Design (Paper Track)',
-    kicker: 'Hackathon', motif: 'sprites', hue: 95, source: 'R',
+    kicker: 'Hackathon', motif: 'sprites', hue: 95, source: 'R, G',
     summary: 'A live world of AI agents meeting each other.',
     details: [
       'Designed sprite assets in Paper and co-built "World", a PixiJS visualizer of live multi-agent conversations.',
       'Implemented LLM-based judging of agent-to-agent chemistry and logistics, and contributed to backend deployment.',
     ],
     tags: ['PixiJS', 'LLMs', 'Design'],
+    links: [{ label: 'Source', href: 'https://github.com/cng04/unif.ai' }, { label: 'Demo', href: 'https://unif-ai-beta.vercel.app' }],
   },
   {
     id: 'parallax', pack: 'highlights', title: 'PARALLAX', subtitle: 'NASA Space Apps Challenge 2026',
@@ -237,16 +255,6 @@ const highlights: CardContent[] = [
     details: ["Lines up NASA SPHEREx archive images of the same patch of sky so anyone can blink between epochs and inspect what changed — and never claims a discovery."],
     tags: ['TypeScript', 'Three.js', 'Astronomy'],
     links: [{ label: 'nsah2026.vercel.app', href: 'https://nsah2026.vercel.app' }, { label: 'Source', href: 'https://github.com/matt-chow/nsah2026' }],
-  },
-  {
-    id: 'directory', pack: 'highlights', title: 'Directory', subtitle: 'Personal operating environment',
-    kicker: 'Software', motif: 'grid', hue: 25, source: 'G',
-    summary: 'Planner, notes, files and an assistant — offline-capable, on one Cloudflare Worker.',
-    details: [
-      'React PWA and Rust API served by one Cloudflare Worker, with D1 for structured data and a private R2 bucket for files.',
-      'Passkey sign-in; offline edits queue and sync. Status: MVP on staging.',
-    ],
-    tags: ['Rust', 'React', 'Cloudflare'], links: [{ label: 'Source', href: 'https://github.com/matt-chow/jarvis' }],
   },
 ];
 
@@ -265,8 +273,7 @@ const skills: CardContent[] = [
   skill('powerbi', 'Power BI', 'Analytics', 'Reporting with DAX and Power Query (M).', 45),
   skill('azuresql', 'Azure SQL · MSSQL', 'Data platform', 'Cross-database reconciliation at TPA.', 205),
   skill('js', 'JavaScript', 'Language', 'Web projects and this site.', 55),
-  skill('ts', 'TypeScript', 'Language', 'PARALLAX, Njidion and other public repos.', 215, 'G'),
-  skill('rust', 'Rust', 'Language', 'The Directory API.', 20, 'G'),
+  skill('ts', 'TypeScript', 'Language', 'PARALLAX, Spy X Company and other public repos.', 215, 'G'),
   skill('java', 'Java', 'Language', 'Listed on résumé.', 15),
   skill('vba', 'VBA', 'Language', 'Listed on résumé.', 130),
   skill('latex', 'LaTeX', 'Tool', 'Typesets the résumé.', 0),
@@ -279,8 +286,9 @@ const skills: CardContent[] = [
   skill('stats', 'Statistical testing', 'Practice', 't-tests, ANOVA, chi-square, z-tests.', 240, 'S'),
   skill('prompt', 'Prompt engineering', 'Applied AI', 'Natural-language data access with Databricks Genie.', 280),
   skill('docai', 'Document AI', 'Applied AI', 'LayoutLMv3 and quantized Mistral for invoices.', 350),
-  skill('cloudflare', 'Cloudflare Workers', 'Platform', 'D1, R2 and Workers for Directory.', 30, 'G'),
-  skill('threejs', 'Three.js', 'Library', 'PARALLAX 3D sky and the Njidion game.', 0, 'G'),
+  skill('threejs', 'Three.js', 'Library', 'PARALLAX 3D sky, Spy X Company and this site.', 0, 'G'),
+  skill('geopandas', 'GeoPandas', 'Library', 'Simplified map polygons for a Power BI dashboard.', 120, 'CV'),
+  skill('excel', 'Excel', 'Tool', 'Survey dashboards and a VBA-automated tracker.', 140, 'CV, S'),
 ];
 
 const prototype: CardContent[] = [
@@ -299,8 +307,8 @@ const prototype: CardContent[] = [
     tags: ['TypeScript', 'SVG'], links: [{ label: 'Source', href: 'https://github.com/matt-chow/fashone' }],
   },
   {
-    id: 'njidion', pack: 'prototype', title: 'Njidion', subtitle: 'The 60-Second Disaster', kicker: 'Game jam build',
-    motif: 'controller', hue: 110, source: 'G',
+    id: 'njidion', pack: 'prototype', title: 'Spy X Company', subtitle: 'Njidion · Stupid Ideas Hackathon 2026', kicker: 'Hackathon build',
+    motif: 'controller', hue: 110, source: 'G, O',
     summary: 'A 2.5D browser comedy game: find the spy, lose everything.',
     tags: ['Three.js', 'TypeScript', 'Vite'],
     links: [{ label: 'Play', href: 'https://sih2026-lake-phi.vercel.app' }, { label: 'Source', href: 'https://github.com/matt-chow/sih2026' }],
@@ -312,10 +320,21 @@ const prototype: CardContent[] = [
     tags: ['Python'], links: [{ label: 'Source', href: 'https://github.com/matt-chow/bdb2026' }],
   },
   {
-    id: 'planner', pack: 'prototype', title: 'Planner App', subtitle: 'Time-blocking planner', kicker: 'Retired → Directory',
+    id: 'planner', pack: 'prototype', title: 'Planner App', subtitle: 'Time-blocking planner', kicker: 'Retired',
     motif: 'calendar', hue: 200, image: 'images/plannerapp.png', source: 'S',
-    summary: 'A personal time-blocking planner; its ideas now live in Directory.',
+    summary: 'A personal time-blocking planner.',
     tags: ['FastAPI', 'PostgreSQL', 'Redis', 'Docker'],
+  },
+  {
+    id: 'vba-tracker', pack: 'prototype', title: 'Excel & VBA tracker', subtitle: 'Personal automation', kicker: 'Tool',
+    motif: 'ledger', hue: 140, source: 'CV',
+    summary: 'An automated tracker for time, tasks and finances.',
+    details: ['Built in Excel and VBA to produce aggregated reports and lifetime projections for productivity and financial planning.'],
+    tags: ['Excel', 'VBA'],
+  },
+  {
+    id: 'boredgames', pack: 'prototype', title: 'BoredGames', subtitle: 'Side project', kicker: 'Side project',
+    motif: 'dice', hue: 330, source: 'G, O', summary: 'A small board-game side project.', tags: ['Web'],
   },
 ];
 
@@ -331,7 +350,7 @@ const personal: CardContent[] = [
   },
   {
     id: 'p-hackathons', pack: 'personal', title: 'Hackathon season', kicker: 'Fun fact', motif: 'trophy', hue: 45, source: 'R, G',
-    summary: '2026: LA Hacks, Hack the North and NASA Space Apps — two 2nd-place prizes.',
+    summary: '2026: LA Hacks, Hack the North, NASA Space Apps and the Stupid Ideas Hackathon — two 2nd-place prizes.',
   },
   {
     id: 'p-climbing', pack: 'personal', title: 'On the wall', kicker: 'Fun fact', motif: 'mountain', hue: 20, source: 'S',
@@ -356,21 +375,17 @@ export const cardById = new Map(cards.map((c) => [c.id, c]));
 
 // Unverified or missing information. Shown on the Index page, never presented as fact.
 export const contentTodos = [
-  'No reference/cv.tex in the repo; Resume_F26.pdf was used as the CV source. Add the .tex if it differs.',
-  'LinkedIn (HTTP 999) and Devpost (HTTP 403) block automated reading, so neither was cross-checked. Paste their text to verify dates and add Devpost project links.',
+  'planning/cv.tex is empty (0 bytes). Used cv.tex from github.com/matt-chow/resume (Jun 2026) plus the newer Resume_F26.pdf. Supply the current cv.tex to re-check.',
+  'Toronto Parking Authority record count: cv.tex says 40 million+, Resume_F26.pdf says 5 million+. Showing 5 million+.',
+  'LinkedIn (HTTP 999) and Devpost (HTTP 403) block automated reading, so neither was cross-checked.',
   'Waterloo 2025 title: résumé says "Data Engineer", the old site said "Data Scientist". Using the résumé.',
-  'Peaks and primes author list: Crossref lists Awosoga and Chow; an earlier source suggested a third author. Confirm.',
+  'Commissioned: dates and role come from the old site (Jan 2026 – Present). Confirm it is still current.',
   'Ask co-authors before embedding Peaks and primes data or volleydata charts.',
-  'usportsR: confirm wording of your contribution (3 of 127 commits) and whether to mention its CRAN archival.',
-  'Directory (jarvis repo): confirm it is meant to be featured publicly.',
-  'Commissioned (growth role, Jan 2026): was commented out on the old site, so it is omitted. Include?',
-  'Bored Games: omitted because it hosts an online version of a commercial board game. Feature only the original parts?',
-  'unif.ai: no public repo or Devpost link found.',
-  'Njidion (sih2026): which event was it built for?',
-  'Personal pack: hobbies are inferred from public work (repos, past jobs). Confirm current hobbies (climbing? music?) and add any you want shown.',
-  'Portrait: none used. Supply one if you want a character card illustration.',
-  'Infrastructure Canada: confirm you are comfortable naming LayoutLMv3 and Mistral publicly.',
+  'usportsR: confirm wording of your contribution and whether to mention its CRAN archival.',
+  'BoredGames: listed without a link or description on purpose. Add a link if you want one.',
+  'Personal pack: hobbies are inferred from public work (repos, past jobs). Confirm or add your own.',
+  'Portrait: placeholder in use. Supply a portrait for the profile card.',
 ];
 
-const SOURCES: Record<string, string> = { R: 'résumé', S: 'previous portfolio site', G: 'public GitHub', A: 'content audit' };
+const SOURCES: Record<string, string> = { CV: 'CV source (cv.tex)', O: 'owner', R: 'résumé', S: 'previous portfolio site', G: 'public GitHub', A: 'content audit' };
 export const sourceLabel = (src: string) => src.split(/,\s*/).map((k) => SOURCES[k] ?? k).join(', ');

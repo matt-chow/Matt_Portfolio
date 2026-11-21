@@ -43,11 +43,11 @@ describe('routing', () => {
     for (const c of cards) expect(screen.getAllByText(c.title).length).toBeGreaterThan(0);
   });
 
-  it('quick-opening Starter fills the binder and shows all six cards', () => {
+  it('quick-opening Starter fills the binder and shows all seven cards', () => {
     nav('#/open/starter');
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Quick open' }));
-    expect(screen.getAllByRole('button', { name: /Open details/ })).toHaveLength(6);
+    expect(screen.getAllByRole('button', { name: /Open details/ })).toHaveLength(7);
     expect(getState().opened.starter).toBe(1);
     expect(JSON.parse(localStorage.getItem('collectors-archive:v1')!).opened.starter).toBe(1);
   });
