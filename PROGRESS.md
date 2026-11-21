@@ -15,4 +15,5 @@
 - [x] Index page (all content, plain and accessible).
 - [x] Responsive + reduced-motion + a11y pass, production build.
 - [x] Docs: README (architecture, odds, licensing, deploy) and AGENTS.md.
-- [ ] Owner: resolve contentTodos (see Index page), enable Pages (Source: GitHub Actions), merge to main.
+- [x] Deployed: Pages source set to GitHub Actions, merged to main (PR #6).
+- [ ] Owner: resolve contentTodos (see Index page).
