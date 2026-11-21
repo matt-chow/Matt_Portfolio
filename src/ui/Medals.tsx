@@ -16,7 +16,7 @@ export function Medals() {
       <div className="page-head">
         <div>
           <h1>Medals</h1>
-          <p className="muted">{done} of {achievements.length} earned. Medals unlock card backs, frames and stickers. Every card's content is readable without them.</p>
+          <p className="muted">{done} of {achievements.length} earned · each unlocks a card back, frame or sticker.</p>
         </div>
       </div>
       <div className="medals-body scroll-y">
