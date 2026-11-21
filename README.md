@@ -26,6 +26,7 @@ npm run build    # production build into dist/
 - **Refresh safety.** Pack results and grades are saved before any animation plays. A ceremony only reveals what is already stored, so a refresh never rerolls.
 - **Sync-ready.** The save is one versioned JSON document (`collectors-archive:v1`), identical to the export file. A future cloud sync can store it as-is.
 - **3D and fallbacks.** The pack ring loads Three.js (about 123 KB gzipped) only when WebGL2 is available and reduced motion is off. Otherwise the homepage shows the flat scroller. The canvas is decorative: every action is also a real link or button beside it (chips, "Open", "Quick open", arrow keys), so screen readers and keyboards skip the WebGL. Everything else, including the tear, card stepping, holo and slabs, is DOM and CSS, and under reduced motion it becomes instant.
+- **Sound.** Every effect is synthesized with Web Audio in `src/sound.ts`: there are no audio files, and nothing is sampled from games. One delegated listener gives every button, chip and tab a soft press on pointerdown, Enter or Space, but only for trusted input and never while muted. Levels rise from control clicks to card reveals (by rarity) to the tear itself.
 - **Adding a card.** Add an entry to the manifest with a `source`. Its pack's template, finishes and odds apply automatically.
 
 ## Odds

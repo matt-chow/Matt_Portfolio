@@ -166,6 +166,52 @@ function tearing(force: number) {
     }, 500);
 }
 
+let lastKey = 0;
+
+/**
+ * A low-profile soft key: a muted, crisp downstroke (filtered tick over a short mid-range knock, nothing below 300 Hz),
+ * a fainter release, and a brighter `select` for toggles, tabs and selectors. Quieter than any card or pack sound.
+ */
+function key(kind: 'press' | 'release' | 'select') {
+  const now = performance.now();
+  if (now - lastKey < 45) return; // rapid clicks: at most one voice per 45 ms, so presses never stack
+  lastKey = now;
+  const v = 0.97 + Math.random() * 0.06; // minimal pitch drift so repeats don't sound sampled
+  if (kind === 'release') return puff(0.009, 5600 * v, 1.3, 0.007, { attack: 0.0005, hp: 2400 });
+  const bright = kind === 'select';
+  puff(0.014, (bright ? 4600 : 3200) * v, 1.1, bright ? 0.022 : 0.018, { attack: 0.0006, hp: 1200 });
+  tone((bright ? 1760 : 1180) * v, 0, 0.022, 'sine', bright ? 0.011 : 0.008);
+  tone(330 * v, 0, 0.018, 'sine', 0.012);
+}
+
+const CONTROL = 'button, a.btn, .nav-pill, [role="option"], [role="tab"], label:has(> input[type="radio"]), label:has(> input[type="checkbox"])';
+const SELECT = '[aria-pressed], [aria-selected], [role="option"], [role="tab"], label, .chip';
+
+/**
+ * Press feedback for every control, by delegation: it plays on the press itself (pointerdown, or Enter/Space), never on
+ * what the click later does, and only for trusted user input, so renders and programmatic clicks stay silent.
+ * The revealed card is skipped: its flip has its own sound.
+ */
+export function installControlSounds(root: Document = document) {
+  const control = (e: Event) => {
+    const el = e.isTrusted ? (e.target as Element | null)?.closest?.(CONTROL) : null;
+    return el && !el.matches(':disabled, [aria-disabled="true"], .reveal-card') ? el : undefined;
+  };
+  root.addEventListener('pointerdown', (e) => {
+    const el = e.button === 0 && control(e);
+    if (el) key(el.matches(SELECT) ? 'select' : 'press');
+  });
+  root.addEventListener('pointerup', (e) => {
+    if (ctx?.state === 'suspended') void ctx.resume(); // touch grants audio only on release, so wake a context the press made
+    const el = control(e);
+    if (el && !el.matches(SELECT)) key('release');
+  });
+  root.addEventListener('keydown', (e) => {
+    const el = !e.repeat && (e.key === 'Enter' || e.key === ' ') && control(e);
+    if (el) key(el.matches(SELECT) ? 'select' : 'press');
+  });
+}
+
 /** Shimmer: a soft, airy swell of high noise, the sound of the foil catching light. */
 const shimmer = (at: number, dur: number, gain: number) => puff(dur, 8200, 0.5, gain, { at, attack: dur * 0.3, hp: 5000 });
 
