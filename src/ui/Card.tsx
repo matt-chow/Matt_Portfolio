@@ -159,7 +159,7 @@ export function Card({ card, tier, back = 'classic', frame = 'none', faceDown, m
           <div className="glare" />
         </div>
         <div className={`face back back-${back}`}>
-          <div className="back-emblem"><span>The Collector's</span><strong>Archive</strong></div>
+          <div className="back-emblem"><span>Matthew</span><strong>Chow</strong></div>
           <div className="glare" />
         </div>
       </div>

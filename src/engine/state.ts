@@ -111,7 +111,7 @@ const validKey = (k: string) => {
 
 /** Validates untrusted JSON (localStorage or an imported file) into a State; throws on garbage. */
 export function parseState(raw: unknown): State {
-  if (!isObj(raw) || raw.version !== 1) throw new Error('Not a Collector\'s Archive save (version 1).');
+  if (!isObj(raw) || raw.version !== 1) throw new Error('Not a portfolio save file (version 1).');
   const base = initialState();
   const counts = (v: unknown) =>
     Object.fromEntries(Object.entries(isObj(v) ? v : {}).filter(([k, n]) => validKey(k) && Number.isInteger(n) && (n as number) > 0)) as Record<string, number>;

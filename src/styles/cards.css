@@ -579,12 +579,16 @@
     repeating-linear-gradient(#f7f5ee 0 5.6cqw, #9fb6d6 5.6cqw 5.8cqw);
   box-shadow: none;
   padding-left: 13cqw;
-  font-family: var(--display);
+  font-family: var(--hand);
   color: #3a3f44;
 }
 .tpl-prototype.fin-sketch .name {
-  font-family: var(--display);
-  font-style: italic;
+  font-family: var(--hand);
+  font-size: 10cqw;
+}
+.tpl-prototype.fin-sketch .sum {
+  font-size: 4.6cqw;
+  line-height: 1.2;
 }
 .tpl-prototype.fin-sketch .art {
   border: 0.5cqw solid #6d7378;
@@ -665,8 +669,8 @@
   mask-image: linear-gradient(90deg, transparent 0 1%, #000 3% 97%, transparent 99%);
 }
 .tpl-personal .name {
-  font-style: italic;
-  font-size: 8cqw;
+  font-family: var(--hand);
+  font-size: 10.5cqw;
   margin-top: 1cqw !important;
 }
 .tpl-personal .sum {
@@ -711,7 +715,7 @@
   background:
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 2cqw, transparent 2cqw 4cqw),
     repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 0 2cqw, transparent 2cqw 4cqw),
-    #22306a;
+    linear-gradient(160deg, #3f37c9, #2a1f7a 60%, #4c1d95);
   box-shadow: inset 0 0 0 3cqw #f1f1ec;
   color: #f1f1ec;
 }
@@ -825,7 +829,7 @@
   border-radius: 8px;
   padding: 8px 10px;
   margin-bottom: 12px;
-  box-shadow: inset 0 0 0 2px #2c4fc9;
+  box-shadow: inset 0 0 0 2px #4f46e5;
 }
 .slab-meta {
   display: flex;
@@ -861,7 +865,7 @@
 }
 .slab-grade b {
   font: 800 1.9rem/1 var(--display);
-  color: #2c4fc9;
+  color: #4f46e5;
 }
 .grade-10 .slab-label {
   box-shadow: inset 0 0 0 2px #b8912a;

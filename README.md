@@ -1,6 +1,6 @@
-# The Collector's Archive
+# Matthew Chow · portfolio
 
-Matthew Chow's portfolio as a trading-card collection. Open packs, fill a binder, grade cards into slabs and earn medals. Everything is also readable without playing: the résumé link sits on the homepage, and `#/index` lists every card as plain text.
+A portfolio presented as a trading-card set. Open packs, fill a binder, grade cards into slabs and earn medals. Everything is also readable without playing: the résumé link sits on the homepage, and `#/index` lists every card as plain text.
 
 ## Run
 

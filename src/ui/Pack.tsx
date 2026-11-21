@@ -19,7 +19,7 @@ export function PackArt({ pack, clip, style }: { pack: PackDef; clip?: string; s
         <span className="pack-series">{pack.series}</span>
         <Motif name={emblem[pack.id]} className="pack-emblem" />
         <strong className="pack-name">{pack.name}</strong>
-        <span className="pack-sub">The Collector's Archive</span>
+        <span className="pack-sub">Matthew Chow</span>
       </div>
       <div className="pack-crimp bottom" />
       <div className="pack-foil" />
