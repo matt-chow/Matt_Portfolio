@@ -5,12 +5,14 @@
 - [x] Architecture: Vite + React + TypeScript + Motion, hash routing, GitHub Pages via Actions.
 - [x] Content manifest (`src/content/manifest.ts`) with sources and TODOs.
 - [x] Engine: packs, weighted odds, first-open, guarantees, grading, persistence, achievements + tests.
-- [ ] Design system: tokens, light/dark, neumorphic surfaces, theme transition.
-- [ ] Card engine: per-collection templates, finishes, holo/tilt, detail view.
-- [ ] Homepage pack carousel + navigation.
-- [ ] Pack opening ceremony, replay, quick-open, sound.
-- [ ] Collection: grid, binder, checklist, favourites, slabs, export/import.
-- [ ] Grading ceremony + slabs.
-- [ ] Achievements page + cosmetics.
-- [ ] Index page (all content, plain and accessible).
-- [ ] Responsive + reduced-motion + a11y pass, production build.
+- [x] Design system: tokens, light/dark, neumorphic surfaces, theme transition.
+- [x] Card engine: per-collection templates, finishes, holo/tilt, detail view.
+- [x] Homepage pack carousel + navigation.
+- [x] Pack opening ceremony, replay, quick-open, sound.
+- [x] Collection: grid, binder, checklist, favourites, slabs, export/import.
+- [x] Grading ceremony + slabs.
+- [x] Achievements page + cosmetics.
+- [x] Index page (all content, plain and accessible).
+- [x] Responsive + reduced-motion + a11y pass, production build.
+- [x] Docs: README (architecture, odds, licensing, deploy) and AGENTS.md.
+- [ ] Owner: resolve contentTodos (see Index page), enable Pages (Source: GitHub Actions), merge to main.
