@@ -62,9 +62,75 @@ const ICONS = {
     </>
   ),
   sort: <path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3" />,
+  lock: (
+    <>
+      <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+      <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+    </>
+  ),
   prev: <path d="m14.5 6-6 6 6 6" />,
   next: <path d="m9.5 6 6 6-6 6" />,
 };
+
+const STAR = 'm12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z';
+const SHAPES = {
+  square: <rect x="5.5" y="5.5" width="13" height="13" rx="2.5" />,
+  circle: <circle cx="12" cy="12" r="6.5" />,
+  diamond: <path d="M12 4 20 12 12 20 4 12Z" />,
+  star: <path d={STAR} />,
+  stars: <path transform="translate(-2.5 2.5) scale(0.8)" d={STAR} />, // drawn twice, see TierIcon
+  gem: (
+    <>
+      <path d="M7.5 5h9l4 5-8.5 10L3.5 10Z" />
+      <path fill="none" strokeOpacity="0.55" d="M3.5 10h17M12 20 9 10l1.5-5M12 20l3-10-1.5-5" />
+    </>
+  ),
+  token: (
+    <>
+      <circle cx="12" cy="12" r="7.5" />
+      <circle cx="12" cy="12" r="4" fill="none" strokeOpacity="0.6" />
+    </>
+  ),
+  triangle: <path d="M12 4.5 20 19H4Z" />,
+  heart: <path d="M12 19.5s-7.5-4.4-7.5-9.4A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7.5 2.1c0 5-7.5 9.4-7.5 9.4Z" />,
+};
+/** Rarity symbols, one shape family per pack, rising in colour. Fixed palette like the printed cards;
+    dark fills get a light edge so they read on both themes. [shape, fill, stroke, dashed] */
+const TIER_LOOK: Record<string, [keyof typeof SHAPES, string, string?, true?]> = {
+  ink: ['square', 'none', '#8a90a6'],
+  outline: ['square', 'none', '#6366f1'],
+  accent: ['square', '#6366f1', '#4f46e5'],
+  common: ['circle', '#a3abbe', '#8a92a8'],
+  uncommon: ['diamond', '#7c86a3', '#646e8c'],
+  rare: ['star', '#4f46e5', '#7b74f0'],
+  ir: ['star', '#e0b23a', '#b8912a'],
+  sir: ['stars', '#e0b23a', '#b8912a'],
+  bronze: ['gem', '#c07a43', '#8f5529'],
+  silver: ['gem', '#c3c9d4', '#8d96a8'],
+  gold: ['gem', '#e6b93d', '#a98320'],
+  diamond: ['gem', '#9ad9f5', '#4fa7cf'],
+  black: ['gem', '#24262f', '#9aa0b8'],
+  base: ['token', '#a3abbe', '#7f889e'],
+  enhanced: ['token', '#5b8cff', '#3f6fe0'],
+  mastery: ['token', '#e6b93d', '#a98320'],
+  alpha: ['triangle', 'none', '#8a90a6'],
+  sketch: ['triangle', 'none', '#6366f1', true],
+  blueprint: ['triangle', '#2f6fe4', '#1d55c0'],
+  standard: ['heart', 'none', '#8a90a6'],
+  illustrated: ['heart', '#f06aa8', '#cc4486'],
+  holo: ['heart', '#a78bfa', '#f06aa8'],
+  secret: ['heart', '#24262f', '#e6b93d'],
+};
+
+export function TierIcon({ tier }: { tier: string }) {
+  const [shape, fill, stroke = fill, dashed] = TIER_LOOK[tier] ?? ['circle', 'currentColor'];
+  return (
+    <svg className="tier-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill={fill} stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" strokeDasharray={dashed && '2.4 1.8'}>
+      {SHAPES[shape]}
+      {shape === 'stars' && <path transform="translate(7 -1) scale(0.7)" d={STAR} />}
+    </svg>
+  );
+}
 
 export function Icon({ name }: { name: keyof typeof ICONS }) {
   return (

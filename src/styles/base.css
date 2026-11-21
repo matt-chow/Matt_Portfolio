@@ -650,6 +650,69 @@ a {
   font-family: var(--mono);
   font-size: 0.8em;
 }
+/* Finish picker: one rarity symbol per finish; uncollected ones are faded and greyed. */
+.tiers {
+  justify-self: start;
+}
+.tiers > label > span {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 44px;
+  min-height: 40px;
+  justify-content: center;
+  padding: 0.35rem 0.6rem;
+}
+.tier-icon {
+  width: 22px;
+  height: 22px;
+  transition: filter 0.2s, opacity 0.2s;
+}
+.seg.tiers .unseen span {
+  opacity: 1;
+}
+.seg .sr-only {
+  min-width: 0;
+  padding: 0;
+}
+.tiers .unseen .tier-icon {
+  filter: grayscale(0.5); /* keeps a hint of each metal so the progression still reads */
+  opacity: 0.42;
+}
+.tiers .unseen input:checked + span .tier-icon {
+  opacity: 0.75;
+}
+/* An uncollected finish previews faded and locked; only the card, never the text beside it. */
+.locked {
+  position: relative;
+}
+.locked .card {
+  filter: grayscale(0.85) opacity(0.45);
+}
+.lock-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--raise-sm);
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.lock-badge svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
 .source {
   margin-top: 1rem;
 }

@@ -71,7 +71,7 @@ function bestTier(stacks: Record<string, number>, c: CardContent) {
   return [...packById.get(c.pack)!.tiers].reverse().find((t) => stacks[variantKey(c.id, t.id)]);
 }
 
-/** Every card shows its art and opens its details, found or not; collecting only adds finishes and counts. */
+/** Every card has a slot and opens its details; its art only shows once collected. */
 function CardTile({ c, found }: { c: CardContent; found: boolean }) {
   const s = useStore();
   const openDetail = useOpenDetail();
@@ -84,9 +84,15 @@ function CardTile({ c, found }: { c: CardContent; found: boolean }) {
       onClick={() => openDetail({ cardId: c.id, tier: best?.id })}
       aria-label={`${c.title}${found ? (total > 1 ? `, ${total} copies` : '') : ', not collected yet'}${fav ? ', favourite' : ''}. Open details`}
     >
-      <Card card={c} tier={best?.id ?? packById.get(c.pack)!.tiers[0].id} back={s.equipped.back} frame={s.equipped.frame} />
-      {!found && <span className="tile-badge unfound" title="Not collected yet" />}
-      {found && total > 1 && <span className="tile-badge">×{total}</span>}
+      {found ? (
+        <Card card={c} tier={best?.id ?? packById.get(c.pack)!.tiers[0].id} back={s.equipped.back} frame={s.equipped.frame} />
+      ) : (
+        <span className="card-slot">
+          <Icon name="lock" />
+          <span>{c.title}</span>
+        </span>
+      )}
+      {total > 1 && <span className="tile-badge">×{total}</span>}
       {fav && <span className="fav-pin" aria-hidden="true">★</span>}
     </button>
   );

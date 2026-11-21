@@ -2,7 +2,9 @@ import { act as rtlAct, cleanup, fireEvent, render, screen } from '@testing-libr
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { cards, profile } from '../src/content/manifest';
 import { App, parseRoute } from '../src/ui/App';
-import { getState } from '../src/store';
+import { act, getState } from '../src/store';
+import { initialState } from '../src/engine/state';
+import { packById, variantKey } from '../src/engine/packs';
 
 beforeAll(() => {
   // jsdom lacks these browser APIs.
@@ -211,5 +213,61 @@ describe('collection', () => {
     render(<App />);
     fireEvent.click(tiles()[0]);
     expect(screen.getByRole('heading', { level: 2, name: 'Infrastructure Canada' })).toBeTruthy();
+  });
+});
+
+describe('locked cards and finish previews', () => {
+  const finishes = () => screen.getAllByRole('radio');
+
+  it('an empty binder shows a named blank for every card and no art', () => {
+    act(() => initialState());
+    nav('#/collection');
+    render(<App />);
+    expect(document.querySelectorAll('.card-slot')).toHaveLength(cards.length);
+    expect(document.querySelector('.collection-body .card')).toBeNull();
+    expect(screen.getByText('Infrastructure Canada', { selector: '.card-slot span' })).toBeTruthy();
+  });
+
+  it('an uncollected card stays fully readable, previews every finish locked, and offers no grading or favourite', () => {
+    act(() => initialState());
+    nav('#/collection');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /^Infrastructure Canada, not collected yet/ }));
+    const card = cards.find((c) => c.title === 'Infrastructure Canada')!;
+    expect(screen.getByText(card.summary, { selector: '.detail-text p' })).toBeTruthy();
+    for (const d of card.details ?? []) expect(screen.getByText(d)).toBeTruthy();
+    expect(document.querySelector('.detail-text .locked, .detail-text .lock-badge')).toBeNull(); // lock is on the card only
+    expect(document.querySelector('.detail-visual .locked .lock-badge')).toBeTruthy();
+    expect(finishes().map((r) => r.closest('label')!.dataset.tip)).toEqual(['Common', 'Uncommon', 'Rare', 'Illustration Rare', 'Special Illustration Rare']);
+    expect(screen.getByRole('radio', { name: 'Rare, not collected' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Grade one|Favourite/ })).toBeNull();
+    const before = JSON.stringify({ ...getState(), viewed: [] });
+    for (const r of finishes()) fireEvent.click(r); // previews are read-only
+    expect(JSON.stringify({ ...getState(), viewed: [] })).toBe(before);
+  });
+
+  it('a collected card shows its art; its missing finishes still preview locked', () => {
+    act(() => initialState());
+    nav('#/open/starter');
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Quick open' }));
+    cleanup();
+    nav('#/collection');
+    render(<App />);
+    // Every Starter card is pulled in its base finish; at most two get a premium one, so pick a card still missing one.
+    const { discovered } = getState();
+    const tiers = packById.get('starter')!.tiers;
+    const c = cards.find((x) => x.pack === 'starter' && tiers.some((t) => !discovered[variantKey(x.id, t.id)]))!;
+    const tile = screen.getByRole('button', { name: new RegExp(`^${c.title}(, \\d+ copies)?\\. Open details$`) });
+    expect(tile.querySelector('.card')).toBeTruthy();
+    fireEvent.click(tile);
+    expect(screen.getByRole('button', { name: /Grade one/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Favourite/ })).toBeTruthy();
+    expect(document.querySelector('.detail-visual .locked')).toBeNull();
+    const missing = tiers.find((t) => !discovered[variantKey(c.id, t.id)])!;
+    fireEvent.click(screen.getByRole('radio', { name: `${missing.label}, not collected` }));
+    expect(document.querySelector('.detail-visual .locked')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Grade one/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Favourite/ })).toBeNull(); // only offered on a finish you own
   });
 });

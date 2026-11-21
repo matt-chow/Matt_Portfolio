@@ -7,6 +7,7 @@ import { act, actWith, useStore } from '../store';
 import { sfx } from '../sound';
 import { Card } from './Card';
 import { gradeWord, Slab } from './Slab';
+import { Icon, TierIcon } from './Icons';
 
 type Ceremony = { slab: SlabT; step: 'scan' | 'stamp' | 'slab' };
 
@@ -16,8 +17,10 @@ export function CardDetail({ cardId, tier, onClose }: { cardId: string; tier?: s
   const pack = packById.get(card.pack)!;
   const reduce = useReducedMotion();
   const dialog = useRef<HTMLDialogElement>(null);
-  const ownedTiers = pack.tiers.filter((t) => s.stacks[variantKey(cardId, t.id)]);
-  const [sel, setSel] = useState(tier ?? ownedTiers.at(-1)?.id ?? pack.tiers[0].id);
+  // Ownership is the discovery record; previewing other finishes is read-only and changes nothing.
+  const owns = (t: string) => !!s.discovered[variantKey(cardId, t)];
+  const [sel, setSel] = useState(tier ?? [...pack.tiers].reverse().find((t) => owns(t.id))?.id ?? pack.tiers[0].id);
+  const selLabel = pack.tiers.find((t) => t.id === sel)!.label;
   const [ceremony, setCeremony] = useState<Ceremony>();
   const timers = useRef<number[]>([]);
   const count = s.stacks[variantKey(cardId, sel)] ?? 0;
@@ -66,8 +69,9 @@ export function CardDetail({ cardId, tier, onClose }: { cardId: string; tier?: s
                 )}
               </motion.div>
             ) : (
-              <motion.div key="card" initial={reduce ? false : { rotateY: -90 }} animate={{ rotateY: 0 }}>
-                <Card card={card} tier={sel} back={s.equipped.back} frame={s.equipped.frame} className="card-lg" />
+              <motion.div key="card" className={owns(sel) ? undefined : 'locked'} initial={reduce ? false : { rotateY: -90 }} animate={{ rotateY: 0 }}>
+                <Card card={card} tier={sel} back={s.equipped.back} frame={s.equipped.frame} tilt={owns(sel)} className="card-lg" />
+                {!owns(sel) && <span className="lock-badge"><Icon name="lock" />Not collected</span>}
               </motion.div>
             )}
           </AnimatePresence>
@@ -91,25 +95,39 @@ export function CardDetail({ cardId, tier, onClose }: { cardId: string; tier?: s
             <div className="seg tiers" role="radiogroup" aria-label="Finish">
               {pack.tiers.map((t) => {
                 const n = s.stacks[variantKey(cardId, t.id)] ?? 0;
-                const seen = s.discovered[variantKey(cardId, t.id)];
                 return (
-                  <label key={t.id} className={seen ? '' : 'unseen'}>
+                  <label key={t.id} className={owns(t.id) ? '' : 'unseen'} data-tip={t.label}>
                     <input type="radio" name="tier" checked={sel === t.id} onChange={() => (setSel(t.id), setCeremony(undefined))} />
-                    <span>{t.label}{n > 0 && <em> ×{n}</em>}</span>
+                    <span>
+                      <TierIcon tier={t.id} />
+                      <span className="sr-only">{t.label}{owns(t.id) ? (n > 1 ? `, ${n} copies` : '') : ', not collected'}</span>
+                      {n > 1 && <em aria-hidden="true">×{n}</em>}
+                    </span>
                   </label>
                 );
               })}
             </div>
-            <div className="row">
-              <button className="btn" disabled={!count || (!!ceremony && ceremony.step !== 'slab')} onClick={grade}>
-                Grade one{count ? ` (${count} left)` : ''}
-              </button>
-              <button className="btn btn-quiet" aria-pressed={fav} onClick={() => act((x) => toggleFavourite(x, cardId))}>
-                {fav ? '★ Favourited' : '☆ Favourite'}
-              </button>
-            </div>
+            <p className="small"><b>{selLabel}</b> <span className="muted">· {owns(sel) ? (count ? `${count} ungraded` : 'all graded') : 'not collected yet'}</span></p>
+            {(count > 0 || owns(sel) || fav) && (
+              <div className="row">
+                {count > 0 && (
+                  <button className="btn" disabled={!!ceremony && ceremony.step !== 'slab'} onClick={grade}>
+                    Grade one ({count} left)
+                  </button>
+                )}
+                {(owns(sel) || fav) && (
+                  <button className="btn btn-quiet" aria-pressed={fav} onClick={() => act((x) => toggleFavourite(x, cardId))}>
+                    {fav ? '★ Favourited' : '☆ Favourite'}
+                  </button>
+                )}
+              </div>
+            )}
             <p className="small muted">
-              {count ? 'Grading uses up one copy of this finish and seals it in a slab for good. Odds: 8 (25%), 9 (45%), 10 (29.9%), misprint (0.1%).' : 'No ungraded copy of this finish yet. Open more packs to grade one.'}
+              {count
+                ? 'Grading uses up one copy of this finish and seals it in a slab for good. Odds: 8 (25%), 9 (45%), 10 (29.9%), misprint (0.1%).'
+                : owns(sel)
+                  ? 'Every copy of this finish is graded. Open more packs to grade another.'
+                  : `A preview of this finish. Open ${pack.name} packs to collect it.`}
             </p>
             {slabs.length > 0 && <p className="small">{slabs.length} graded: {slabs.map((x) => (x.grade === 'misprint' ? 'misprint' : `grade ${x.grade}`)).join(', ')}</p>}
           </section>
