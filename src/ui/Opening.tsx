@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cardById, type PackId } from '../content/manifest';
-import { cardsInPack, packById, tierIndex, type Pull } from '../engine/packs';
+import { cardsInPack, PACK_SIZE, packById, tierIndex, type Pull } from '../engine/packs';
 import { openPack } from '../engine/state';
 import { actWith, useStore } from '../store';
 import { sfx } from '../sound';
@@ -132,7 +132,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
           <p className="stage-note">
             {stage === 'tearing'
               ? 'Tap to skip'
-              : <>Drag across the top strip to tear it open.<br />{first && pack.core ? `First opening: all ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label}-or-better pulls.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}</>}
+              : <>Drag the top strip to tear.<br />{first && pack.core ? `All ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label} or better.` : `${PACK_SIZE} cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}</>}
           </p>
           <div className="row" style={{ visibility: stage === 'sealed' && !auto ? 'visible' : 'hidden' }}>
             <button className="btn" onClick={tear}>Tear open</button>

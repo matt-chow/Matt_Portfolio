@@ -67,7 +67,8 @@ export const tierIndex = (pack: PackDef, tier: string) => pack.tiers.findIndex((
 /** Illustration for this card at this tier, if its pack has premium art and the tier reaches it. */
 export const illustration = (pack: PackDef, cardId: string, tier: string) =>
   pack.artFrom !== undefined && tierIndex(pack, tier) >= pack.artFrom ? `art/${cardId}.webp` : undefined;
-export const PACK_SIZES = [3, 5, 7, 10];
+/** Cards in every pack except a core pack's first opening, which reveals the whole set. */
+export const PACK_SIZE = 7;
 
 export function pickWeighted<T extends { weight: number }>(items: T[], rng: Rng): T {
   const total = items.reduce((s, i) => s + i.weight, 0);

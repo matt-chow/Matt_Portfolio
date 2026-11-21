@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { profile } from '../content/manifest';
-import { cardsInPack, PACK_SIZES, packs, type PackDef } from '../engine/packs';
+import { cardsInPack, packs, type PackDef } from '../engine/packs';
 import { openAndGo } from './Opening';
-import { updateSettings, type State } from '../engine/state';
-import { act, useStore } from '../store';
+import type { State } from '../engine/state';
+import { useStore } from '../store';
 import { useTilt } from './Card';
 import { canGL, PackArt } from './Pack';
 import type { RingHandle } from './ring3d';
@@ -103,7 +103,6 @@ function PackRing({ handle, onFail, focus, setFocus }: { handle: React.MutableRe
 }
 
 export function Home() {
-  const s = useStore();
   const list = useRef<HTMLUListElement>(null);
   const ring = useRef<RingHandle | null>(null);
   const reduce = useReducedMotion();
@@ -171,15 +170,6 @@ export function Home() {
           <div className="shelf-head">
             <h2 id="shelf-h">Pick a pack</h2>
             <div className="shelf-ctrl">
-              <fieldset className="seg" aria-label="Cards per repeat pack">
-                <legend className="small muted">Cards per pack</legend>
-                {PACK_SIZES.map((n) => (
-                  <label key={n}>
-                    <input type="radio" name="size" checked={s.settings.packSize === n} onChange={() => act((x) => updateSettings(x, { packSize: n }))} />
-                    <span>{n}</span>
-                  </label>
-                ))}
-              </fieldset>
               <button className="icon-btn" onClick={() => scrollBy(-1)} aria-label="Previous pack">‹</button>
               <button className="icon-btn" onClick={() => scrollBy(1)} aria-label="Next pack">›</button>
             </div>
