@@ -57,6 +57,7 @@ function sheet(ny: number, y0: (i: number) => number, y1: (i: number) => number,
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3).setUsage(THREE.DynamicDrawUsage));
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3).setUsage(THREE.DynamicDrawUsage)); // tip glow and flap shadow
   geo.setIndex(index);
   return { mesh: new THREE.Mesh(geo, mat), base, side };
 }
@@ -81,6 +82,7 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
   const front = await paintFront(pack, pack.id !== 'starter');
   const back = paintBack(pack);
   const mats = [foilMaterial(front), foilMaterial(back), foilMaterial(front), foilMaterial(back)];
+  mats.forEach((m) => (m.vertexColors = true));
   const seamV = seam(hash(pack.id), NX);
   const seamY = (i: number) => (seamV[i] - 0.5) * H;
   const rows = coarse ? 40 : 60;
@@ -104,7 +106,10 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
     const dir = t.dir || 1;
     const pos = s.mesh.geometry.attributes.position as THREE.BufferAttribute;
     const out = pos.array as Float32Array;
+    const col = s.mesh.geometry.attributes.color as THREE.BufferAttribute;
     const free = sp ? smooth(0, 0.15, v.sep) : 0;
+    const tipOn = t.p > 0 && !t.torn ? 1 : 0;
+    const shadeOff = sp ? smooth(0, 0.3, v.sep) : 0;
     for (let k = 0; k < s.base.length / 2; k++) {
       const x = s.base[k * 2];
       const y = s.base[k * 2 + 1];
@@ -117,15 +122,34 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
       // Tension: the foil ripples and stretches just around the moving tear front.
       const g = t.tension * Math.exp(-((d / 0.07) ** 2) - ((vv - sv) / 0.06) ** 2);
       z += s.side * 0.01 * g * Math.sin(x * 160 + vv * 50);
+      // A narrow bright trace on the torn edge, hottest at the tip; the flap shades the lip just below it.
+      const edge = (vv - sv) / 0.016;
+      const glow = tipOn * (Math.exp(-((d / 0.04) ** 2) - edge * edge) * (0.7 + 0.3 * t.tension) + (d > 0 ? 0.3 * Math.exp(-d / 0.2 - edge * edge * 2) : 0));
+      let shade = 1;
       let X = x;
       let Y = y;
       if (isStrip) {
-        const hh = (vv - sv) / (1 - sv);
-        const peel = t.lift * w;
-        const reach = Math.min(Math.max(d, 0), 0.6);
-        Y += peel * (0.02 + 0.08 * reach);
-        z += peel * (0.03 + (0.1 + 0.25 * reach) * hh);
-        X += dir * peel * 0.02 * reach;
+        // Peel: foil freed behind the tip hinges toward the viewer about its own seam and curls along its height.
+        // The bend ramps in over a short span behind the tip, so ahead of it the strip stays attached and flat.
+        const sy = (sv - 0.5) * H;
+        const hs = H / 2 - sy;
+        const hh = (y - sy) / hs;
+        const reach = Math.min(Math.max(d, 0), 0.6) / 0.6;
+        const flex = Math.max(0.35, 1 + 2.6 * t.slack) * (1 + 0.25 * t.tension) * (1 + (sp ? 0.6 * sp.recoil : 0));
+        const amt = t.lift * Math.max(smooth(-0.015, 0.12, d), free) * flex;
+        const a0 = amt * (0.25 + 0.25 * reach);
+        const kap = (amt * (0.3 + 0.9 * reach)) / hs;
+        const h = y - sy;
+        const a = a0 + kap * h;
+        const cy = kap > 1e-4 ? (Math.sin(a) - Math.sin(a0)) / kap : h * Math.cos(a0);
+        const cz = kap > 1e-4 ? (Math.cos(a0) - Math.cos(a)) / kap : h * Math.sin(a0);
+        // Cantilever: behind the tip the freed foil swings up and away, bending most just behind the tip.
+        const dd = Math.max(d, 0);
+        const tilt = amt * 0.32;
+        const along = 0.3 * Math.tanh((dd - 0.06 * (1 - Math.exp(-dd / 0.06))) / 0.3); // long flaps level off instead of levering up
+        Y = sy + cy - z * Math.sin(a) + W * Math.sin(tilt) * along;
+        z = cz + z * Math.cos(a) + amt * 0.03 * reach;
+        X += dir * (W * (1 - Math.cos(tilt)) * along + amt * 0.015 * reach * hh);
         if (d < 0) Y += t.tension * 0.008 * Math.exp(-((d / 0.03) ** 2)) * (1 - hh);
         Y -= pivotY;
         if (sp && sp.curl > 1e-3) {
@@ -136,16 +160,20 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
       } else {
         // Lips at the opening: front bows out, back bows in, wider once the strip is gone.
         const lipK = smooth(sv - 0.14, sv, vv) ** 2;
-        const lip = w * (0.15 * t.lift + (sp ? sp.open : 0));
+        const lip = w * (0.3 * t.lift + (sp ? sp.open : 0));
         z += s.side * lip * lipK * 0.1;
         Y -= lip * lipK * 0.012;
+        if (s.side > 0) shade = 1 - 0.45 * t.lift * smooth(-0.01, 0.1, d) * smooth(sv - 0.09, sv, vv) * (1 - shadeOff);
         if (s.side > 0 && v.press.amt > 0.001) z -= v.press.amt * 0.018 * Math.exp(-((u - v.press.u) ** 2 + ((vv - v.press.v) * 1.64) ** 2) / 0.012);
       }
       out[k * 3] = X;
       out[k * 3 + 1] = Y;
       out[k * 3 + 2] = z;
+      const c = shade * (1 + 5 * glow);
+      col.setXYZ(k, c, c, c * (1 - 0.06 * glow));
     }
     pos.needsUpdate = true;
+    col.needsUpdate = true;
     s.mesh.geometry.computeVertexNormals();
     s.mesh.geometry.computeBoundingSphere();
   }

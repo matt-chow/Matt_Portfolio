@@ -143,13 +143,20 @@ describe('drag to tear (flat fallback, as jsdom has no WebGL)', () => {
     await frames(200);
     expect(Number(el.getAttribute('aria-valuenow'))).toBeGreaterThanOrEqual(40);
     expect(getState().opened.experience).toBeUndefined();
+    // Resume, then the browser cancels the pointer: progress holds like a release, and the pack stays sealed.
+    fireEvent.pointerDown(el, { pointerId: 2, clientX: 190, clientY: 115, button: 0 });
+    for (const x of [205, 230, 255]) fireEvent.pointerMove(el, { pointerId: 2, clientX: x, clientY: 116 });
+    fireEvent.pointerCancel(el, { pointerId: 2 });
+    await frames(200);
+    expect(Number(el.getAttribute('aria-valuenow'))).toBeGreaterThanOrEqual(70);
+    expect(getState().opened.experience).toBeUndefined();
   });
 
-  it('tearing right to left past the threshold rolls the pack, then hands over to the reveal', async () => {
+  it('tearing right to left to the far edge rolls the pack, then hands over to the reveal', async () => {
     nav('#/open/highlights');
     render(<App />);
     const el = slider();
-    drag(el, [[290, 110], [250, 112], [200, 114], [150, 113], [120, 115]]);
+    drag(el, [[290, 110], [250, 112], [200, 114], [150, 113], [120, 115], [95, 115]]); // all the way to the far edge
     await frames(300);
     expect(getState().opened.highlights).toBe(1);
     expect(document.querySelector('.stage.tearing')).toBeTruthy();

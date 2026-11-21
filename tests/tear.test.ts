@@ -32,13 +32,37 @@ describe('drag to tear', () => {
     let t = drag(tear0(), 0, 150, 300);
     t = run(t, 0.4);
     expect(t.lift).toBeGreaterThan(0.9);
+    const settled = run(release(t), 0.22); // a short damped settle
+    expect(Math.abs(settled.lift - 0.6)).toBeLessThan(0.05);
     t = run(release(t), 1);
     expect(t.p).toBeCloseTo(0.5);
-    expect(t.lift).toBeGreaterThan(0.2);
-    expect(t.lift).toBeLessThan(0.4);
-    // Resuming carries on from where it stopped.
-    t = drag(t, t.p, 120, 300);
-    expect(t.torn).toBe(true);
+    expect(t.lift).toBeCloseTo(0.6, 2); // rests visibly open
+    // Resuming carries on from where it stopped, and only the far edge frees the strip.
+    expect(drag(t, t.p, 1, 300).p).toBeCloseTo(0.5 + 1 / 300);
+    expect(drag(t, t.p, 120, 300).torn).toBe(false);
+    expect(drag(t, t.p, 150, 300).torn).toBe(true);
+  });
+
+  it('a fast partial swipe leaves a partial tear', () => {
+    const t = run(release(drag(drag(tear0(), 0, 60, 300, 0.008), 0, 270, 300, 0.008)), 1);
+    expect(t.p).toBeCloseTo(0.9);
+    expect(t.torn).toBe(false);
+  });
+
+  it('dragging back flexes the flap without mending, and a re-grab mid-settle does not jump', () => {
+    let t = run(drag(tear0(), 0, 150, 300), 0.3);
+    t = drag(t, 0, 90, 300); // pointer back to 30%
+    expect(t.p).toBeCloseTo(0.5);
+    expect(t.aim).toBeCloseTo(-0.2);
+    t = run(t, 0.3);
+    expect(t.slack).toBeLessThan(-0.15);
+    // Let go, then grab again 60ms into the settle: the pose carries on from where it was.
+    t = run(release(t), 0.06);
+    const before = { lift: t.lift, slack: t.slack };
+    t = run(drag(t, t.p, 0.5, 300), 1 / 60);
+    expect(Math.abs(t.lift - before.lift)).toBeLessThan(0.08);
+    expect(Math.abs(t.slack - before.slack)).toBeLessThan(0.06);
+    expect(t.p).toBeCloseTo(0.5, 2);
   });
 
   it('ignores taps and vertical scrolls, and only starts in the tear strip', () => {
@@ -54,10 +78,11 @@ describe('drag to tear', () => {
 
   it('keyboard steps tear in one direction and complete', () => {
     let t = tear0();
-    for (let i = 0; i < 5; i++) t = nudgeTear(t, -1);
+    for (let i = 0; i < 4; i++) t = nudgeTear(t, -1);
     expect(t.dir).toBe(-1);
     expect(t.pulling).toBe(false);
-    expect(t.p).toBeCloseTo(0.75);
+    expect(t.p).toBeCloseTo(0.8);
+    expect(t.torn).toBe(false);
     expect(nudgeTear(t, 1).torn).toBe(true);
   });
 
@@ -93,5 +118,11 @@ describe('wrapper separation', () => {
     expect(s.every((v) => Math.abs(v - SEAM_V) < 0.03)).toBe(true);
     expect(new Set(s.map((v) => v.toFixed(4))).size).toBeGreaterThan(40);
     expect(seam(42, 48)).toEqual(s);
+    // A shallow bow with small nicks, not a sawtooth.
+    expect(s[24] - (s[0] + s[48]) / 2).toBeGreaterThan(0.006);
+    const steps = s.slice(1).map((v, i) => Math.abs(v - s[i]));
+    expect(Math.max(...steps)).toBeLessThan(0.013);
+    expect(steps.filter((d) => d > 0.003).length).toBeGreaterThan(2);
+    expect(steps.filter((d) => d > 0.003).length).toBeLessThan(24);
   });
 });
