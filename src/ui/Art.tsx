@@ -32,6 +32,9 @@ const M: Record<string, string> = {
   controller: 'M16 22h32c8 0 12 10 12 18s-4 12-8 12-6-4-10-8H22c-4 4-6 8-10 8s-8-4-8-12 4-18 12-18Z M18 30v10 M13 35h10 M44 32h2 M48 37h2',
   football: 'M8 32C14 14 50 14 56 32 50 50 14 50 8 32Z M20 32h24 M26 28v8 M32 28v8 M38 28v8',
   calendar: 'M8 12h48v44H8Z M8 24h48 M20 6v12 M44 6v12 M16 32h8 M28 32h8 M40 32h8 M16 42h8 M28 42h8',
+  portrait: 'M32 10a11 11 0 1 0 0.01 0Z M12 56c2-12 10-18 20-18s18 6 20 18Z',
+  spark: 'M32 6l6 20 20 6-20 6-6 20-6-20-20-6 20-6Z',
+  dice: 'M10 10h44v44H10Z M22 22h0.01 M42 22h0.01 M32 32h0.01 M22 42h0.01 M42 42h0.01',
 };
 
 export function Motif({ name, className }: { name: string; className?: string }) {

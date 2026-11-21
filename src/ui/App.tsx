@@ -128,11 +128,11 @@ export function App() {
         Skip to content
       </a>
       <header className="topbar">
-        <a href="#/" className="brand" aria-label="The Collector's Archive, home">
-          <span className="brand-stamp" aria-hidden="true">CA</span>
+        <a href="#/" className="brand" aria-label="Matthew Chow, home">
+          <span className="brand-stamp" aria-hidden="true"><span>MC</span></span>
           <span className="brand-text">
-            <strong>The Collector's Archive</strong>
-            <small>Matthew Chow</small>
+            <strong>Matthew Chow</strong>
+            <small>Data science · Applied AI</small>
           </span>
         </a>
         <nav aria-label="Main" className="quicknav">
@@ -155,7 +155,7 @@ export function App() {
       <main id="main" tabIndex={-1}>{page}</main>
       <footer className="foot">
         <p>
-          © {new Date().getFullYear()} Matthew Chow. Original artwork drawn in code. <a href="#/index">Everything on one page</a>.
+          © {new Date().getFullYear()} Matthew Chow. Original artwork, drawn in code or generated for this site. <a href="#/index">Everything on one page</a>.
         </p>
       </footer>
       <Toasts />

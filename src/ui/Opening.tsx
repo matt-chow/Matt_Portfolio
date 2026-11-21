@@ -6,7 +6,7 @@ import { openPack } from '../engine/state';
 import { actWith, useStore } from '../store';
 import { sfx } from '../sound';
 import { Card } from './Card';
-import { PackArt, TEAR_BODY, TEAR_TOP } from './Pack';
+import { TearPack } from './TearPack';
 import { go, useOpenDetail } from './App';
 
 // NEW badges for the latest opening, keyed by its timestamp (not persisted; replays show none).
@@ -33,6 +33,9 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [charging, setCharging] = useState(false);
   const [announce, setAnnounce] = useState('');
+  const [round, setRound] = useState(0); // remounts a fresh sealed pack
+  const [auto, setAuto] = useState(false);
+  const replay = useRef<Pull[] | undefined>(undefined);
   const timers = useRef<number[]>([]);
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, reduce ? 0 : ms));
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -41,15 +44,25 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
   const first = !s.opened[packId];
   const isNew = (i: number) => !!(last && freshFlags?.at === last.at && freshFlags.isNew[i]);
 
-  const play = (p: Pull[]) => {
-    setPulls(p);
+  // The pack is rolled (and saved) the moment the tear completes, or up front for a replay or the Tear open button.
+  const commit = () => {
+    if (stage !== 'sealed') return;
+    setPulls(replay.current ?? openAndGo(packId).pulls);
+    replay.current = undefined;
     setIdx(0);
     setFlipped(false);
     setStage('tearing');
-    sfx.tear();
-    later(() => setStage('reveal'), 1500);
   };
-  const tear = () => play(openAndGo(packId).pulls);
+  const reseal = (p?: Pull[], autoTear = false) => {
+    replay.current = p;
+    setRound((r) => r + 1);
+    setAuto(autoTear);
+    setStage('sealed');
+  };
+  const tear = () => {
+    commit();
+    setAuto(true);
+  };
   const quickOpen = () => {
     setPulls(openAndGo(packId).pulls);
     setStage('summary');
@@ -108,42 +121,21 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         )}
       </div>
 
-      {stage === 'sealed' && (
-        <div className="stage">
-          <motion.button
-            className="sealed"
-            onClick={tear}
-            aria-label={`Tear open the ${pack.name} pack`}
-            initial={reduce ? false : { scale: 0.85, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            whileHover={reduce ? undefined : { rotate: [-1, 1.5, -1, 0], transition: { duration: 0.5 } }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <PackArt pack={pack} />
-          </motion.button>
+      {(stage === 'sealed' || stage === 'tearing') && (
+        // One pack across both stages, so the drag that tears it flows straight into the separation. Tap to skip once torn.
+        <div className={`stage ${stage === 'tearing' ? 'tearing' : ''}`} onClick={stage === 'tearing' ? () => setStage('reveal') : undefined}>
+          <motion.div className="tear-enter" initial={reduce ? false : { scale: 0.9, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', bounce: 0, duration: 0.5 }}>
+            <TearPack key={round} pack={pack} auto={auto} reduce={!!reduce} onTorn={commit} onDone={() => setStage((x) => (x === 'tearing' ? 'reveal' : x))} />
+          </motion.div>
           <p className="stage-note">
-            {first ? `First opening: all ${cardsInPack(packId).length} cards, one by one, straight into your binder.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}
+            {stage === 'tearing'
+              ? 'Tap to skip'
+              : <>Drag across the top strip to tear it open.<br />{first && pack.core ? `First opening: all ${cardsInPack(packId).length} cards, plus one or two ${pack.tiers[pack.premiumFrom].label}-or-better pulls.` : `${s.settings.packSize} random cards, at least one ${pack.tiers[pack.guaranteeFrom].label} or better.`}</>}
           </p>
-          <div className="row">
+          <div className="row" style={{ visibility: stage === 'sealed' && !auto ? 'visible' : 'hidden' }}>
             <button className="btn" onClick={tear}>Tear open</button>
             <button className="btn btn-quiet" onClick={quickOpen}>Quick open</button>
-            {last && <button className="btn btn-quiet" onClick={() => play(last.pulls)}>Replay last opening</button>}
-          </div>
-        </div>
-      )}
-
-      {stage === 'tearing' && (
-        <div className="stage tearing" aria-hidden="true">
-          <div className="tear-wrap">
-            <motion.div className="tear-layer" initial={{ y: 0 }} animate={{ y: '120%', opacity: 0 }} transition={{ delay: 0.95, duration: 0.5, ease: 'easeIn' }}>
-              <PackArt pack={pack} clip={TEAR_BODY} />
-            </motion.div>
-            <motion.div className="stack-rise" initial={{ y: '30%' }} animate={{ y: '-8%' }} transition={{ delay: 0.45, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}>
-              <div className="mini-back" /><div className="mini-back" /><div className="mini-back" />
-            </motion.div>
-            <motion.div className="tear-layer top" initial={{ x: 0, y: 0, rotate: 0 }} animate={{ x: 90, y: -160, rotate: 24, opacity: 0 }} transition={{ duration: 0.7, ease: [0.3, 0.6, 0.3, 1] }}>
-              <PackArt pack={pack} clip={TEAR_TOP} />
-            </motion.div>
+            {last && <button className="btn btn-quiet" onClick={() => reseal(last.pulls, true)}>Replay last opening</button>}
           </div>
         </div>
       )}
@@ -152,19 +144,37 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         <div className="stage reveal">
           <div className={`reveal-zone ${charging ? 'charging' : ''}`} style={{ '--rank': rank } as React.CSSProperties}>
             <div className="stack-behind" aria-hidden="true">
-              {pulls.slice(idx + 1, idx + 4).map((_, i) => <div key={i} className="mini-back" style={{ transform: `translate(${(i + 1) * 6}px, ${(i + 1) * -6}px)` }} />)}
+              {/* Keyed by absolute position so the waiting cards glide forward as the top one leaves. */}
+              {pulls.slice(idx + 1, idx + 4).map((_, i) => (
+                <motion.div
+                  key={idx + 1 + i}
+                  className="mini-back"
+                  initial={false}
+                  animate={{ x: (i + 1) * 6, y: (i + 1) * -6, scale: 1 - (i + 1) * 0.015 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 26, delay: 0.05 + i * 0.04 }}
+                />
+              ))}
             </div>
+            {flipped && rank >= pack.guaranteeFrom && !reduce && (
+              <motion.div key={`burst-${idx}`} className="reveal-burst" aria-hidden="true" initial={{ opacity: 0.95, scale: 0.55 }} animate={{ opacity: 0, scale: 1.5 + rank * 0.12 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+            )}
             <AnimatePresence mode="popLayout">
+              {/* Next card: the old one winds up and flies off on top while the new one slides out from the stack beneath. */}
               <motion.button
                 key={idx}
                 className="reveal-card"
                 onClick={advance}
                 autoFocus
                 aria-label={flipped ? (idx + 1 < pulls.length ? 'Next card' : 'See all cards') : `Reveal card ${idx + 1} of ${pulls.length}`}
-                initial={reduce ? false : { y: 40, scale: 0.92, opacity: 0 }}
-                animate={{ y: 0, scale: 1, opacity: 1 }}
-                exit={reduce ? undefined : { x: -260, y: 120, scale: 0.4, opacity: 0, rotate: -12 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                style={{ zIndex: 2 }}
+                initial={reduce ? false : { x: 6, y: -6, scale: 0.97 }}
+                animate={flipped && !reduce ? { x: 0, y: [0, -18, 0], scale: [1, 1.07, 1] } : { x: 0, y: 0, scale: 1 }}
+                exit={
+                  reduce
+                    ? undefined
+                    : { x: [0, 14, -440], y: [0, -12, 70], rotate: [0, 3, -16], scale: [1, 1.03, 0.85], opacity: 0, zIndex: 3, transition: { duration: 0.5, times: [0, 0.2, 1], ease: [0.45, 0, 0.2, 1], opacity: { delay: 0.3, duration: 0.2 } } }
+                }
+                transition={flipped ? { duration: 0.6, times: [0, 0.45, 1], ease: [0.2, 0.8, 0.2, 1] } : { type: 'spring', stiffness: 340, damping: 24, delay: 0.08 }}
               >
                 <Card card={cardById.get(current.cardId)!} tier={current.tier} back={s.equipped.back} faceDown={!flipped} className="card-lg" />
                 {flipped && isNew(idx) && <span className="badge-new">New</span>}
@@ -195,8 +205,8 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
           </ul>
           <div className="row center">
             <button className="btn" onClick={fileInBinder}>File in binder</button>
-            <button className="btn btn-quiet" onClick={tear}>Open another</button>
-            <button className="btn btn-quiet" onClick={() => play(pulls)}>Replay</button>
+            <button className="btn btn-quiet" onClick={() => reseal()}>Open another</button>
+            <button className="btn btn-quiet" onClick={() => reseal(pulls, true)}>Replay</button>
           </div>
         </div>
       )}

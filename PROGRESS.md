@@ -16,4 +16,8 @@
 - [x] Responsive + reduced-motion + a11y pass, production build.
 - [x] Docs: README (architecture, odds, licensing, deploy) and AGENTS.md.
 - [x] Deployed: Pages source set to GitHub Actions, merged to main (PR #6).
+- [x] Premium overhaul (feat/collectors-archive): porcelain/graphite neumorphism, illustrated premium tiers and pack art, 3D pack ring, tactile opening, card thickness, acrylic slabs.
 - [ ] Owner: resolve contentTodos (see Index page).
+- [ ] Owner: supply a portrait for the Starter profile card.
+- [ ] Prime+ Care Health and Strategic Retail logos are white-on-transparent and nearly invisible on light cards; needs dark-background versions.
+- [ ] Not yet merged or deployed: awaiting the owner's go-ahead.

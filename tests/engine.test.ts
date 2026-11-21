@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cards } from '../src/content/manifest';
-import { cardsInPack, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
+import { cardsInPack, illustration, packById, packs, pickWeighted, rollPack, tierIndex, variantKey } from '../src/engine/packs';
 import { GRADE_ODDS, gradeOne, initialState, loadState, openPack, parseState, saveState, STORAGE_KEY, type State } from '../src/engine/state';
 
 // mulberry32: deterministic rng for statistical tests
@@ -20,8 +20,23 @@ describe('content manifest', () => {
   it('has unique ids, every pack populated, the six required starter cards', () => {
     expect(new Set(cards.map((c) => c.id)).size).toBe(cards.length);
     for (const p of packs) expect(cardsInPack(p.id).length).toBeGreaterThan(0);
-    expect(cardsInPack('starter').map((c) => c.id)).toEqual(['uwaterloo', 'github', 'linkedin', 'email', 'resume', 'devpost']);
+    expect(cardsInPack('starter').map((c) => c.id)).toEqual(['profile', 'uwaterloo', 'github', 'linkedin', 'email', 'resume', 'devpost']);
     for (const c of cards) expect(c.source.length).toBeGreaterThan(0);
+  });
+
+  const shipped = new Set(Object.keys(import.meta.glob('../public/art/*.webp')).map((k) => k.replace('../public/', '')));
+  const existsSync = (path: string) => shipped.has(path.replace('public/', ''));
+
+  it('every illustrated tier has its artwork shipped, and packs with key art have a wrapper image', () => {
+    for (const c of cards) {
+      const p = packById.get(c.pack)!;
+      for (const t of p.tiers) {
+        const src = illustration(p, c.id, t.id);
+        if (src) expect(existsSync(`public/${src}`), src).toBe(true);
+      }
+    }
+    expect(shipped.size).toBeGreaterThan(30);
+    for (const p of packs.filter((x) => x.id !== 'starter')) expect(existsSync(`public/art/pack-${p.id}.webp`)).toBe(true);
   });
 
   it('pack odds sum to 100%', () => {
@@ -57,14 +72,56 @@ describe('weighted odds', () => {
 });
 
 describe('opening packs', () => {
-  it('first opening reveals every core card exactly once and marks them discovered', () => {
-    for (const p of packs) {
-      const { state, pulls, first, isNew } = openPack(initialState(), p.id, seeded(2));
-      expect(first).toBe(true);
-      expect(pulls.map((x) => x.cardId).sort()).toEqual(cardsInPack(p.id).map((c) => c.id).sort());
-      expect(isNew.every(Boolean)).toBe(true);
-      expect(Object.keys(state.discovered)).toHaveLength(cardsInPack(p.id).length);
+  it('first opening of a core pack reveals every card at base, then 1–2 distinct premium pulls last', () => {
+    const premiumCounts = new Set<number>();
+    for (const p of packs.filter((x) => x.core)) {
+      const ids = cardsInPack(p.id).map((c) => c.id);
+      for (let seed = 0; seed < 200; seed++) {
+        const { state, pulls, first, isNew } = openPack(initialState(), p.id, seeded(seed));
+        expect(first).toBe(true);
+        const base = pulls.slice(0, ids.length);
+        const premium = pulls.slice(ids.length);
+        expect(base).toEqual(ids.map((cardId) => ({ cardId, tier: p.tiers[0].id })));
+        expect(premium.length).toBeGreaterThanOrEqual(1);
+        expect(premium.length).toBeLessThanOrEqual(2);
+        premiumCounts.add(premium.length);
+        expect(new Set(premium.map((x) => x.cardId)).size).toBe(premium.length);
+        for (const x of premium) {
+          expect(ids).toContain(x.cardId);
+          expect(tierIndex(p, x.tier)).toBeGreaterThanOrEqual(p.premiumFrom);
+        }
+        expect(isNew.every(Boolean)).toBe(true);
+        expect(Object.keys(state.discovered)).toHaveLength(pulls.length);
+      }
     }
+    expect([...premiumCounts].sort()).toEqual([1, 2]);
+  });
+
+  it('packs without a fixed core open randomly from the start, with the guarantee', () => {
+    const p = packById.get('personal')!;
+    expect(p.core).toBe(false);
+    const rolls = new Set<string>();
+    for (let seed = 0; seed < 50; seed++) {
+      const { pulls, first } = openPack(initialState(), 'personal', seeded(seed));
+      expect(first).toBe(true);
+      expect(pulls).toHaveLength(initialState().settings.packSize);
+      expect(pulls.some((x) => tierIndex(p, x.tier) >= p.guaranteeFrom)).toBe(true);
+      rolls.add(JSON.stringify(pulls));
+    }
+    expect(rolls.size).toBeGreaterThan(40);
+  });
+
+  it('repeat openings are independent: tier frequencies match the weights outside the guarantee', () => {
+    const p = packById.get('experience')!;
+    const rng = seeded(21);
+    const counts: Record<string, number> = {};
+    let n = 0;
+    for (let i = 0; i < 20_000; i++) {
+      // Size 10: the guarantee redraw is rare enough not to skew common/uncommon shares much.
+      for (const x of rollPack(p, 10, rng)) { counts[x.tier] = (counts[x.tier] ?? 0) + 1; n++; }
+    }
+    expect(Math.abs(counts.common / n - 0.5)).toBeLessThan(0.02);
+    expect(Math.abs(counts.sir / n - 0.03)).toBeLessThan(0.01);
   });
 
   it('repeat openings honour pack size and always include a middle-tier-or-better card', () => {
@@ -181,7 +238,7 @@ describe('achievements', () => {
     expect(s.achievements['all-packs']).toBeUndefined();
     for (const p of packs) s = openPack(s, p.id, seeded(14)).state;
     expect(s.achievements['all-packs']).toBeDefined();
-    // Every card is discovered after one tour, so all content is reachable without achievements.
-    for (const c of cards) expect(Object.keys(s.discovered).some((k) => k.startsWith(`${c.id}|`))).toBe(true);
+    // Every professional card is discovered after one tour; Personal is a random pool (and every card is on the Index page).
+    for (const c of cards.filter((x) => x.pack !== 'personal')) expect(Object.keys(s.discovered).some((k) => k.startsWith(`${c.id}|`))).toBe(true);
   });
 });

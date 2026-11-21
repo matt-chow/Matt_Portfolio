@@ -143,6 +143,7 @@
   flex: 1;
 }
 .stage {
+  overflow-x: clip;
   display: grid;
   justify-items: center;
   gap: 1.2rem;
@@ -155,18 +156,22 @@
   color: var(--ink-2);
   min-height: 1.6em;
 }
-.sealed {
-  width: min(280px, 70vw);
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  border-radius: 12px;
-}
 .tear-wrap {
   position: relative;
-  width: min(280px, 70vw);
+  width: min(280px, 64vw);
   aspect-ratio: 5 / 8.2;
+  touch-action: pan-y; /* sideways drags tear, vertical ones still scroll the page */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  border-radius: 12px;
+  outline-offset: 10px;
+}
+/* Starting a tear just off the pack's edge or above it should still catch. */
+.tear-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -14% -20% 70%;
 }
 .tear-layer {
   position: absolute;
@@ -175,6 +180,59 @@
 }
 .tear-layer.top {
   z-index: 3;
+}
+/* Overhangs the pack box (70% each side, 30% top and bottom) so the flying strip has room; pack3d frames to match. */
+.tear-canvas {
+  position: absolute;
+  inset: -30% -70%;
+  width: 240%;
+  height: 160%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.tear-wrap.is-3d .tear-canvas {
+  transition: none;
+}
+.tear-shadow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -5%;
+  height: 8%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.28), transparent);
+  filter: blur(6px);
+}
+/* The seam to tear along: a soft, travelling dash that steps aside as soon as the pull starts. */
+.tear-guide {
+  position: absolute;
+  left: -3%;
+  width: 106%;
+  height: 6%;
+  z-index: 4;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.45));
+  animation: seam-run 1.4s linear infinite;
+  transition: opacity 0.25s;
+}
+.tear-guide.is-hidden {
+  opacity: 0;
+}
+@keyframes seam-run {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+.tear-wrap.is-pulling {
+  cursor: grabbing;
 }
 .stack-rise {
   position: absolute;
@@ -187,7 +245,7 @@
   border-radius: 12px;
   background:
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 8px, transparent 8px 16px),
-    #22306a;
+    linear-gradient(160deg, #3f37c9, #2a1f7a 60%, #4c1d95);
   box-shadow: inset 0 0 0 10px #f1f1ec, 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 .reveal-zone {
@@ -211,8 +269,9 @@
   border-radius: 16px;
 }
 /* Rarity suspense: the card trembles and glows in proportion to its rank. */
-.charging .reveal-card {
-  animation: tremble 0.12s linear infinite;
+/* On the inner card, so it never fights motion's inline transform on the button. Higher ranks shake harder and swell. */
+.charging .reveal-card > .card {
+  animation: tremble 0.11s linear infinite, swell 0.9s ease-in forwards;
 }
 .charging::before {
   content: '';
@@ -225,11 +284,31 @@
 }
 @keyframes tremble {
   25% {
-    transform: translate(1px, -1px) rotate(-0.5deg);
+    translate: calc(var(--rank) * 0.5px) calc(var(--rank) * -0.5px);
+    rotate: calc(var(--rank) * -0.25deg);
   }
   75% {
-    transform: translate(-1px, 1px) rotate(0.5deg);
+    translate: calc(var(--rank) * -0.5px) calc(var(--rank) * 0.5px);
+    rotate: calc(var(--rank) * 0.25deg);
   }
+}
+@keyframes swell {
+  to {
+    scale: 1.04;
+  }
+}
+.tearing {
+  cursor: pointer;
+}
+.reveal-burst {
+  position: relative;
+  z-index: 0;
+  align-self: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff 0 8%, color-mix(in oklab, var(--gold) 80%, transparent) 22%, color-mix(in oklab, var(--violet) 35%, transparent) 45%, transparent 68%);
+  mix-blend-mode: screen;
 }
 @keyframes pulse {
   to {
@@ -635,5 +714,90 @@
   }
   .shelf-ctrl .icon-btn {
     display: none;
+  }
+}
+
+/* ---------- 3D pack ring ---------- */
+.ring3d {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1.5rem;
+}
+.ring-canvas {
+  width: 100%;
+  height: clamp(400px, 46vw, 580px);
+  display: block;
+  touch-action: pan-y; /* vertical swipes still scroll the page */
+  cursor: grab;
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  transition: opacity 0.6s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ring-canvas:active {
+  cursor: grabbing;
+}
+.ring3d.is-ready .ring-canvas {
+  opacity: 1;
+  transform: none;
+}
+.ring-meta {
+  text-align: center;
+  max-width: 34rem;
+  padding: 0 16px;
+  min-height: 12.5rem;
+}
+.ring-meta h3 {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  margin: 0.15rem 0 0.35rem;
+}
+.ring-meta p {
+  margin: 0.2rem 0;
+}
+.ring-count {
+  font-variant-numeric: tabular-nums;
+}
+.ring-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0.9rem !important;
+}
+.ring-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--sunk);
+  box-shadow: var(--press);
+  max-width: calc(100% - 32px);
+}
+.chip {
+  border: 0;
+  background: transparent;
+  font-family: var(--ui);
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  min-height: 40px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.chip[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: var(--raise-sm);
+}
+@media (max-width: 640px) {
+  .ring-canvas {
+    height: 440px;
+  }
+  .ring-tabs {
+    border-radius: 22px;
   }
 }

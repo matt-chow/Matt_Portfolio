@@ -1,40 +1,47 @@
-/* Environment tokens. Card and pack artwork use fixed palettes in cards.css and never read these. */
+/* Environment tokens: porcelain (light) and graphite (dark) neumorphism with indigo accents.
+   Card and pack artwork use fixed palettes in cards.css and never read these. */
 :root {
-  --ground: #d9ddd5;
-  --surface: #e6e9e2;
-  --sunk: #cfd4ca;
-  --ink: #1e2a2e;
-  --ink-2: #4a5759;
-  --accent: #2c4fc9;
-  --accent-ink: #f4f6ff;
+  --ground: #edeff4;
+  --surface: #f6f7fa;
+  --sunk: #e4e7ee;
+  --ink: #14151b;
+  --ink-2: #585c6b;
+  --accent: #4f46e5;
+  --accent-ink: #ffffff;
+  --violet: #7c3aed;
+  --grad: linear-gradient(135deg, #4f46e5, #7c3aed);
   --gold: #b8912a;
-  --hi: rgba(255, 255, 255, 0.85);
-  --lo: rgba(84, 98, 88, 0.32);
-  --line: rgba(30, 42, 46, 0.14);
-  --grain-op: 0.35;
-  --raise: 6px 6px 14px var(--lo), -6px -6px 14px var(--hi);
-  --raise-sm: 3px 3px 7px var(--lo), -3px -3px 7px var(--hi);
-  --press: inset 3px 3px 7px var(--lo), inset -3px -3px 7px var(--hi);
-  --r-lg: 22px;
-  --r-md: 14px;
-  --display: 'Fraunces', Georgia, serif;
-  --ui: 'Instrument Sans', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --hi: rgba(255, 255, 255, 0.95);
+  --lo: rgba(136, 145, 176, 0.32);
+  --edge: rgba(255, 255, 255, 0.7);
+  --line: rgba(20, 21, 27, 0.1);
+  --raise: 10px 10px 24px var(--lo), -10px -10px 24px var(--hi), inset 0 0 0 1px var(--edge);
+  --raise-sm: 4px 4px 10px var(--lo), -4px -4px 10px var(--hi), inset 0 0 0 1px var(--edge);
+  --press: inset 3px 3px 8px var(--lo), inset -3px -3px 8px var(--hi);
+  --r-lg: 24px;
+  --r-md: 16px;
+  --display: 'Geist', system-ui, sans-serif;
+  --ui: 'Geist', system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+  --hand: 'Caveat', 'Segoe Print', cursive;
+  --athletic: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --ground: #1a2124;
-  --surface: #222b2f;
-  --sunk: #161c1f;
-  --ink: #e5e9e1;
-  --ink-2: #a3aea9;
-  --accent: #8aa2ff;
-  --accent-ink: #0f1633;
+  --ground: #0e0f13;
+  --surface: #16181e;
+  --sunk: #0a0b0e;
+  --ink: #e9eaf0;
+  --ink-2: #9a9dab;
+  --accent: #8b87ff;
+  --accent-ink: #0e0f13;
+  --violet: #a78bfa;
+  --grad: linear-gradient(135deg, #5b52f0, #8b5cf6);
   --gold: #d8b55a;
-  --hi: rgba(255, 255, 255, 0.055);
-  --lo: rgba(0, 0, 0, 0.55);
-  --line: rgba(229, 233, 225, 0.12);
-  --grain-op: 0.5;
+  --hi: rgba(255, 255, 255, 0.045);
+  --lo: rgba(0, 0, 0, 0.62);
+  --edge: rgba(255, 255, 255, 0.05);
+  --line: rgba(233, 234, 240, 0.1);
   color-scheme: dark;
 }
 
@@ -55,17 +62,6 @@ body {
   font: 400 1rem/1.55 var(--ui);
   transition: background-color 0.5s, color 0.5s;
   overflow-x: hidden;
-}
-/* Paper grain, drawn once as SVG noise. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: var(--grain-op);
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 #root {
   position: relative;
@@ -88,15 +84,17 @@ h1,
 h2,
 h3 {
   font-family: var(--display);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
   margin: 0 0 0.4em;
-  font-variation-settings: 'SOFT' 60, 'WONK' 0;
+  text-wrap: balance;
 }
 h1 {
-  font-size: clamp(2.2rem, 5vw + 1rem, 4.2rem);
-  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
+  font-size: clamp(2.4rem, 5vw + 1rem, 4.6rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
 }
 h2 {
   font-size: clamp(1.35rem, 1.5vw + 1rem, 1.9rem);
@@ -113,9 +111,9 @@ a {
   text-underline-offset: 0.18em;
 }
 .lede {
-  font-family: var(--display);
-  font-size: clamp(1.15rem, 0.8vw + 1rem, 1.45rem);
-  line-height: 1.4;
+  font-size: clamp(1.1rem, 0.6vw + 1rem, 1.35rem);
+  line-height: 1.5;
+  color: var(--ink-2);
 }
 .muted {
   color: var(--ink-2);
@@ -173,11 +171,11 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 .btn {
-  padding: 0.8rem 1.25rem;
+  padding: 0.8rem 1.3rem;
   min-height: 44px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: var(--raise-sm), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--raise-sm), 0 8px 20px -8px color-mix(in oklab, var(--accent) 75%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 .btn-quiet {
   background: var(--surface);
@@ -325,13 +323,19 @@ a {
 .brand-stamp {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  font: 700 1rem var(--display);
+  font: 700 0.95rem var(--display);
+  letter-spacing: -0.04em;
   background: var(--surface);
   box-shadow: var(--raise-sm);
-  color: var(--accent);
+}
+.brand-stamp span {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .brand-text {
   display: flex;
@@ -339,8 +343,8 @@ a {
   line-height: 1.15;
 }
 .brand-text strong {
-  font-family: var(--display);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
+  letter-spacing: -0.02em;
 }
 .brand-text small {
   color: var(--ink-2);
@@ -359,8 +363,8 @@ a {
 }
 .count {
   font: 600 0.72rem var(--mono);
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--grad);
+  color: #fff;
   border-radius: 999px;
   padding: 0.15rem 0.45rem;
 }
@@ -417,6 +421,22 @@ a {
 .toast small {
   color: var(--ink-2);
 }
+/* Phones: compact chips at the top, so they never cover the card being revealed. */
+@media (max-width: 640px) {
+  .toasts {
+    top: 12px;
+    bottom: auto;
+    left: 16px;
+    gap: 0.4rem;
+  }
+  .toast {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  .toast small {
+    display: none;
+  }
+}
 
 /* --- Dialog --- */
 .detail {
@@ -430,7 +450,7 @@ a {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 .detail::backdrop {
-  background: rgba(12, 18, 20, 0.55);
+  background: rgba(10, 10, 20, 0.5);
   backdrop-filter: blur(4px);
 }
 .detail[open] {

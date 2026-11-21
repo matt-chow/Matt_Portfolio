@@ -79,7 +79,7 @@ export function Collection({ tab = 'grid', pack }: { tab?: string; pack?: string
       replaceState(next);
       setMsg('Collection imported.');
     } catch {
-      setMsg('That file is not a Collector’s Archive export. Nothing was changed.');
+      setMsg('That file is not a save exported from this site. Nothing was changed.');
     }
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import type { CardContent } from '../content/manifest';
-import { cardsInPack, packById } from '../engine/packs';
+import { cardsInPack, illustration, packById } from '../engine/packs';
 import { Motif } from './Art';
 
 const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -47,10 +47,11 @@ const num = (c: CardContent) => {
   return `${String(list.indexOf(c) + 1).padStart(3, '0')}/${String(list.length).padStart(3, '0')}`;
 };
 
-function ArtWindow({ c, children }: { c: CardContent; children?: ReactNode }) {
+function ArtWindow({ c, illo, children }: { c: CardContent; illo?: string; children?: ReactNode }) {
   return (
-    <div className="art">
+    <div className={illo ? 'art has-illo' : 'art'}>
       <div className="art-bg" />
+      {illo && <img className="art-illo" src={illo} alt="" loading="lazy" decoding="async" />}
       {c.image ? <img className="art-img" src={c.image} alt="" loading="lazy" decoding="async" /> : <Motif name={c.motif} className="art-motif" />}
       {children}
       <div className="shine art-shine" />
@@ -65,7 +66,7 @@ const glyph = (title: string) => {
   return words.slice(0, 3).map((w) => w[0]).join('').toUpperCase();
 };
 
-function Front({ c }: { c: CardContent }) {
+function Front({ c, illo }: { c: CardContent; illo?: string }) {
   switch (c.pack) {
     case 'starter':
       return (
@@ -81,7 +82,7 @@ function Front({ c }: { c: CardContent }) {
       return (
         <>
           <header className="ex-head"><span className="ex-stage">{c.subset}</span><h3 className="name">{c.title}</h3></header>
-          <ArtWindow c={c} />
+          <ArtWindow c={c} illo={illo} />
           <p className="ex-role">{c.subtitle}<span>{c.kicker}</span></p>
           <p className="sum ex-move">{c.summary}</p>
           <footer className="ex-foot"><span>{c.tags?.slice(0, 3).join(' / ')}</span><span className="num">{num(c)}</span></footer>
@@ -90,7 +91,7 @@ function Front({ c }: { c: CardContent }) {
     case 'highlights':
       return (
         <>
-          <ArtWindow c={c} />
+          <ArtWindow c={c} illo={illo} />
           <div className="hl-flag">{c.kicker?.split(' ')[0]}</div>
           <div className="hl-banner"><h3 className="name">{c.title}</h3></div>
           <p className="sub hl-sub">{c.subtitle}</p>
@@ -119,7 +120,7 @@ function Front({ c }: { c: CardContent }) {
     case 'personal':
       return (
         <>
-          <ArtWindow c={c}><span className="tape" /></ArtWindow>
+          <ArtWindow c={c} illo={illo}><span className="tape" /></ArtWindow>
           <h3 className="name">{c.title}</h3>
           <p className="sum">{c.summary}</p>
           <span className="ps-tag">{c.kicker}</span>
@@ -144,7 +145,8 @@ export interface CardProps {
 export function Card({ card, tier, back = 'classic', frame = 'none', faceDown, misprint, tilt = true, className = '', style }: CardProps) {
   const ref = useRef<HTMLDivElement>(null);
   useTilt(ref, tilt && !faceDown);
-  const tierLabel = packById.get(card.pack)!.tiers.find((t) => t.id === tier)?.label;
+  const pack = packById.get(card.pack)!;
+  const tierLabel = pack.tiers.find((t) => t.id === tier)?.label;
   return (
     <div
       ref={ref}
@@ -154,12 +156,12 @@ export function Card({ card, tier, back = 'classic', frame = 'none', faceDown, m
     >
       <div className="card-rot">
         <div className="face front">
-          <Front c={card} />
+          <Front c={card} illo={illustration(pack, card.id, tier)} />
           <div className="shine card-shine" />
           <div className="glare" />
         </div>
         <div className={`face back back-${back}`}>
-          <div className="back-emblem"><span>The Collector's</span><strong>Archive</strong></div>
+          <div className="back-emblem"><span>Matthew</span><strong>Chow</strong></div>
           <div className="glare" />
         </div>
       </div>
