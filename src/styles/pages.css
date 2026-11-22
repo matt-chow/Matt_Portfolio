@@ -371,6 +371,70 @@
     stroke-dashoffset: -14;
   }
 }
+/* Light escaping through the torn seam (SEAM_V = 86% up). TearPack drives --open (how much of the seam is torn), --burst
+   (the release as the strip comes free) and --lx (where along the seam the gap is). The plane overhangs the pack 40% each
+   side; its bottom 20% sits inside the pack so the glow starts within the mouth. A premium card inside sets --k. */
+.pack-light {
+  --open: 0;
+  --burst: 0;
+  --lx: 50%;
+  --k: 1;
+  --ray: 1;
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  bottom: 66%;
+  height: 100%;
+  pointer-events: none; /* no z-index: the glow sits over the foil, the rays behind the rising cards and the flying strip */
+}
+.pack-light.is-rich {
+  --k: 1.5;
+}
+/* Pale rays on the dark ground stand out far more than on porcelain, so they run softer there. */
+:root[data-theme='dark'] .pack-light {
+  --ray: 0.55;
+}
+.pack-light::before,
+.pack-light::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+/* A bright slit along the torn span (half-width 28% = the whole seam), under a softer indigo halo that lifts out of it. */
+.pack-light::before {
+  z-index: 4;
+  background:
+    radial-gradient(ellipse calc(2% + var(--open) * 27%) 1.4% at var(--lx) 80%, rgb(255 255 255 / 0.95), transparent),
+    radial-gradient(
+    ellipse calc(5% + var(--open) * 15% + var(--burst) * 8% * var(--k)) calc(3% + var(--open) * 7% + var(--burst) * 7% * var(--k)) at var(--lx) 80%,
+    color-mix(in oklab, var(--accent) 20%, white),
+    color-mix(in oklab, var(--accent) 50%, transparent) 50%,
+    transparent
+  );
+  opacity: min(0.55 + var(--k) * 0.3, calc(var(--open) * 2 + var(--burst) * 0.3 * var(--k))); /* nothing while sealed */
+}
+.pack-light::after {
+  bottom: 20%;
+  z-index: 0;
+  background: repeating-conic-gradient(
+    from -3deg at var(--lx) 100%,
+    transparent 0,
+    color-mix(in oklab, var(--accent) 25%, rgb(255 255 255 / 0.7)) 1.5deg,
+    transparent 3.5deg 10deg
+  );
+  mask: radial-gradient(ellipse 28% 100% at var(--lx) 100%, #000 15%, transparent 85%);
+  opacity: calc(min(0.9, (var(--open) * 0.5 + var(--burst) * 0.5) * var(--k)) * var(--ray));
+  transform: scaleY(calc(0.3 + var(--open) * 0.2 + var(--burst) * 0.5));
+  transform-origin: var(--lx) 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pack-light {
+    opacity: 0.75;
+  }
+  .pack-light::after {
+    display: none;
+  }
+}
 .tear-wrap.is-pulling {
   cursor: grabbing;
 }

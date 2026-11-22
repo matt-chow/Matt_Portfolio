@@ -12,7 +12,7 @@ type Gesture = { id: number; x: number; y: number; p0: number; t: number; mode: 
  * A sealed pack you open by dragging across its top strip. The tear follows the pointer, keeps partial progress when let go,
  * and rips the rest once past the threshold. Foil is WebGL when available, clipped CSS packs otherwise.
  */
-export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef; auto: boolean; reduce: boolean; onTorn(): void; onDone(): void }) {
+export function TearPack({ pack, auto, reduce, rich, onTorn, onDone }: { pack: PackDef; auto: boolean; reduce: boolean; rich: boolean; onTorn(): void; onDone(): void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const top = useRef<HTMLDivElement>(null);
@@ -26,8 +26,9 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
   const gesture = useRef<Gesture | null>(null);
   const dragged = useRef(false);
   const aim = useRef({ x: 0, y: 0, press: 0, u: 0.5, v: 0.5 });
-  const cb = useRef({ auto, onTorn, onDone });
-  cb.current = { auto, onTorn, onDone };
+  const light = useRef<HTMLDivElement>(null);
+  const cb = useRef({ auto, rich, onTorn, onDone });
+  cb.current = { auto, rich, onTorn, onDone };
   const seamPts = useMemo(() => seam(hash(pack.id), 48), [pack.id]);
   const clips = useMemo(() => seamClips(seamPts), [seamPts]);
   const want3d = gl !== 'off';
@@ -58,6 +59,7 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
     let fired = false;
     let done = false;
     let tenth = 0;
+    let lit = '';
     const view: PackView = { tear: st.current, sep, tiltX: 0, tiltY: 0, press: { u: 0.5, v: 0.5, amt: 0 }, time: 0 };
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
@@ -81,6 +83,7 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
       }
       if (sep >= 0) {
         if (sep < 0.25 && sep + dt >= 0.25) sfx.slide(); // as the card stack starts to rise
+        if (sep < 0.06 && sep + dt >= 0.06) sfx.leak(cb.current.rich); // a few frames in, once the roll has reached `rich`
         sep += dt;
       } else if (t.torn && t.p > 0.97) {
         sep = 0;
@@ -95,6 +98,12 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
       view.time = (now - start) / 1000;
       if (three.current) three.current.draw(view);
       else drawFlat(view);
+      // Light through the gap: centred on the torn span while partial, then a release envelope as the strip flies off.
+      const open = t.torn ? 1 : t.p;
+      const burst = sep < 0 ? 0 : Math.min(1, sep / 0.25) * Math.max(0, 1 - Math.max(0, sep - 0.4) / 1.05);
+      const lx = (0.4 + (t.dir < 0 ? 1 - open / 2 : open / 2)) / 1.8; // the light plane overhangs the pack by 40% each side
+      const next = `--open:${open.toFixed(3)};--burst:${burst.toFixed(3)};--lx:${(lx * 100).toFixed(1)}%`;
+      if (next !== lit && light.current) light.current.style.cssText = lit = next;
       if (Math.round(t.p * 10) !== tenth) setPct((tenth = Math.round(t.p * 10)));
       if (sep >= SEP_END && !done) {
         done = true;
@@ -213,6 +222,7 @@ export function TearPack({ pack, auto, reduce, onTorn, onDone }: { pack: PackDef
           </div>
         </>
       )}
+      <div ref={light} className={`pack-light ${rich ? 'is-rich' : ''}`} aria-hidden="true" />
       <svg className={`tear-guide ${guide ? '' : 'is-hidden'}`} viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" style={{ top: `${(1 - SEAM_V) * 100 - 3}%` }}>
         <polyline points={seamPts.map((v, i) => `${(i / 48) * 100},${5 + (SEAM_V - v) * 167}`).join(' ')} vectorEffect="non-scaling-stroke" />
       </svg>

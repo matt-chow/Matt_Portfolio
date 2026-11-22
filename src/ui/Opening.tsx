@@ -129,7 +129,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         // One pack across both stages, so the drag that tears it flows straight into the separation. Tap to skip once torn.
         <div className={`stage ${stage === 'tearing' ? 'tearing' : ''}`} onClick={stage === 'tearing' ? () => setStage('reveal') : undefined}>
           <motion.div className="tear-enter" initial={reduce ? false : { scale: 0.9, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', bounce: 0, duration: 0.5 }}>
-            <TearPack key={round} pack={pack} auto={auto} reduce={!!reduce} onTorn={commit} onDone={() => setStage((x) => (x === 'tearing' ? 'reveal' : x))} />
+            <TearPack key={round} pack={pack} auto={auto} reduce={!!reduce} rich={stage === 'tearing' && pulls.some((p) => tierIndex(pack, p.tier) >= pack.premiumFrom)} onTorn={commit} onDone={() => setStage((x) => (x === 'tearing' ? 'reveal' : x))} />
           </motion.div>
           <p className="stage-note">
             {stage === 'tearing'
