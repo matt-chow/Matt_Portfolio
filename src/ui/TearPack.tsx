@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import { motion } from 'motion/react';
 import type { PackDef } from '../engine/packs';
 import { sfx } from '../sound';
@@ -12,7 +12,7 @@ type Gesture = { id: number; x: number; y: number; p0: number; t: number; mode: 
  * A sealed pack you open by dragging across its top strip. The tear follows the pointer, keeps partial progress when let go,
  * and rips the rest once past the threshold. Foil is WebGL when available, clipped CSS packs otherwise.
  */
-export function TearPack({ pack, auto, reduce, rich, onTorn, onDone }: { pack: PackDef; auto: boolean; reduce: boolean; rich: boolean; onTorn(): void; onDone(): void }) {
+export function TearPack({ pack, auto, reduce, flash, onTorn, onDone }: { pack: PackDef; auto: boolean; reduce: boolean; flash: number; onTorn(): void; onDone(): void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const top = useRef<HTMLDivElement>(null);
@@ -27,8 +27,8 @@ export function TearPack({ pack, auto, reduce, rich, onTorn, onDone }: { pack: P
   const dragged = useRef(false);
   const aim = useRef({ x: 0, y: 0, press: 0, u: 0.5, v: 0.5 });
   const light = useRef<HTMLDivElement>(null);
-  const cb = useRef({ auto, rich, onTorn, onDone });
-  cb.current = { auto, rich, onTorn, onDone };
+  const cb = useRef({ auto, flash, onTorn, onDone });
+  cb.current = { auto, flash, onTorn, onDone };
   const seamPts = useMemo(() => seam(hash(pack.id), 48), [pack.id]);
   const clips = useMemo(() => seamClips(seamPts), [seamPts]);
   const want3d = gl !== 'off';
@@ -83,7 +83,7 @@ export function TearPack({ pack, auto, reduce, rich, onTorn, onDone }: { pack: P
       }
       if (sep >= 0) {
         if (sep < 0.25 && sep + dt >= 0.25) sfx.slide(); // as the card stack starts to rise
-        if (sep < 0.06 && sep + dt >= 0.06) sfx.leak(cb.current.rich); // a few frames in, once the roll has reached `rich`
+        if (sep < 0.06 && sep + dt >= 0.06) sfx.leak(cb.current.flash); // a few frames in, once the roll has reached `flash`
         sep += dt;
       } else if (t.torn && t.p > 0.97) {
         sep = 0;
@@ -222,10 +222,27 @@ export function TearPack({ pack, auto, reduce, rich, onTorn, onDone }: { pack: P
           </div>
         </>
       )}
-      <div ref={light} className={`pack-light ${rich ? 'is-rich' : ''}`} aria-hidden="true" />
+      <div ref={light} className={`pack-light fl-${flash}`} aria-hidden="true" />
+      {torn && flash > 0 && !reduce && <Glints n={flash > 1 ? 10 : 6} className="seam-glints" />}
       <svg className={`tear-guide ${guide ? '' : 'is-hidden'}`} viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" style={{ top: `${(1 - SEAM_V) * 100 - 3}%` }}>
         <polyline points={seamPts.map((v, i) => `${(i / 48) * 100},${5 + (SEAM_V - v) * 167}`).join(' ')} vectorEffect="non-scaling-stroke" />
       </svg>
+    </div>
+  );
+}
+
+// Glints as [x%, y%, drift x px, drift y px, delay s, size]: hand-placed so they scatter without a visible pattern.
+const GLINTS = [
+  [18, 60, -14, -30, 0, 1], [52, 40, 4, -40, 0.08, 1.3], [80, 55, 16, -26, 0.14, 0.9], [34, 30, -8, -34, 0.22, 0.8], [66, 70, 10, -20, 0.05, 1.1],
+  [10, 35, -18, -16, 0.3, 0.7], [90, 30, 18, -22, 0.26, 0.8], [44, 75, -4, -18, 0.36, 0.7], [24, 20, -12, -28, 0.42, 0.9], [74, 22, 12, -34, 0.18, 1],
+];
+/** A few short-lived glints of light, scattered across the box they are placed in. */
+export function Glints({ n, className }: { n: number; className: string }) {
+  return (
+    <div className={`glints ${className}`} aria-hidden="true">
+      {GLINTS.slice(0, n).map(([x, y, dx, dy, d, k], i) => (
+        <i key={i} style={{ left: `${x}%`, top: `${y}%`, '--dx': `${dx}px`, '--dy': `${dy}px`, '--k': k, animationDelay: `${d}s` } as CSSProperties} />
+      ))}
     </div>
   );
 }

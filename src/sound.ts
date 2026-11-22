@@ -230,10 +230,10 @@ export const sfx = {
   rustle: () => (puff(0.42, 7000, 0.6, 0.022, { attack: 0.12 }), puff(0.3, 5200, 0.7, 0.014, { at: 0.14, attack: 0.07 })),
   // The card stack sliding out: soft, dry card stock, lower and smoother than the film.
   slide: () => puff(0.3, 1700, 0.7, 0.035, { attack: 0.09, hp: 500 }),
-  // Light escaping the opened pack: an airy swell, with a faint high fifth when a premium card is inside.
-  leak: (rich: boolean) => (
-    shimmer(0, 0.9, rich ? 0.016 : 0.01),
-    rich && [1568, 2349].forEach((f, i) => tone(f, 0.12 + i * 0.09, 0.9, 'sine', 0.011))
+  // Light escaping the opened pack: a faint airy swell, plus a high fifth (and octave for the top tier) when a top-two card is inside.
+  leak: (flash: number) => (
+    shimmer(0, 0.9, 0.008 + flash * 0.005),
+    [1568, 2349, 3136].slice(0, flash && flash + 1).forEach((f, i) => tone(f, 0.12 + i * 0.09, 0.9, 'sine', 0.011))
   ),
   flip: () => noise(0.08, 2400, 1200, 0.075),
   tick: () => tone(1400, 0, 0.04, 'square', 0.02),

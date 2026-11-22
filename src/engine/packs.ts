@@ -68,6 +68,9 @@ export const tierIndex = (pack: PackDef, tier: string) => pack.tiers.findIndex((
  * How strongly a reveal lights up, from the pull's tier rank: 0 base, 1 mid (below the guarantee), 2 rare (guaranteed
  * tier), 3 premium, 4 the pack's top tier. Shared by the reveal light and its sound.
  */
+/** Light-flash strength for a tier: 2 for the pack's top tier, 1 for the one below it, 0 for the rest. */
+export const flashLevel = (pack: PackDef, rank: number) => Math.max(0, rank - pack.tiers.length + 3);
+
 export const revealLevel = (pack: PackDef, rank: number) =>
   rank <= 0 ? 0 : rank === pack.tiers.length - 1 ? 4 : rank >= pack.premiumFrom ? 3 : rank >= pack.guaranteeFrom ? 2 : 1;
 /** Illustration for this card at this tier, if its pack has premium art and the tier reaches it. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cards } from '../src/content/manifest';
-import { cardsInPack, illustration, PACK_SIZE, packById, packs, pickWeighted, revealLevel, rollPack, tierIndex, variantKey } from '../src/engine/packs';
+import { cardsInPack, flashLevel, illustration, PACK_SIZE, packById, packs, pickWeighted, revealLevel, rollPack, tierIndex, variantKey } from '../src/engine/packs';
 import { GRADE_ODDS, gradeOne, initialState, loadState, openPack, parseState, saveState, STORAGE_KEY, type State } from '../src/engine/state';
 
 // mulberry32: deterministic rng for statistical tests
@@ -259,6 +259,16 @@ describe('portfolio categories', () => {
     s = { ...s, favourites: [key.split('|')[0]] };
     s = gradeOne(s, key, seeded(22), 'slab-fav').state;
     expect(s.achievements.backup).toBeDefined();
+  });
+});
+
+describe('flash level', () => {
+  it('lights only the top two tiers of each pack, strongest for the top', () => {
+    const levels = (id: string) => packById.get(id as never)!.tiers.map((_, r) => flashLevel(packById.get(id as never)!, r));
+    expect(levels('experience')).toEqual([0, 0, 0, 1, 2]);
+    expect(levels('highlights')).toEqual([0, 0, 0, 1, 2]);
+    expect(levels('personal')).toEqual([0, 0, 1, 2]);
+    for (const id of ['starter', 'skills', 'prototype']) expect(levels(id)).toEqual([0, 1, 2]);
   });
 });
 

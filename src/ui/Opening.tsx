@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { cardById, type PackId } from '../content/manifest';
-import { cardsInPack, PACK_SIZE, packById, revealLevel, tierIndex, type Pull } from '../engine/packs';
+import { cardsInPack, flashLevel, PACK_SIZE, packById, revealLevel, tierIndex, type Pull } from '../engine/packs';
 import { openPack } from '../engine/state';
 import { actWith, useStore } from '../store';
 import { sfx } from '../sound';
 import { Card } from './Card';
-import { TearPack } from './TearPack';
+import { Glints, TearPack } from './TearPack';
 import { go, useOpenDetail } from './App';
 import { PACK_CATEGORY } from './Collection';
 
@@ -72,6 +72,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
   const current = pulls[idx];
   const rank = current ? tierIndex(pack, current.tier) : 0;
   const level = revealLevel(pack, rank);
+  const flash = flashLevel(pack, rank);
   const advance = () => {
     if (charging || !current) return;
     if (flipped) {
@@ -129,7 +130,7 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
         // One pack across both stages, so the drag that tears it flows straight into the separation. Tap to skip once torn.
         <div className={`stage ${stage === 'tearing' ? 'tearing' : ''}`} onClick={stage === 'tearing' ? () => setStage('reveal') : undefined}>
           <motion.div className="tear-enter" initial={reduce ? false : { scale: 0.9, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', bounce: 0, duration: 0.5 }}>
-            <TearPack key={round} pack={pack} auto={auto} reduce={!!reduce} rich={stage === 'tearing' && pulls.some((p) => tierIndex(pack, p.tier) >= pack.premiumFrom)} onTorn={commit} onDone={() => setStage((x) => (x === 'tearing' ? 'reveal' : x))} />
+            <TearPack key={round} pack={pack} auto={auto} reduce={!!reduce} flash={stage === 'tearing' ? Math.max(0, ...pulls.map((p) => flashLevel(pack, tierIndex(pack, p.tier)))) : 0} onTorn={commit} onDone={() => setStage((x) => (x === 'tearing' ? 'reveal' : x))} />
           </motion.div>
           <p className="stage-note">
             {stage === 'tearing'
@@ -161,7 +162,8 @@ export function Opening({ packId, quick }: { packId: PackId; quick: boolean }) {
               ))}
             </div>
             {/* Light from behind the card, keyed per card so it plays once as the face turns up. */}
-            {flipped && level >= 2 && <div key={`light-${idx}`} className={`reveal-light lv-${level}`} aria-hidden="true" />}
+            {flipped && flash > 0 && <div key={`light-${idx}`} className={`reveal-light fl-${flash}`} aria-hidden="true" />}
+            {flipped && flash > 0 && !reduce && <Glints key={`glints-${idx}`} n={flash > 1 ? 10 : 6} className="reveal-glints" />}
             <AnimatePresence mode="popLayout">
               {/* Next card: the old one winds up and flies off on top while the new one slides out from the stack beneath. */}
               <motion.button

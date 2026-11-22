@@ -373,13 +373,25 @@
 }
 /* Light escaping through the torn seam (SEAM_V = 86% up). TearPack drives --open (how much of the seam is torn), --burst
    (the release as the strip comes free) and --lx (where along the seam the gap is). The plane overhangs the pack 40% each
-   side; its bottom 20% sits inside the pack so the glow starts within the mouth. A premium card inside sets --k. */
+   side; its bottom 20% sits inside the pack so the glow starts within the mouth. Every pack gets the restrained inner glow;
+   only a pack holding one of its top two tiers (fl-1, fl-2 for the very top) releases rays and glints. */
+.pack-light,
+.reveal-light {
+  --bc: 150 140 255; /* beam colour: pale indigo reads on porcelain, near-white on the dark ground */
+  /* Uneven beams over a 120deg fan, soft-edged so they read as shafts of light rather than a printed sunburst. */
+  --beams: transparent 0, rgb(var(--bc) / 0.35) 6deg, transparent 12deg 18deg, rgb(var(--bc) / 0.55) 23deg, transparent 30deg 33deg,
+    rgb(var(--bc) / 0.22) 36deg, transparent 40deg 44deg, rgb(var(--bc) / 0.8) 50deg, transparent 58deg, rgb(var(--bc) / 0.3) 62deg,
+    transparent 66deg 69deg, rgb(var(--bc) / 0.5) 74deg, transparent 81deg 86deg, rgb(var(--bc) / 0.28) 91deg, transparent 97deg 104deg,
+    rgb(var(--bc) / 0.18) 109deg, transparent 114deg 120deg;
+}
+:root[data-theme='dark'] :is(.pack-light, .reveal-light) {
+  --bc: 228 226 255;
+}
 .pack-light {
   --open: 0;
   --burst: 0;
   --lx: 50%;
-  --k: 1;
-  --ray: 1;
+  --k: 0;
   position: absolute;
   left: -40%;
   right: -40%;
@@ -387,12 +399,11 @@
   height: 100%;
   pointer-events: none; /* no z-index: the glow sits over the foil, the rays behind the rising cards and the flying strip */
 }
-.pack-light.is-rich {
-  --k: 1.5;
+.pack-light.fl-1 {
+  --k: 1;
 }
-/* Pale rays on the dark ground stand out far more than on porcelain, so they run softer there. */
-:root[data-theme='dark'] .pack-light {
-  --ray: 0.55;
+.pack-light.fl-2 {
+  --k: 1.35;
 }
 .pack-light::before,
 .pack-light::after {
@@ -400,32 +411,37 @@
   position: absolute;
   inset: 0;
 }
-/* A bright slit along the torn span (half-width 28% = the whole seam), under a softer indigo halo that lifts out of it. */
+/* A bright slit along the torn span (half-width 28% = the whole seam), under a halo with a long, gaussian-like falloff. */
 .pack-light::before {
   z-index: 4;
   background:
     radial-gradient(ellipse calc(2% + var(--open) * 27%) 1.4% at var(--lx) 80%, rgb(255 255 255 / 0.95), transparent),
     radial-gradient(
-    ellipse calc(5% + var(--open) * 15% + var(--burst) * 8% * var(--k)) calc(3% + var(--open) * 7% + var(--burst) * 7% * var(--k)) at var(--lx) 80%,
-    color-mix(in oklab, var(--accent) 20%, white),
-    color-mix(in oklab, var(--accent) 50%, transparent) 50%,
-    transparent
-  );
-  opacity: min(0.55 + var(--k) * 0.3, calc(var(--open) * 2 + var(--burst) * 0.3 * var(--k))); /* nothing while sealed */
+      ellipse calc(5% + var(--open) * 15% + var(--burst) * (3% + var(--k) * 9%)) calc(3% + var(--open) * 7% + var(--burst) * (2% + var(--k) * 9%)) at var(--lx) 80%,
+      color-mix(in oklab, var(--accent) 15%, white),
+      color-mix(in oklab, var(--accent) 45%, rgb(255 255 255 / 0.6)) 22%,
+      color-mix(in oklab, var(--accent) 30%, transparent) 50%,
+      color-mix(in oklab, var(--accent) 8%, transparent) 75%,
+      transparent
+    );
+  opacity: min(0.8 + var(--k) * 0.15, calc(var(--open) * 2 + var(--burst) * 0.3 * (1 + var(--k)))); /* nothing while sealed */
 }
+/* Shafts fanning up from the gap, fading with distance, drifting a degree or two like light through moving film. */
 .pack-light::after {
   bottom: 20%;
   z-index: 0;
-  background: repeating-conic-gradient(
-    from -3deg at var(--lx) 100%,
-    transparent 0,
-    color-mix(in oklab, var(--accent) 25%, rgb(255 255 255 / 0.7)) 1.5deg,
-    transparent 3.5deg 10deg
-  );
-  mask: radial-gradient(ellipse 28% 100% at var(--lx) 100%, #000 15%, transparent 85%);
-  opacity: calc(min(0.9, (var(--open) * 0.5 + var(--burst) * 0.5) * var(--k)) * var(--ray));
-  transform: scaleY(calc(0.3 + var(--open) * 0.2 + var(--burst) * 0.5));
+  background: conic-gradient(from -60deg at var(--lx) 100%, var(--beams), transparent 120deg);
+  mask: radial-gradient(ellipse 30% 100% at var(--lx) 100%, #000 8%, rgb(0 0 0 / 0.45) 45%, transparent 92%);
+  filter: blur(3px);
+  opacity: min(0.9, var(--burst) * 0.75 * var(--k));
+  transform: scaleY(calc(0.35 + var(--burst) * 0.65));
   transform-origin: var(--lx) 100%;
+  animation: drift 1.4s ease-in-out infinite alternate;
+}
+.seam-glints {
+  top: 2%; /* a band just above and below the seam, 14% down */
+  height: 16%;
+  z-index: 5;
 }
 @media (prefers-reduced-motion: reduce) {
   .pack-light {
@@ -504,49 +520,73 @@
 .tearing {
   cursor: pointer;
 }
-/* Reveal light, timed to the card's 0.6s flip: the face turns up about 100 ms in, so the light behind the card (rare and
-   up) and the sweep across its face (mid and up) peak there and are gone before the card settles. Plays once per card. */
+/* Reveal light, top two tiers only, timed to the card's 0.6s flip: the face turns up about 100 ms in, so the backlight
+   peaks there and is gone before the card settles. It sits behind the card, so only the spill past its edges shows:
+   a soft glow with a long falloff, uneven shafts and a few glints. Plays once per card. */
 .reveal-light {
   position: absolute; /* out of flow: it is larger than the card and must not size the zone's grid row */
   z-index: 0;
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  width: 125%; /* card-shaped, so the light spills evenly past every edge of the card in front of it */
+  width: 160%; /* card-shaped, so the light spills evenly past every edge of the card in front of it */
   aspect-ratio: 5 / 7;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95) 62%, color-mix(in oklab, var(--accent) 45%, transparent) 80%, transparent);
-  animation: bloom 0.7s 0.05s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 255 255 / 0.95),
+    rgb(255 255 255 / 0.8) 40%,
+    color-mix(in oklab, var(--accent) 22%, rgb(255 255 255 / 0.45)) 62%,
+    color-mix(in oklab, var(--accent) 8%, transparent) 82%,
+    transparent
+  );
+  animation: bloom 1.1s 0.05s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --bc: 185 180 255; /* the shafts behind a card run paler than the seam's, or they smear into purple on porcelain */
 }
-.reveal-light.lv-3,
-.reveal-light.lv-4 {
-  width: 150%;
-  animation-duration: 1.1s;
+.reveal-light.fl-2 {
+  width: 175%;
+  animation-duration: 1.3s;
+  background: radial-gradient(
+    closest-side,
+    #fff,
+    rgb(255 255 255 / 0.85) 40%,
+    color-mix(in oklab, var(--gold) 14%, rgb(255 255 255 / 0.5)) 60%,
+    color-mix(in oklab, var(--accent) 8%, transparent) 82%,
+    transparent
+  );
 }
-.reveal-light.lv-4 {
-  background: radial-gradient(closest-side, #fff 58%, color-mix(in oklab, var(--gold) 50%, transparent) 70%, color-mix(in oklab, var(--violet) 40%, transparent) 84%, transparent);
-}
-/* Premium: soft rays turning slowly behind the bloom. */
-.reveal-light.lv-3::before,
-.reveal-light.lv-4::before {
+.reveal-light::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  background: repeating-conic-gradient(rgb(255 255 255 / 0.45) 0 3deg, transparent 3deg 20deg);
-  mask: radial-gradient(closest-side, #000 50%, transparent);
-  animation: rays 1.1s linear both;
+  background: repeating-conic-gradient(from 12deg, var(--beams));
+  mask: radial-gradient(closest-side, #000 45%, rgb(0 0 0 / 0.3) 70%, transparent 92%);
+  filter: blur(1.5px);
+  animation: rays 1.3s ease-out both;
 }
-/* Top tier flourish: a single ring of light breaking outward from behind the card. */
-.reveal-light.lv-4::after {
-  content: '';
+.glints {
   position: absolute;
-  inset: 16%; /* starts at the card's own outline */
-  border-radius: inherit;
-  border: 2px solid color-mix(in oklab, var(--gold) 60%, #fff);
-  box-shadow: 0 0 18px color-mix(in oklab, var(--accent) 60%, transparent), inset 0 0 12px color-mix(in oklab, var(--violet) 40%, transparent);
-  animation: ring 0.8s 0.15s ease-out both;
+  inset: 0;
+  pointer-events: none;
+}
+.reveal-glints {
+  z-index: 3; /* over the card's edges, so the fragments look thrown off by the light */
+  inset: -10% -15%;
+}
+/* A four-point glint: a bright core with two tapering arms, haloed in the accent. */
+.glints i {
+  position: absolute;
+  width: calc(18px * var(--k));
+  aspect-ratio: 1;
+  margin: calc(-9px * var(--k));
+  background:
+    radial-gradient(closest-side, #fff 15%, transparent 45%),
+    linear-gradient(transparent 46%, #fff 50%, transparent 54%),
+    linear-gradient(90deg, transparent 46%, #fff 50%, transparent 54%);
+  mask: radial-gradient(closest-side, #000 20%, transparent);
+  filter: drop-shadow(0 0 3px color-mix(in oklab, var(--accent) 70%, transparent));
+  animation: glint 0.85s ease-out both;
 }
 /* The caption under the card stays above the light, so the tier name is never washed out. */
 .stage.reveal .stage-note {
@@ -579,30 +619,52 @@
 @keyframes bloom {
   0% {
     opacity: 0;
-    scale: 0.55;
+    scale: 0.7;
   }
-  20% {
+  22% {
     opacity: 1;
     scale: 1;
   }
   100% {
     opacity: 0;
-    scale: 1.15;
+    scale: 1.08;
   }
 }
 @keyframes rays {
-  to {
-    rotate: 40deg;
+  0% {
+    opacity: 0;
+    rotate: -4deg;
+  }
+  25% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    rotate: 6deg;
   }
 }
-@keyframes ring {
+@keyframes drift {
   from {
-    opacity: 0.9;
-    scale: 0.95;
+    rotate: -1.5deg;
   }
   to {
+    rotate: 1.5deg;
+  }
+}
+@keyframes glint {
+  0% {
     opacity: 0;
-    scale: 1.45;
+    scale: 0.2;
+  }
+  25% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 0.3;
+    rotate: 45deg;
+    translate: var(--dx) var(--dy);
   }
 }
 @keyframes sweep {
@@ -613,14 +675,13 @@
     background-position: -50% 0;
   }
 }
-/* Reduced motion: no flash, sweep or rays; rare and up get a steady soft halo for as long as the card is face up. */
+/* Reduced motion: no flash, sweep, rays or glints; the top two tiers get a steady soft halo while the card is face up. */
 @media (prefers-reduced-motion: reduce) {
   .reveal-light {
     animation: none;
     opacity: 0.35;
   }
   .reveal-light::before,
-  .reveal-light::after,
   .reveal-card.lit::after {
     display: none;
   }
