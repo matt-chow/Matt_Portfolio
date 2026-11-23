@@ -75,18 +75,21 @@ export function IndexPage() {
           <a className="icon-btn" href={profile.linkedin} aria-label="LinkedIn" data-tip="LinkedIn"><Icon name="linkedin" /></a>
           <a className="icon-btn" href={`mailto:${profile.email}`} aria-label={`Email ${profile.email}`} data-tip="Email"><Icon name="email" /></a>
         </p>
+      </header>
+      {/* The rail stays in view (side column, or a floating switch on narrow screens) so depth can change anywhere. */}
+      <div className="pf-rail">
+        <nav className="pf-toc pf-in" aria-label="On this page">
+          {shown.map(([id, title]) => (
+            // Routing lives in the hash, so section links scroll instead of navigating.
+            <a key={id} href="#/index" aria-current={active === id ? 'location' : undefined} onClick={(e) => (e.preventDefault(), scrollTo(id))}>{title}</a>
+          ))}
+        </nav>
         <fieldset className="seg pf-depth">
           <legend className="sr-only">How much detail</legend>
           <label><input type="radio" name="pf-depth" checked={!full} onChange={() => pickDepth(false)} /><span>Skim</span></label>
           <label><input type="radio" name="pf-depth" checked={full} onChange={() => pickDepth(true)} /><span>Full detail</span></label>
         </fieldset>
-      </header>
-      <nav className="pf-toc pf-in" aria-label="On this page">
-        {shown.map(([id, title]) => (
-          // Routing lives in the hash, so section links scroll instead of navigating.
-          <a key={id} href="#/index" aria-current={active === id ? 'location' : undefined} onClick={(e) => (e.preventDefault(), scrollTo(id))}>{title}</a>
-        ))}
-      </nav>
+        </div>
       {shown.map(([id, title, body], i) => (
         <section key={id} id={id} aria-labelledby={`${id}-h`} className="pf-section pf-in" style={{ '--i': i + 1 } as CSSProperties}>
           <h2 id={`${id}-h`}>{title}</h2>

@@ -1664,8 +1664,18 @@
 .pf-contact .primary {
   color: var(--accent);
 }
-.pf-depth {
-  margin-top: 1.2rem;
+/* Below the wide layout the depth switch floats bottom-right; the page pads so it never covers the end. */
+@media (max-width: 1179px) {
+  .pf-depth {
+    position: fixed;
+    z-index: 15;
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    box-shadow: var(--press), var(--raise-sm);
+  }
+  .profile {
+    padding-bottom: 5rem;
+  }
 }
 .pf-toc {
   display: flex;
@@ -1855,11 +1865,17 @@
 
 /* Contents beside the column on wide screens, with a marker on the current section. */
 @media (min-width: 1180px) {
-  .pf-toc {
+  .pf-rail {
     position: fixed;
     top: 8.5rem;
     left: max(16px, calc(50% - 23rem - 14rem));
     width: 12rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .pf-toc {
     flex-direction: column;
     border: 0;
     padding: 0;
