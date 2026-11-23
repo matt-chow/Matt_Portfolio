@@ -1664,6 +1664,9 @@
 .pf-contact .primary {
   color: var(--accent);
 }
+.pf-depth {
+  margin-top: 1.2rem;
+}
 .pf-toc {
   display: flex;
   gap: 0.2rem 1.4rem;
@@ -1789,6 +1792,39 @@
 }
 .pf-skills {
   margin: 0;
+}
+/* Skim: tighter rows, and projects two-up (kicker above title) where the page is wide enough. */
+.pf-skim .pf-entry {
+  padding: 1rem 0;
+}
+.pf-skim .pf-sub {
+  margin-bottom: 0.3rem;
+}
+.pf-skim .pf-entry p {
+  margin-bottom: 0;
+}
+@media (min-width: 900px) {
+  .pf-skim #projects {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2.5rem;
+  }
+  .pf-skim #projects h2 {
+    grid-column: 1 / -1;
+  }
+  .pf-skim #projects .pf-entry {
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: 1px solid var(--line);
+    align-content: start; /* rows stretch to the taller neighbour; keep the extra at the bottom */
+  }
+  .pf-skim #projects .pf-when {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .pf-skim #projects .pf-when span + span {
+    border-left: 1px solid var(--line);
+    padding-left: 0.5rem;
+  }
 }
 .pf-skills > div {
   display: grid;

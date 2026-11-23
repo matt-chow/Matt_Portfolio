@@ -4,22 +4,26 @@ import { useOpenDetail } from './App';
 import { Icon } from './Icons';
 
 const pick = (ids: string[]) => ids.map((id) => cardById.get(id)).filter((c): c is CardContent => !!c);
+const DEPTH = 'pf-depth';
+const saved = () => { try { return localStorage.getItem(DEPTH) === 'full'; } catch { return false; } };
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
 /** A recruiter-facing profile curated in `indexProfile`; every entry opens its card, and the binder keeps the rest. */
 export function IndexPage() {
+  const [full, setFull] = useState(saved);
+  const pickDepth = (f: boolean) => { setFull(f); try { localStorage.setItem(DEPTH, f ? 'full' : 'skim'); } catch { /* private mode: just this visit */ } };
   const skills = ix.skills.map((g) => ({ ...g, cards: pick(g.ids) })).filter((g) => g.cards.length);
   const research = pick(ix.research);
-  const education = pick([...ix.education, ...ix.leadership]);
+  const education = pick(ix.education);
   const sections: [string, string, ReactNode][] = [
-    ['experience', 'Experience', pick(ix.experience).map((c) => <Entry key={c.id} c={c} />)],
-    ['projects', 'Selected projects', pick(ix.projects).map((c) => <Entry key={c.id} c={c} />)],
+    ['experience', 'Experience', pick(ix.experience).map((c) => <Entry key={c.id} c={c} full={full} />)],
+    ['projects', 'Selected projects', pick(ix.projects).map((c) => <Entry key={c.id} c={c} full={full} />)],
     [
       'research',
       'Research & presentations',
       (research.length || ix.talks.length) && (
         <>
-          {research.map((c) => <Entry key={c.id} c={c} />)}
+          {research.map((c) => <Entry key={c.id} c={c} full={full} />)}
           {ix.talks.map((t) => <Entry key={t.title} c={{ ...cardById.get(t.card)!, title: t.title, subtitle: t.meta, kicker: 'Presentation', summary: '', details: undefined, tags: undefined, links: undefined }} />)}
         </>
       ),
@@ -53,12 +57,13 @@ export function IndexPage() {
         </>
       ),
     ],
+    ['leadership', 'Leadership', pick(ix.leadership).map((c) => <Entry key={c.id} c={c} full={full} />)],
   ];
   const shown = sections.filter(([, , body]) => (Array.isArray(body) ? body.length : body));
   const active = useActive(shown.map(([id]) => id));
 
   return (
-    <div className="page profile">
+    <div className={`page profile${full ? '' : ' pf-skim'}`}>
       <header className="pf-intro pf-in">
         <h1>{profile.name}</h1>
         <p className="pf-role">{cardById.get('profile')?.subtitle}</p>
@@ -70,6 +75,11 @@ export function IndexPage() {
           <a className="icon-btn" href={profile.linkedin} aria-label="LinkedIn" data-tip="LinkedIn"><Icon name="linkedin" /></a>
           <a className="icon-btn" href={`mailto:${profile.email}`} aria-label={`Email ${profile.email}`} data-tip="Email"><Icon name="email" /></a>
         </p>
+        <fieldset className="seg pf-depth">
+          <legend className="sr-only">How much detail</legend>
+          <label><input type="radio" name="pf-depth" checked={!full} onChange={() => pickDepth(false)} /><span>Skim</span></label>
+          <label><input type="radio" name="pf-depth" checked={full} onChange={() => pickDepth(true)} /><span>Full detail</span></label>
+        </fieldset>
       </header>
       <nav className="pf-toc pf-in" aria-label="On this page">
         {shown.map(([id, title]) => (
@@ -94,8 +104,8 @@ export function IndexPage() {
   );
 }
 
-/** One row: dates on the left, a title that opens the card, then details; `brief` keeps only the heading lines and links. */
-function Entry({ c, brief }: { c: CardContent; brief?: boolean }) {
+/** One row: dates on the left, a title that opens the card, then a one-line summary or, when `full`, the bullets and tags; `brief` keeps only the heading lines and links. */
+function Entry({ c, brief, full }: { c: CardContent; brief?: boolean; full?: boolean }) {
   const openDetail = useOpenDetail();
   return (
     <article className="pf-entry">
@@ -108,8 +118,8 @@ function Entry({ c, brief }: { c: CardContent; brief?: boolean }) {
           </button>
         </h3>
         {c.subtitle && <p className="pf-sub">{c.subtitle}</p>}
-        {brief ? null : c.details ? <ul>{c.details.map((d) => <li key={d}>{d}</li>)}</ul> : c.summary && <p>{c.summary}</p>}
-        {c.tags && <p className="pf-tags">{c.tags.join(' · ')}</p>}
+        {brief ? null : full && c.details ? <ul>{c.details.map((d) => <li key={d}>{d}</li>)}</ul> : c.summary && <p>{c.summary}</p>}
+        {full && c.tags && <p className="pf-tags">{c.tags.join(' · ')}</p>}
         {c.links && <p className="pf-links">{c.links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}</p>}
       </div>
     </article>

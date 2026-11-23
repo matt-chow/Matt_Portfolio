@@ -379,7 +379,7 @@ export const cardById = new Map(cards.map((c) => [c.id, c]));
 // opens its card; anything not listed (Career Foundations, Commissioned, prototypes, Personal) stays in the binder.
 export const indexProfile = {
   experience: ['infc', 'energy', 'tpa', 'uw-math', 'uw-analyst'],
-  projects: ['rvolleydata', 'ceblr', 'usportsr', 'printdnd', 'unifai'], // the "Selected Projects" of cv.tex (P)
+  projects: ['printdnd', 'rvolleydata', 'unifai', 'ceblr', 'usportsr'], // cv.tex (P) Selected Projects, strongest first (owner, 2026-11-22)
   research: ['peaks', 'cmsac', 'cassis'],
   // Research on cv.tex (P) without a card; `card` is the related card it opens.
   talks: [

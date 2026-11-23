@@ -87,10 +87,15 @@ describe('routing', () => {
     for (const id of [...listed, ...indexProfile.skills.flatMap((g) => g.ids), ...indexProfile.talks.map((t) => t.card)]) expect(cardById.has(id), id).toBe(true);
     nav('#/index');
     render(<App />);
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Experience', 'Selected projects', 'Research & presentations', 'Technical skills', 'Education']);
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Experience', 'Selected projects', 'Research & presentations', 'Technical skills', 'Education', 'Leadership']);
     for (const id of listed) expect(screen.getAllByRole('button', { name: (n) => n.startsWith(cardById.get(id)!.title) && n.endsWith(': open card') })).not.toHaveLength(0);
     for (const c of cards.filter((x) => x.subset === 'Career Foundations' || x.pack === 'personal' || x.pack === 'prototype')) expect(screen.queryByText(c.title)).toBeNull();
     for (const name of ['Résumé (PDF)', 'GitHub', 'LinkedIn', `Email ${profile.email}`]) expect(screen.getByRole('link', { name }).getAttribute('href')).toBeTruthy();
+    // Skim shows one-line summaries; Full detail brings back the bullets.
+    const bullet = cardById.get('tpa')!.details![0];
+    expect(screen.queryByText(bullet)).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Full detail' }));
+    expect(screen.getByText(bullet)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Toronto Parking Authority, Data Analyst: open card' }));
     expect(document.querySelector('dialog[open]')).toBeTruthy();
   });
