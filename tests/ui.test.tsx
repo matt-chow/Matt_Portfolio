@@ -45,7 +45,7 @@ describe('routing', () => {
     nav('#/');
     render(<App />);
     const links = screen.getByRole('navigation', { name: 'Links' });
-    const want: [RegExp, string][] = [[/Résumé/, profile.resume], [/^Email$/, `mailto:${profile.email}`], [/^GitHub$/, profile.github], [/^Index/, '#/index']];
+    const want: [RegExp, string][] = [[/Résumé/, profile.resume], [/^Email$/, `mailto:${profile.email}`], [/^GitHub/, profile.github], [/^Index/, '#/index']];
     for (const [name, href] of want) {
       const a = [...links.querySelectorAll('a')].find((x) => name.test(x.getAttribute('aria-label')!))!;
       expect(a.getAttribute('href')).toBe(href);
@@ -90,7 +90,8 @@ describe('routing', () => {
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Experience', 'Selected projects', 'Research & presentations', 'Technical skills', 'Education', 'Leadership']);
     for (const id of listed) expect(screen.getAllByRole('button', { name: (n) => n.startsWith(cardById.get(id)!.title) && n.endsWith(': open card') })).not.toHaveLength(0);
     for (const c of cards.filter((x) => x.subset === 'Career Foundations' || x.pack === 'personal' || x.pack === 'prototype')) expect(screen.queryByText(c.title)).toBeNull();
-    for (const name of ['Résumé (PDF)', 'GitHub', 'LinkedIn', `Email ${profile.email}`]) expect(screen.getByRole('link', { name }).getAttribute('href')).toBeTruthy();
+    for (const name of ['Résumé (PDF)', 'GitHub', 'LinkedIn']) expect(screen.getByRole('link', { name: `${name}, opens in a new tab` }).getAttribute('target')).toBe('_blank');
+    expect(screen.getByRole('link', { name: `Email ${profile.email}` }).getAttribute('href')).toBe(`mailto:${profile.email}`);
     // Skim shows one-line summaries; Full detail brings back the bullets.
     const bullet = cardById.get('tpa')!.details![0];
     expect(screen.queryByText(bullet)).toBeNull();

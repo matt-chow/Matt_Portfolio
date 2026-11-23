@@ -159,9 +159,9 @@ export function Home() {
           <p className="lede">{profile.tagline}</p>
           <p className="muted sub">{profile.sub}</p>
           <nav className="shortcuts" aria-label="Links">
-            <a className="icon-btn primary" href={profile.resume} aria-label="Résumé (PDF)" data-tip="Résumé"><Icon name="resume" /></a>
+            <a className="icon-btn primary" href={profile.resume} target="_blank" rel="noreferrer" aria-label="Résumé (PDF), opens in a new tab" data-tip="Résumé"><Icon name="resume" /></a>
             <a className="icon-btn" href={`mailto:${profile.email}`} aria-label="Email" data-tip="Email"><Icon name="email" /></a>
-            <a className="icon-btn" href={profile.github} aria-label="GitHub" data-tip="GitHub"><Icon name="github" /></a>
+            <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub, opens in a new tab" data-tip="GitHub"><Icon name="github" /></a>
             <a className="icon-btn" href="#/index" aria-label="Index: profile and experience" data-tip="Index"><Icon name="index" /></a>
           </nav>
         </section>

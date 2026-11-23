@@ -83,9 +83,9 @@ export function IndexPage() {
         <p className="lede">{profile.tagline}</p>
         <p className="muted">{profile.sub}</p>
         <p className="pf-contact">
-          <a className="icon-btn primary" href={profile.resume} aria-label="Résumé (PDF)" data-tip="Résumé"><Icon name="resume" /></a>
-          <a className="icon-btn" href={profile.github} aria-label="GitHub" data-tip="GitHub"><Icon name="github" /></a>
-          <a className="icon-btn" href={profile.linkedin} aria-label="LinkedIn" data-tip="LinkedIn"><Icon name="linkedin" /></a>
+          <a className="icon-btn primary" href={profile.resume} target="_blank" rel="noreferrer" aria-label="Résumé (PDF), opens in a new tab" data-tip="Résumé"><Icon name="resume" /></a>
+          <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub, opens in a new tab" data-tip="GitHub"><Icon name="github" /></a>
+          <a className="icon-btn" href={profile.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn, opens in a new tab" data-tip="LinkedIn"><Icon name="linkedin" /></a>
           <a className="icon-btn" href={`mailto:${profile.email}`} aria-label={`Email ${profile.email}`} data-tip="Email"><Icon name="email" /></a>
         </p>
       </header>
@@ -136,7 +136,7 @@ function Entry({ c, brief, full }: { c: CardContent; brief?: boolean; full?: boo
         {c.subtitle && <p className="pf-sub">{c.subtitle}</p>}
         {brief ? null : full && c.details ? <ul>{c.details.map((d) => <li key={d}>{d}</li>)}</ul> : c.summary && <p>{c.summary}</p>}
         {full && c.tags && <p className="pf-tags">{c.tags.join(' · ')}</p>}
-        {c.links && <p className="pf-links">{c.links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}</p>}
+        {c.links && <p className="pf-links">{c.links.map((l) => <a key={l.href} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>)}</p>}
       </div>
     </article>
   );
