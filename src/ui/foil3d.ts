@@ -93,8 +93,8 @@ export function crinkle() {
   return crinkleTex;
 }
 
-/** Metallised film under printed ink: tinted reflections, a lacquer coat, a faint rainbow, and bare silver on the inside. */
-export function foilMaterial(map: THREE.Texture, strength = 0.55) {
+/** Metallised film under printed ink: tinted reflections, a lacquer coat, a faint rainbow, and bare mirror silver on the inside (or everywhere when `bare`). */
+export function foilMaterial(map: THREE.Texture, strength = 0.55, bare = false) {
   const m = new THREE.MeshPhysicalMaterial({
     map,
     normalMap: crinkle(),
@@ -108,9 +108,14 @@ export function foilMaterial(map: THREE.Texture, strength = 0.55) {
     side: THREE.DoubleSide,
     transparent: true,
   });
+  const silver = bare ? 'true' : '!gl_FrontFacing';
   m.onBeforeCompile = (sh) => {
-    sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb = vec3(0.8, 0.81, 0.84);');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <map_fragment>', `#include <map_fragment>\nif (${silver}) diffuseColor.rgb = vec3(0.92, 0.93, 0.95);`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>\nif (${silver}) roughnessFactor = 0.14;`)
+      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>\nif (${silver}) metalnessFactor = 1.0;`);
   };
+  m.customProgramCacheKey = () => silver; // the two variants must not share a compiled program
   return m;
 }
 

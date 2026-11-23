@@ -81,7 +81,8 @@ export async function mountPack(canvas: HTMLCanvasElement, pack: PackDef): Promi
 
   const front = await paintFront(pack, pack.id !== 'starter');
   const back = paintBack(pack);
-  const mats = [foilMaterial(front), foilMaterial(back), foilMaterial(front), foilMaterial(back)];
+  // The strip's back sheet is bare silver: curled toward the viewer it reads as the wrapper's inside, not its back print.
+  const mats = [foilMaterial(front), foilMaterial(back), foilMaterial(front), foilMaterial(back, undefined, true)];
   mats.forEach((m) => (m.vertexColors = true));
   const seamV = seam(hash(pack.id), NX);
   const seamY = (i: number) => (seamV[i] - 0.5) * H;
