@@ -1,6 +1,6 @@
 import { act as rtlAct, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { cards, profile } from '../src/content/manifest';
+import { cardById, cards, indexProfile, profile } from '../src/content/manifest';
 import { App, parseRoute } from '../src/ui/App';
 import { act, getState } from '../src/store';
 import { initialState } from '../src/engine/state';
@@ -81,11 +81,18 @@ describe('routing', () => {
     }
   });
 
-  it('index shows every card with an empty collection (nothing gated)', () => {
+  it('index is a curated profile, ungated, whose entries open their cards; the rest stays in the collection', () => {
     expect(Object.keys(getState().discovered)).toHaveLength(0);
+    const listed = [...indexProfile.experience, ...indexProfile.projects, ...indexProfile.research, ...indexProfile.education, ...indexProfile.leadership];
+    for (const id of [...listed, ...indexProfile.skills.flatMap((g) => g.ids), ...indexProfile.talks.map((t) => t.card)]) expect(cardById.has(id), id).toBe(true);
     nav('#/index');
     render(<App />);
-    for (const c of cards) expect(screen.getAllByText(c.title).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(['Experience', 'Selected projects', 'Research & presentations', 'Technical skills', 'Education']);
+    for (const id of listed) expect(screen.getAllByRole('button', { name: (n) => n.startsWith(cardById.get(id)!.title) && n.endsWith(': open card') })).not.toHaveLength(0);
+    for (const c of cards.filter((x) => x.subset === 'Career Foundations' || x.pack === 'personal' || x.pack === 'prototype')) expect(screen.queryByText(c.title)).toBeNull();
+    for (const name of ['Résumé (PDF)', 'GitHub', 'LinkedIn', `Email ${profile.email}`]) expect(screen.getByRole('link', { name }).getAttribute('href')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Toronto Parking Authority, Data Analyst: open card' }));
+    expect(document.querySelector('dialog[open]')).toBeTruthy();
   });
 
   it('quick-opening Starter fills the binder with all seven cards plus 1–2 premium pulls', () => {

@@ -162,7 +162,7 @@ export function Home() {
             <a className="icon-btn primary" href={profile.resume} aria-label="Résumé (PDF)" data-tip="Résumé"><Icon name="resume" /></a>
             <a className="icon-btn" href={`mailto:${profile.email}`} aria-label="Email" data-tip="Email"><Icon name="email" /></a>
             <a className="icon-btn" href={profile.github} aria-label="GitHub" data-tip="GitHub"><Icon name="github" /></a>
-            <a className="icon-btn" href="#/index" aria-label="Index: everything on one page" data-tip="Index"><Icon name="index" /></a>
+            <a className="icon-btn" href="#/index" aria-label="Index: profile and experience" data-tip="Index"><Icon name="index" /></a>
           </nav>
         </section>
       </div>

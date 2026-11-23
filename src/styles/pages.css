@@ -1634,40 +1634,235 @@
   font: 800 4.5rem/1 var(--display);
 }
 
-/* ---------- Index ---------- */
-.index-page section {
-  margin-top: 2.5rem;
+/* ---------- Index: a quiet editorial profile. Text, rules and spacing; depth only on controls. ---------- */
+.profile {
+  max-width: 46rem;
+  padding-bottom: 4rem;
 }
-.toc {
+.pf-intro {
+  padding: clamp(1.5rem, 6vw, 4.5rem) 0 1.5rem;
+}
+.pf-intro h1 {
+  font-size: clamp(2.4rem, 4vw + 1rem, 3.6rem);
+  margin-bottom: 0.2em;
+}
+.pf-role {
+  font: 500 0.95rem/1.4 var(--mono);
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  margin-bottom: 1.4rem;
+}
+.pf-intro .lede {
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.pf-contact {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.6rem 0 0;
+}
+.pf-contact .primary {
+  color: var(--accent);
+}
+.pf-toc {
+  display: flex;
+  gap: 0.2rem 1.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0.9rem 3rem 0.9rem 0;
+  border-block: 1px solid var(--line);
+  font-size: 0.9rem;
+  mask-image: linear-gradient(90deg, #000 85%, transparent); /* more links scroll in from the right */
+}
+.pf-toc a {
+  flex: none;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 0.35rem 0;
+  transition: color 0.2s;
+}
+.pf-toc a:hover,
+.pf-toc a[aria-current] {
+  color: var(--accent);
+}
+.pf-section {
+  padding-top: clamp(2.5rem, 5vw, 3.5rem);
+  scroll-margin-top: 5rem;
+}
+.pf-section h2 {
+  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+  padding-bottom: 0.9rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+.pf-entry {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0 1.5rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.pf-entry:last-child {
+  border-bottom: 0;
+}
+.pf-when {
+  font: 400 0.82rem/1.5 var(--mono);
+  color: var(--ink-2);
+  padding-top: 0.2rem;
+  margin: 0;
+}
+.pf-when span {
+  display: block;
+}
+.pf-entry h3 {
+  margin: 0;
+  font-size: 1.12rem;
+  letter-spacing: -0.015em;
+}
+.pf-title {
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  border-radius: 4px;
+}
+.pf-title svg {
+  width: 0.85em;
+  height: 0.85em;
+  flex: none;
+  align-self: center;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.pf-title:hover,
+.pf-title:focus-visible {
+  color: var(--accent);
+}
+.pf-title:hover svg,
+.pf-title:focus-visible svg {
+  opacity: 1;
+  transform: none;
+}
+.pf-sub {
+  color: var(--ink-2);
+  margin: 0.15rem 0 0.6rem;
+}
+.pf-entry ul {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+}
+.pf-entry li {
+  margin-bottom: 0.35rem;
+  max-width: 68ch;
+}
+.pf-entry li::marker {
+  color: color-mix(in oklab, var(--accent) 60%, var(--ink-2));
+}
+.pf-tags {
+  font: 400 0.8rem/1.5 var(--mono);
+  color: var(--ink-2);
+  margin: 0.4rem 0 0;
+}
+.pf-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem 1.2rem;
-  margin: 1rem 0;
+  gap: 0.3rem 1rem;
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
 }
-.ix-list {
+.pf-skills {
   margin: 0;
+}
+.pf-skills > div {
   display: grid;
-  gap: 1.1rem;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
 }
-.ix-item {
-  padding: 1rem 1.2rem;
-  border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: var(--raise-sm);
+.pf-skills > div:last-child {
+  border-bottom: 0;
 }
-.ix-item dt {
-  margin-bottom: 0.35rem;
+.pf-skills dt {
+  font: 400 0.82rem/1.6 var(--mono);
+  color: var(--ink-2);
 }
-.ix-item dd {
+.pf-skills dd {
   margin: 0;
 }
-.ix-item ul {
-  padding-left: 1.2rem;
-  margin: 0 0 0.6rem;
+.pf-entry .pf-awards {
+  list-style: none;
+  padding: 0;
 }
-.todos li {
-  margin-bottom: 0.4rem;
-  max-width: 80ch;
+.pf-more {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+/* Contents beside the column on wide screens, with a marker on the current section. */
+@media (min-width: 1180px) {
+  .pf-toc {
+    position: fixed;
+    top: 8.5rem;
+    left: max(16px, calc(50% - 23rem - 14rem));
+    width: 12rem;
+    flex-direction: column;
+    border: 0;
+    padding: 0;
+    mask-image: none;
+  }
+  .pf-toc a {
+    padding: 0.3rem 0 0.3rem 0.9rem;
+    border-left: 2px solid var(--line);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .pf-toc a[aria-current] {
+    border-left-color: var(--accent);
+  }
+}
+@media (max-width: 640px) {
+  .pf-entry,
+  .pf-skills > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pf-when,
+  .pf-skills dt {
+    padding: 0 0 0.25rem;
+  }
+  .pf-section {
+    scroll-margin-top: 8rem; /* clears the two-row top bar */
+  }
+}
+
+/* Sections settle in once, a beat apart. */
+@media (prefers-reduced-motion: no-preference) {
+  .pf-in {
+    animation: pf-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i, 0) * 70ms) both;
+  }
+  @keyframes pf-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
 }
 
 @media (max-width: 760px) {

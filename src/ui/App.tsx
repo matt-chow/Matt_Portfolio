@@ -148,7 +148,7 @@ export function App() {
           {NAV.map((n) => {
             const icon = n.page === 'index'; // shown as an icon; still named for screen readers and in its tooltip
             return (
-              <a key={n.page} href={n.href} className={icon ? 'nav-pill nav-icon' : 'nav-pill'} aria-label={icon ? 'Index: everything on one page' : undefined} data-tip={icon ? n.label : undefined} aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
+              <a key={n.page} href={n.href} className={icon ? 'nav-pill nav-icon' : 'nav-pill'} aria-label={icon ? 'Index: profile and experience' : undefined} data-tip={icon ? n.label : undefined} aria-current={route.page === n.page ? 'page' : undefined} data-binder-target={n.page === 'collection' || undefined}>
                 {icon ? <Icon name="index" /> : n.label}
                 {n.page === 'collection' && owned > 0 && <span className="count">{owned}</span>}
               </a>
@@ -167,7 +167,7 @@ export function App() {
       <main id="main" tabIndex={-1}>{page}</main>
       <footer className="foot">
         <p>
-          © {new Date().getFullYear()} Matthew Chow. Original artwork, drawn in code or generated for this site. <a href="#/index">Everything on one page</a>.
+          © {new Date().getFullYear()} Matthew Chow. Original artwork, drawn in code or generated for this site. <a href="#/index">Profile and experience on one page</a>.
         </p>
       </footer>
       <Toasts />

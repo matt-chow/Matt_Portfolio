@@ -1,7 +1,8 @@
 // Single source of truth for every fact on the site.
 // Sources: CV = cv.tex in github.com/matt-chow/resume (Jun 2026), R = Resume_F26.pdf (Fall 2026, newer; wins on conflicts),
 // S = previous portfolio site (Matthew's own copy), G = public GitHub README/API,
-// A = docs/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07), O = owner instruction (2026-11-20).
+// A = docs/PORTFOLIO_CONTENT_AUDIT.md (verified 2026-11-07), O = owner instruction (2026-11-20, 2026-11-22),
+// P = planning/cv.tex supplied by the owner (2026-11-21).
 // Never add a claim without a source; put unknowns in contentTodos instead.
 
 export type PackId = 'starter' | 'experience' | 'highlights' | 'skills' | 'prototype' | 'personal';
@@ -85,8 +86,8 @@ const experience: CardContent[] = [
     tags: ['LayoutLMv3', 'Mistral', 'Document AI'],
   },
   {
-    id: 'energy', pack: 'experience', subset: 'Featured', title: 'Ministry of Energy', subtitle: 'Data Scientist',
-    kicker: 'May – Aug 2026 · Toronto', motif: 'bolt', hue: 48, source: 'R, CV',
+    id: 'energy', pack: 'experience', subset: 'Featured', title: 'Ministry of Energy and Mines', subtitle: 'Data Scientist',
+    kicker: 'May – Aug 2026 · Toronto', motif: 'bolt', hue: 48, source: 'R, CV, P, O',
     summary: 'A natural-language data assistant and smart-meter ETL.',
     details: [
       'Supported development of an internal Databricks Genie-based AI assistant through prompt engineering and UI development, enabling natural-language access to organizational datasets for analysts and policy teams.',
@@ -97,12 +98,13 @@ const experience: CardContent[] = [
   },
   {
     id: 'tpa', pack: 'experience', subset: 'Featured', title: 'Toronto Parking Authority', subtitle: 'Data Analyst',
-    kicker: 'Jan – Apr 2026 · Toronto', motif: 'ledger', hue: 140, source: 'R, CV, S',
+    kicker: 'Jan – Apr 2026 · Toronto', motif: 'ledger', hue: 140, source: 'R, CV, S, P',
     summary: 'Reconciling millions of financial records across databases.',
     details: [
       'Analyzed and reconciled 5 million+ transactional and financial records across multiple Azure-hosted databases, using CTE-based transformations, joins and window functions to validate cross-system consistency.',
       'Improved data quality by finding and resolving multiple upstream errors in the data warehouse through SQL-based auditing of financial and operational datasets (the organization reports $1.3B+ in annual revenue).',
       'Designed and maintained reusable SQL validation workflows that automate recurring data checks for reporting and monthly close.',
+      'Developed Microsoft Fabric and Power BI dashboard workflows with automated refresh to monitor financial KPIs and detect anomalies for director-level stakeholders.',
       'Contributed to the planned migration of the enterprise data warehouse from Azure SQL to Microsoft Fabric: validation strategy and semantic models.',
     ],
     tags: ['SQL', 'MSSQL', 'Azure SQL', 'Microsoft Fabric', 'Power BI'],
@@ -373,12 +375,40 @@ const personal: CardContent[] = [
 export const cards: CardContent[] = [...starter, ...experience, ...highlights, ...skills, ...prototype, ...personal];
 export const cardById = new Map(cards.map((c) => [c.id, c]));
 
-// Unverified or missing information. Shown on the Index page, never presented as fact.
+// The Index: a curated profile for Data Science, Applied AI, ML and research roles. Ids are cards, so every entry
+// opens its card; anything not listed (Career Foundations, Commissioned, prototypes, Personal) stays in the binder.
+export const indexProfile = {
+  experience: ['infc', 'energy', 'tpa', 'uw-math', 'uw-analyst'],
+  projects: ['rvolleydata', 'ceblr', 'usportsr', 'printdnd', 'unifai'], // the "Selected Projects" of cv.tex (P)
+  research: ['peaks', 'cmsac', 'cassis'],
+  // Research on cv.tex (P) without a card; `card` is the related card it opens.
+  talks: [
+    { title: 'A Tailored Comparison Between Students in Campus Housing and Students Off-Campus', meta: 'Chow M., Shalan H. · Oral presentation · 2024', card: 'uw-analyst', source: 'P' },
+  ],
+  skills: [
+    { label: 'Languages', ids: ['skill-r', 'skill-python', 'skill-sql', 'skill-ts'] },
+    { label: 'Data platforms', ids: ['skill-databricks', 'skill-pyspark', 'skill-delta', 'skill-fabric', 'skill-azuresql', 'skill-powerbi'] },
+    { label: 'Applied AI & statistics', ids: ['skill-docai', 'skill-prompt', 'skill-stats'] },
+    { label: 'Engineering', ids: ['skill-pkgdev', 'skill-scraping', 'skill-cicd', 'skill-git', 'skill-dataviz', 'skill-geopandas'] },
+  ],
+  education: ['uwaterloo'],
+  leadership: ['uwaggs'],
+  awards: [
+    { title: 'Arts Experiential Learning Award', year: '2024, 2025', source: 'P' },
+    { title: 'Lynne and Peter Woolstencroft Learning Award', year: '2024', source: 'P' },
+  ],
+};
+
+// Unverified or missing information. Never presented as fact; kept here for the owner, not shown on the site.
 export const contentTodos = [
-  'The current cv.tex has not been supplied. Used cv.tex from github.com/matt-chow/resume (Jun 2026) plus the newer Resume_F26.pdf. Supply the current cv.tex to re-check.',
-  'Toronto Parking Authority record count: cv.tex says 40 million+, Resume_F26.pdf says 5 million+. Showing 5 million+.',
+  'planning/cv.tex (2026-11-21) now agrees with Resume_F26.pdf on 5 million+ Toronto Parking Authority records.',
+  'Ministry name: cv.tex says "Ministry of Energy"; the owner asked for "Ministry of Energy and Mines" (2026-11-22). Using the owner\'s name.',
+  'Waterloo 2025 title: Resume_F26.pdf says "Data Engineer", cv.tex (2026-11-21) says "Data Science Researcher", the old site said "Data Scientist". Still using the résumé.',
+  'Campus Housing title: cv.tex (2026-11-21) says "Data Research Assistant"; the card says "Data Analyst" (older CV and site). Confirm which.',
+  'CMSAC: the content audit has a 2025 poster by Du, Chow, Awosoga; cv.tex (2026-11-21) lists an upcoming oral presentation by Chow, Du, Awosoga. Showing the audited poster.',
+  'Softron Tax dates: cv.tex says Jan – Apr 2024, the old site says 2023. The card keeps the site dates.',
+  'LensX and Mercor: named by the owner but no verified details are in this manifest. Supply role, dates and work to add them.',
   'LinkedIn (HTTP 999) and Devpost (HTTP 403) block automated reading, so neither was cross-checked.',
-  'Waterloo 2025 title: résumé says "Data Engineer", the old site said "Data Scientist". Using the résumé.',
   'Commissioned: dates and role come from the old site (Jan 2026 – Present). Confirm it is still current.',
   'Ask co-authors before embedding Peaks and primes data or volleydata charts.',
   'usportsR: confirm wording of your contribution and whether to mention its CRAN archival.',
@@ -387,5 +417,5 @@ export const contentTodos = [
   'Portrait: placeholder in use. Supply a portrait for the profile card.',
 ];
 
-const SOURCES: Record<string, string> = { CV: 'CV source (cv.tex)', O: 'owner', R: 'résumé', S: 'previous portfolio site', G: 'public GitHub', A: 'content audit' };
+const SOURCES: Record<string, string> = { CV: 'CV source (cv.tex)', P: 'CV source (cv.tex, Nov 2026)', O: 'owner', R: 'résumé', S: 'previous portfolio site', G: 'public GitHub', A: 'content audit' };
 export const sourceLabel = (src: string) => src.split(/,\s*/).map((k) => SOURCES[k] ?? k).join(', ');

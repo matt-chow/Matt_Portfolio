@@ -236,7 +236,7 @@ describe('achievements', () => {
     expect(s.achievements['all-packs']).toBeUndefined();
     for (const p of packs) s = openPack(s, p.id, seeded(14)).state;
     expect(s.achievements['all-packs']).toBeDefined();
-    // Every professional card is discovered after one tour; Personal is a random pool (and every card is on the Index page).
+    // Every professional card is discovered after one tour; Personal is a random pool (and every card still has a readable slot in the binder).
     for (const c of cards.filter((x) => x.pack !== 'personal')) expect(Object.keys(s.discovered).some((k) => k.startsWith(`${c.id}|`))).toBe(true);
   });
 });
