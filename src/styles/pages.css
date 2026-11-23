@@ -1664,6 +1664,9 @@
 .pf-contact .primary {
   color: var(--accent);
 }
+.profile {
+  overflow-anchor: none; /* IndexPage anchors the depth switch itself */
+}
 /* Below the wide layout the depth switch floats bottom-right; the page pads so it never covers the end. */
 @media (max-width: 1179px) {
   .pf-depth {

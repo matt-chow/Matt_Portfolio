@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { cardById, indexProfile as ix, profile, type CardContent } from '../content/manifest';
 import { useOpenDetail } from './App';
 import { Icon } from './Icons';
@@ -11,7 +11,20 @@ const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ b
 /** A recruiter-facing profile curated in `indexProfile`; every entry opens its card, and the binder keeps the rest. */
 export function IndexPage() {
   const [full, setFull] = useState(saved);
-  const pickDepth = (f: boolean) => { setFull(f); try { localStorage.setItem(DEPTH, f ? 'full' : 'skim'); } catch { /* private mode: just this visit */ } };
+  // Keep what the reader is looking at in place: note the first entry below the top bar, restore its position after the switch.
+  const anchor = useRef<[Element, number]>(undefined);
+  const pickDepth = (f: boolean) => {
+    const bar = document.querySelector('.topbar')?.getBoundingClientRect().bottom ?? 0;
+    const el = [...document.querySelectorAll('.pf-intro, .pf-section h2, .pf-entry')].find((e) => e.getBoundingClientRect().top >= bar);
+    anchor.current = el && [el, el.getBoundingClientRect().top];
+    setFull(f);
+    try { localStorage.setItem(DEPTH, f ? 'full' : 'skim'); } catch { /* private mode: just this visit */ }
+  };
+  useLayoutEffect(() => {
+    const a = anchor.current;
+    anchor.current = undefined;
+    if (a) window.scrollBy({ top: a[0].getBoundingClientRect().top - a[1], behavior: 'instant' });
+  }, [full]);
   const skills = ix.skills.map((g) => ({ ...g, cards: pick(g.ids) })).filter((g) => g.cards.length);
   const research = pick(ix.research);
   const education = pick(ix.education);
